@@ -1,0 +1,43 @@
+.card {
+  height: 100%;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  user-select: none;
+  :global(.editable) & {
+    cursor: move;
+  }
+}
+
+.blockContent {
+  display: flex;
+  flex-direction: column;
+  :global(.editable) & {
+    overflow-y: auto;
+  }
+}
+
+.linkBtn {
+  margin-top: 0.5rem;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+.linkGroup {
+  width: 100%;
+}
+
+.blockEdit {
+  cursor: pointer;
+}
+
+.addBth {
+  border: 1px dashed #ccc;
+  &:hover {
+    border: 1px dashed #ccc;
+  }
+}

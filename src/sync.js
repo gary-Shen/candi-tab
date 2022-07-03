@@ -1,0 +1,12 @@
+
+class Sync {
+  constructor() {
+
+  }
+
+  bootstrap() {
+
+  }
+
+  
+}

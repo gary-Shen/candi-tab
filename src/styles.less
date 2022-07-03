@@ -1,0 +1,45 @@
+@import './react-grid-layout.less';
+
+.spinner {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:global(#app) {
+  display: flex;
+  justify-content: center;
+}
+
+.main {
+  width: 1200px;
+  margin-top: 1rem;
+}
+
+.editBtn {
+  line-height: 100%;
+
+  button {
+    padding: 0 0.4rem;
+  }
+}
+
+:global {
+  .editable {
+    .react-grid-item > .react-resizable-handle {
+      display: block;
+    }
+  }
+}
+
+.blockActive {
+  z-index: 2;
+}
+
+.dropdown {
+  :global(.dropdown-toggle) {
+    display: flex;
+    align-items: center;
+  }
+}

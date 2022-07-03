@@ -1,0 +1,11 @@
+{
+  "name": "candi-tab-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "api/index.js",
+  "author": "Gary-shen",
+  "license": "MIT",
+  "dependencies": {
+    "node-fetch": "2"
+  }
+}

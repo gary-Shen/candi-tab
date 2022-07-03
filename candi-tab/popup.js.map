@@ -1,0 +1,1 @@
+{"version":3,"file":"popup.js","mappings":"mKAAAA,QAAQC,IAAI,W","sources":["webpack://candi-tab/./src/popup.js"],"sourcesContent":["console.log('Jaja2');"],"names":["console","log"],"sourceRoot":""}
