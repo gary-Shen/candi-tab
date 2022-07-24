@@ -9,7 +9,7 @@ function setToken(uuid, token) {
 }
 
 function getToken(uuid) {
-  mapping.get(uuid);
+  return mapping.get(uuid);
 }
 
 function removeToken(uuid) {
