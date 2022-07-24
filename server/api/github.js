@@ -1,10 +1,12 @@
 const fetch = require('node-fetch');
+
 const { createCodeHandler } = require('./utils');
+const { setToken } = require('./_token');
 
-module.exports = createCodeHandler(async (code) => {
-  const { CLIENT_ID, CLIENT_SECRET } = process.env
+module.exports = createCodeHandler(async (code, uuid) => {
+  const { CLIENT_ID, CLIENT_SECRET } = process.env;
 
-  console.log('fetching')
+  console.log('fetching');
 
   const res = await fetch('https://github.com/login/oauth/access_token', {
     headers: {
@@ -20,16 +22,16 @@ module.exports = createCodeHandler(async (code) => {
     }),
   });
 
-  const body = await res.json()
+  const body = await res.json();
 
-  const { access_token: accessToken, scope, error_description: errorDescription } = body
+  const { access_token: accessToken, scope, error_description: errorDescription } = body;
   if (errorDescription) {
-    throw new Error(errorDescription)
+    throw new Error(errorDescription);
   } else if (scope !== 'gist' || !accessToken || !(typeof accessToken === 'string')) {
-    console.log(JSON.stringify(body))
-    throw new Error(`Cannot resolve response from GitHub`)
+    console.log(JSON.stringify(body));
+    throw new Error(`Cannot resolve response from GitHub`);
   }
 
+  setToken(uuid, accessToken);
   return accessToken;
 });
-

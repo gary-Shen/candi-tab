@@ -71,8 +71,9 @@ export default function Header({ onEdit, editable }) {
   }, []);
 
   const handleFileOnload = useCallback((e) => {
-    if (this.files.length) {
-      const file = e.files.item(0);
+    const { files } = e.target;
+    if (files.length) {
+      const file = files.item(0);
       const reader = new FileReader();
       reader.readAsText(file);
       reader.onload = () => {
@@ -89,11 +90,9 @@ export default function Header({ onEdit, editable }) {
   }, []);
 
   const handleSaveImport = useCallback(() => {
-    updateSettings({
-      ...settings,
-      ...toImport,
-    });
-  }, [updateSettings, settings, toImport]);
+    updateSettings(toImport);
+    setImportVisible(false);
+  }, [updateSettings, toImport]);
 
   return (
     <>

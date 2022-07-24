@@ -4,7 +4,7 @@ import { update } from 'lodash/fp';
 import { save, load } from './settings';
 import { uuid } from '../utils';
 
-const defaultSettings = require('../homely.json');
+const defaultSettings = require('../default-settings.json');
 
 const setIds = update('links')((blocks) =>
   blocks.map((block) => {

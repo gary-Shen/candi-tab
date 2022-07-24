@@ -1,14 +1,16 @@
-import { Button, Form, ListGroup, Col, Row, Badge, Toast, ToastContainer, Card } from 'react-bootstrap';
+import { Button, Form, ListGroup, Col, Row, Badge, Toast, Alert, Card } from 'react-bootstrap';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { set, get, map } from 'lodash/fp';
 import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from 'react-query';
 import _ from 'lodash';
 import BarLoader from 'react-spinners/BarLoader';
+import { v4 as uuid4 } from 'uuid';
 
 import Modal from '../Modal';
 import styles from './index.less';
 import SettingsContext from '../../context/settings.context';
 import * as gistService from '../../service/gist';
+import * as candiService from '../../service/candi';
 import parseGistContent from '../../utils/parseGistContent';
 
 const spinner = (
@@ -17,8 +19,7 @@ const spinner = (
   </div>
 );
 
-const OAUTH_URL =
-  'https://github.com/login/oauth/authorize?scope=gist&client_id=9f776027a79806fc1363&redirect_uri=https://candi-tab.vercel.app/api/github';
+const OAUTH_URL = `https://github.com/login/oauth/authorize?scope=gist&client_id=9f776027a79806fc1363&redirect_uri=https://candi-tab.vercel.app/api/github?uuid=${uuid4()}`;
 
 export default function OAuth({ visible, onClose }) {
   const { settings, updateSettings, accessToken, updateAccessToken } = useContext(SettingsContext);
@@ -37,8 +38,23 @@ export default function OAuth({ visible, onClose }) {
     updateAccessToken(tokenValue);
   }, [tokenValue, updateAccessToken]);
 
+  /**
+   * 开始授权时，创建轮询，直到获取到token
+   */
+  const [isStartFetchToken, toggleStartFetchToken] = useState(false);
+  const handleOauthStart = useCallback(() => {
+    toggleStartFetchToken(true);
+  }, []);
+  const queryToken = useQuery('access-token', candiService.fetchToken, {
+    enabled: isStartFetchToken,
+    retry: 10,
+    onSuccess: (data) => {
+      toggleStartFetchToken(false);
+    },
+  });
+
   const createTokenNode = accessToken ? null : (
-    <Button variant="link" style={{ width: '100%' }} href={OAUTH_URL} target="_blank">
+    <Button variant="link" style={{ width: '100%' }} href={OAUTH_URL} onClick={handleOauthStart} target="_blank">
       Create Access Token with github OAuth
     </Button>
   );
@@ -138,6 +154,8 @@ export default function OAuth({ visible, onClose }) {
             }}
           >
             <Form.Group className="mb-3">{createTokenNode}</Form.Group>
+
+            {queryToken.isLoading && <Alert variant="primary">Waiting for github access token...</Alert>}
 
             <Form.Group className="mb-3">
               <Form.Control
