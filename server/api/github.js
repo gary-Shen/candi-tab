@@ -3,15 +3,12 @@ const { Redis } = require('@upstash/redis');
 
 const { createCodeHandler } = require('./utils');
 
-const { UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN } = process.env;
-
-const redis = new Redis({
-  url: UPSTASH_REDIS_REST_URL,
-  token: UPSTASH_REDIS_REST_TOKEN,
-});
-
 module.exports = createCodeHandler(async (code, uuid) => {
-  const { CLIENT_ID, CLIENT_SECRET } = process.env;
+  const { CLIENT_ID, CLIENT_SECRET, UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN } = process.env;
+  const redis = new Redis({
+    url: UPSTASH_REDIS_REST_URL,
+    token: UPSTASH_REDIS_REST_TOKEN,
+  });
 
   console.log('fetching');
 
@@ -40,7 +37,6 @@ module.exports = createCodeHandler(async (code, uuid) => {
   }
 
   await redis.set(uuid, accessToken);
-
-  console.log('Set redis success');
+  console.log('redis token', await redis.set(uuid));
   return accessToken;
 });
