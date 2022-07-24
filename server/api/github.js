@@ -39,6 +39,8 @@ module.exports = createCodeHandler(async (code, uuid) => {
     throw new Error(`Cannot resolve response from GitHub`);
   }
 
-  redis.set(uuid, accessToken);
+  await redis.set(uuid, accessToken);
+
+  console.log('Set redis success');
   return accessToken;
 });
