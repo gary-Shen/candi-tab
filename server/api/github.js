@@ -1,7 +1,15 @@
 const fetch = require('node-fetch');
+const { Redis } = '@upstash/redis';
 
 const { createCodeHandler } = require('./utils');
 const { setToken } = require('./_token');
+
+const { UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN } = process.env;
+
+const redis = new Redis({
+  url: UPSTASH_REDIS_REST_URL,
+  token: UPSTASH_REDIS_REST_TOKEN,
+});
 
 module.exports = createCodeHandler(async (code, uuid) => {
   const { CLIENT_ID, CLIENT_SECRET } = process.env;
@@ -32,6 +40,6 @@ module.exports = createCodeHandler(async (code, uuid) => {
     throw new Error(`Cannot resolve response from GitHub`);
   }
 
-  setToken(uuid, accessToken);
+  redis.set(uuid, accessToken);
   return accessToken;
 });

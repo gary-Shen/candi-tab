@@ -6,6 +6,7 @@
   "author": "Gary-shen",
   "license": "MIT",
   "dependencies": {
+    "@upstash/redis": "^1.10.1",
     "node-fetch": "2"
   }
 }
