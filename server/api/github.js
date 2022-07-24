@@ -1,8 +1,7 @@
 const fetch = require('node-fetch');
-const { Redis } = '@upstash/redis';
+const { Redis } = require('@upstash/redis');
 
 const { createCodeHandler } = require('./utils');
-const { setToken } = require('./_token');
 
 const { UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN } = process.env;
 

@@ -1,5 +1,4 @@
-const { getToken } = require('./_token');
-const { Redis } = '@upstash/redis';
+const { Redis } = require('@upstash/redis');
 
 const { UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN } = process.env;
 
@@ -8,14 +7,14 @@ const redis = new Redis({
   token: UPSTASH_REDIS_REST_TOKEN,
 });
 
-module.exports = function handler(req, res) {
+module.exports = async function handler(req, res) {
   const { uuid } = req.query;
 
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST');
   res.setHeader('Access-Control-Allow-Methods', 'GET');
 
-  const accessToken = redis.get(uuid);
+  const accessToken = await redis.get(uuid);
 
   console.log('uuid', uuid, accessToken);
 
