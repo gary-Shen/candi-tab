@@ -19,7 +19,9 @@ const spinner = (
   </div>
 );
 
-const OAUTH_URL = `https://github.com/login/oauth/authorize?scope=gist&client_id=9f776027a79806fc1363&redirect_uri=https://candi-tab.vercel.app/api/github?uuid=${uuid4()}`;
+const uuid = uuid4();
+
+const OAUTH_URL = `https://github.com/login/oauth/authorize?scope=gist&client_id=9f776027a79806fc1363&redirect_uri=https://candi-tab.vercel.app/api/github?uuid=${uuid}`;
 
 export default function OAuth({ visible, onClose }) {
   const { settings, updateSettings, accessToken, updateAccessToken } = useContext(SettingsContext);
@@ -45,7 +47,7 @@ export default function OAuth({ visible, onClose }) {
   const handleOauthStart = useCallback(() => {
     toggleStartFetchToken(true);
   }, []);
-  const queryToken = useQuery('access-token', candiService.fetchToken, {
+  const queryToken = useQuery(['access-token', uuid], candiService.fetchToken, {
     enabled: isStartFetchToken,
     retry: 10,
     onSuccess: (data) => {
