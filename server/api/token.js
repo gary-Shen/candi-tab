@@ -7,18 +7,15 @@ module.exports = function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'POST');
   res.setHeader('Access-Control-Allow-Methods', 'GET');
 
-  function loop() {
-    const accessToken = getToken(uuid);
+  const accessToken = getToken(uuid);
 
-    if (accessToken) {
-      res.write(accessToken);
-      res.setHeader('Content-Type', 'application/json');
-      res.write(JSON.stringify({ accessToken }));
-      res.end();
-    } else {
-      setTimeout(loop, 1000);
-    }
+  if (accessToken) {
+    res.write(accessToken);
+    res.setHeader('Content-Type', 'application/json');
+    res.write(JSON.stringify({ accessToken }));
+    res.end();
+  } else {
+    res.writeHead(500);
+    res.end({ error: `No access token found for ${uuid}` });
   }
-
-  loop();
 };
