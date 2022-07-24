@@ -5,7 +5,7 @@ function setToken(uuid, token) {
 
   setTimeout(() => {
     removeToken(uuid);
-  }, 6000);
+  }, 60000);
 }
 
 function getToken(uuid) {

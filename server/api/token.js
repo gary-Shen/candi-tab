@@ -9,6 +9,8 @@ module.exports = function handler(req, res) {
 
   const accessToken = getToken(uuid);
 
+  console.log('uuid', uuid, accessToken);
+
   if (accessToken) {
     res.write(accessToken);
     res.setHeader('Content-Type', 'application/json');
@@ -16,6 +18,6 @@ module.exports = function handler(req, res) {
     res.end();
   } else {
     res.writeHead(500);
-    res.end({ error: `No access token found for ${uuid}` });
+    res.end(`No access token found for ${uuid}`);
   }
 };
