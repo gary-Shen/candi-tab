@@ -39,11 +39,11 @@ export default function Modal({ visible, onClose, children }) {
 }
 
 Modal.Header = function ModalHeader({ children }) {
-  return <h3>{children}</h3>;
+  return <h3 style={{ overflowWrap: 'break-word' }}>{children}</h3>;
 };
 
-Modal.Body = function ModalBody({ children }) {
-  return <div>{children}</div>;
+Modal.Body = function ModalBody({ children, className }) {
+  return <div className={className}>{children}</div>;
 };
 
 const StyledFooter = styled.div`

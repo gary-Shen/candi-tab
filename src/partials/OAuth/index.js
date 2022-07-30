@@ -1,26 +1,34 @@
 import { Button, Form, ListGroup, Col, Row, Badge, Toast, Alert, Card } from 'react-bootstrap';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { set, get, map } from 'lodash/fp';
-import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from 'react-query';
+import styled from 'styled-components';
+import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import _ from 'lodash';
 import BarLoader from 'react-spinners/BarLoader';
 import { v4 as uuid4 } from 'uuid';
 
 import Modal from '../Modal';
-import styles from './index.less';
 import SettingsContext from '../../context/settings.context';
 import * as gistService from '../../service/gist';
 import * as candiService from '../../service/candi';
 import parseGistContent from '../../utils/parseGistContent';
+import StyledWrap from './OAuthStyle';
+
+const SpinnerStyle = styled.div`
+  width: 100%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
 
 const spinner = (
-  <div style={{ width: '100%', height: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+  <SpinnerStyle>
     <BarLoader />
-  </div>
+  </SpinnerStyle>
 );
 
 const uuid = uuid4();
-
 const OAUTH_URL = `https://github.com/login/oauth/authorize?scope=gist&client_id=9f776027a79806fc1363&redirect_uri=https://candi-tab.vercel.app/api/github?uuid=${uuid}`;
 
 export default function OAuth({ visible, onClose }) {
@@ -47,13 +55,13 @@ export default function OAuth({ visible, onClose }) {
   const handleOauthStart = useCallback(() => {
     toggleStartFetchToken(true);
   }, []);
-  const queryToken = useQuery(['access-token', uuid], candiService.fetchToken, {
-    enabled: isStartFetchToken,
-    retry: 10,
-    onSuccess: (data) => {
-      toggleStartFetchToken(false);
-    },
-  });
+  // const queryToken = useQuery(['access-token', uuid], candiService.fetchToken, {
+  //   enabled: isStartFetchToken,
+  //   retry: 10,
+  //   onSuccess: (data) => {
+  //     toggleStartFetchToken(false);
+  //   },
+  // });
 
   const createTokenNode = accessToken ? null : (
     <Button variant="link" style={{ width: '100%' }} href={OAUTH_URL} onClick={handleOauthStart} target="_blank">
@@ -69,45 +77,36 @@ export default function OAuth({ visible, onClose }) {
 
   const queryOne = useQuery(['gist', gistId.current], gistService.fetchOne, {
     initialData: settings.gist,
-    enabled: !!gistId.current,
+    enabled: !!gistId.current && !!accessToken,
+    initialData: null,
   });
-  const { data, isLoading } = queryOne;
 
   const handleClose = useCallback(() => {
     onClose();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, onClose, settings]);
+  }, [queryOne.data, onClose, settings]);
 
   const createMutation = useMutation(gistService.create, {
-    onSuccess: () => {
+    onSuccess: (...args) => {
       queryClient.invalidateQueries('gist');
-      console.log('Create success!');
+      toggleGistsModalVisible(true);
     },
+    enabled: !!accessToken,
   });
 
-  useEffect(() => {
-    if (createMutation.status === 'success') {
-      updateSettings({
-        ...settings,
-        gistId: _.get(createMutation, 'data.data.id'),
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [createMutation, settings]);
-
-  const filename = _.chain(data).get(`data.files`).keys().head().value();
+  const filename = _.chain(queryOne.data).get(`data.files`).keys().head().value();
 
   const gistNode = (
     <Form.Group className="mb-3">
-      {isLoading
+      {queryOne.isFetching
         ? spinner
-        : data && (
+        : !_.isEmpty(queryOne.data) && (
             <Card border="primary">
               <Card.Header>{filename}</Card.Header>
               <Card.Body>
-                {_.get(data, 'data.description')}
+                {_.get(queryOne.data, 'data.description')}
                 <br />
-                <Badge bg="secondary">@{_.get(data, 'data.created_at')}</Badge>
+                <Badge bg="secondary">@{_.get(queryOne.data, 'data.created_at')}</Badge>
               </Card.Body>
             </Card>
           )}
@@ -119,18 +118,20 @@ export default function OAuth({ visible, onClose }) {
   const handleOpenGists = useCallback(() => {
     toggleGistsModalVisible(true);
   }, [toggleGistsModalVisible]);
-  const queryList = useQuery('gists', gistService.fetchAll, {
-    enabled: gistsModalVisible,
+  const queryList = useQuery(['gists'], gistService.fetchAll, {
+    enabled: gistsModalVisible && !!accessToken,
+    cacheTime: 0,
+    initialData: [],
   });
   const handleSelectGist = useCallback((gist) => {
     gistId.current = gist.id;
     setGist(gist);
   }, []);
   const handleSaveGist = useCallback(() => {
-    if (data.data) {
+    if (queryOne.data?.data) {
       updateSettings({
         ...settings,
-        ...parseGistContent(data.data),
+        ...parseGistContent(queryOne.data.data),
         gistId: selectedGist.id,
       });
     } else {
@@ -141,23 +142,21 @@ export default function OAuth({ visible, onClose }) {
     }
 
     toggleGistsModalVisible(false);
-  }, [data?.data, selectedGist?.id, settings, updateSettings]);
+  }, [queryOne.data?.data, selectedGist?.id, settings, updateSettings]);
 
   return (
-    <>
+    <StyledWrap>
       <Modal visible={visible} onClose={handleClose}>
         <Modal.Header>Syncing with github gist</Modal.Header>
-        <Modal.Body className={styles.oauthModalContent}>
+        <Modal.Body className="oauth-modal-content">
           <Form
-            className={styles.form}
+            className="oauth-form"
             onSubmit={(e) => {
               e.preventDefault();
               return;
             }}
           >
             <Form.Group className="mb-3">{createTokenNode}</Form.Group>
-
-            {queryToken.isLoading && <Alert variant="primary">Waiting for github access token...</Alert>}
 
             <Form.Group className="mb-3">
               <Form.Control
@@ -176,17 +175,22 @@ export default function OAuth({ visible, onClose }) {
               />
             </Form.Group>
             {accessToken && gistNode}
-            {accessToken && !isLoading && (
+            {accessToken && !queryOne.isFetching && (
               <Form.Group className="mb-3" controlId="url">
                 <Row>
                   <Col>
-                    <Button style={{ width: '100%' }} variant="primary" onClick={handleCreateGist}>
+                    <Button
+                      style={{ width: '100%' }}
+                      disabled={createMutation.isFetching}
+                      variant="primary"
+                      onClick={handleCreateGist}
+                    >
                       Create a new gist
                     </Button>
                   </Col>
                   <Col>
                     <Button style={{ width: '100%' }} variant="secondary" onClick={handleOpenGists}>
-                      Select a existing gist.
+                      Select an existing gist.
                     </Button>
                   </Col>
                 </Row>
@@ -196,48 +200,50 @@ export default function OAuth({ visible, onClose }) {
         </Modal.Body>
       </Modal>
       <Modal visible={gistsModalVisible} onClose={() => toggleGistsModalVisible(false)}>
-        <Modal.Header>Select an existing gist from your gists</Modal.Header>
+        <Modal.Header>Select a gist from your gists</Modal.Header>
         <Modal.Body>
-          {queryList.isLoading && spinner}
-          <ListGroup style={{ margin: '16px 0' }}>
-            {_.chain(queryList)
-              .get('data.data')
-              .map((item) => (
-                <ListGroup.Item
-                  style={{ cursor: 'pointer' }}
-                  key={item.id}
-                  variant={settings.gistId === item.id ? 'primary' : null}
-                  onClick={() => handleSelectGist(item)}
-                  active={selectedGist && selectedGist.id === item.id}
-                >
-                  {item.description}
-                  <br />
-                  {_.chain(item.files)
-                    .keys()
-                    .map((filename) => (
-                      <>
-                        <Badge key={filename} bg="primary">
-                          {filename}
-                        </Badge>
-                        <br />
-                      </>
-                    ))
-                    .value()}
-                  <br />
-                  <Badge bg="secondary">@{item.created_at}</Badge> <Badge bg="info">@{item.updated_at}</Badge>
-                </ListGroup.Item>
-              ))
-              .value()}
-          </ListGroup>
+          {queryList.isFetching && spinner}
+          {!queryList.isFetching && (
+            <ListGroup style={{ margin: '16px 0' }}>
+              {_.chain(queryList)
+                .get('data.data')
+                .map((item) => (
+                  <ListGroup.Item
+                    style={{ cursor: 'pointer' }}
+                    key={item.id}
+                    variant={settings.gistId === item.id ? 'primary' : null}
+                    onClick={() => handleSelectGist(item)}
+                    active={selectedGist && selectedGist.id === item.id}
+                  >
+                    {item.description}
+                    <br />
+                    {_.chain(item.files)
+                      .keys()
+                      .map((filename) => (
+                        <>
+                          <Badge key={filename} bg="primary">
+                            {filename}
+                          </Badge>
+                          <br />
+                        </>
+                      ))
+                      .value()}
+                    <br />
+                    <Badge bg="secondary">@{item.created_at}</Badge> <Badge bg="info">@{item.updated_at}</Badge>
+                  </ListGroup.Item>
+                ))
+                .value()}
+            </ListGroup>
+          )}
         </Modal.Body>
         <Modal.Footer>
-          {!queryList.isLoading && (
+          {!queryList.isFetching && (
             <Button variant="primary" onClick={handleSaveGist}>
               Yes
             </Button>
           )}
         </Modal.Footer>
       </Modal>
-    </>
+    </StyledWrap>
   );
 }

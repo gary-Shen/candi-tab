@@ -1,1 +1,96 @@
-{"links":[{"buttons":[{"id":"_weuaa29z1","style":"danger","title":"YouTube","url":"https://youtube.com"},{"id":"_4o6pptssm","title":"Netflix","url":"https://www.netflix.com/","style":"dark"}],"id":"_t8o4ysnhk","layout":{"w":2,"h":11,"x":0,"y":0,"i":"_t8o4ysnhk","moved":false,"static":false},"title":"🎬 Entertainment"},{"id":"_jzwuivfrd","title":"🧑🏻‍💻 Frontend","buttons":[{"id":"_mwkmly5ra","title":"React","url":"https://reactjs.org/","style":"info"},{"id":"_ltku9wqpe","title":"Vue","url":"https://vuejs.org/index.html","style":"#10daa8"},{"id":"_zp6tye41z","title":"Solidjs","url":"https://www.solidjs.com/","style":"#299cf5"}],"layout":{"w":2,"h":14,"x":2,"y":0,"i":"_jzwuivfrd","moved":false,"static":false}},{"id":"_p4s35nmbx","title":"💅 Social","buttons":[{"id":"_hopedbjyk","title":"Facebook","url":"https://www.facebook.com/","style":"primary"},{"id":"_qzfgwsgdk","title":"Twitter","url":"https://twitter.com/","style":"info"}],"layout":{"w":2,"h":11,"x":4,"y":0,"i":"_p4s35nmbx","moved":false,"static":false}},{"id":"_3u8qt65k5","title":"🌎 Google","buttons":[{"id":"_5784f0b6z","title":"Chrome Web Store","url":"https://chrome.google.com/webstore/","style":"primary"},{"id":"_yki3mzizf","title":"Google Earth","url":"https://earth.google.com/","style":"dark"}],"layout":{"w":2,"h":11,"x":6,"y":0,"i":"_3u8qt65k5","moved":false,"static":false}},{"id":"_hxlaa363l","title":"📷 Photography","buttons":[{"id":"_jistzjo8e","title":"Flicker","url":"https://www.flickr.com/","style":"#bd009a"},{"id":"_7gnoy6usb","title":"unsplash","url":"https://unsplash.com/","style":"dark"}],"layout":{"w":2,"h":11,"x":8,"y":0,"i":"_hxlaa363l","moved":false,"static":false}},{"id":"_7ic54843l","title":"✏️ Productive","buttons":[{"id":"_q0qt4ckfc","title":"notion","url":"https://www.notion.so/","style":"dark"},{"id":"_nieinnkoa","title":"Draw.io","url":"https://app.diagrams.net/","style":"warning"}],"layout":{"w":2,"h":11,"x":10,"y":0,"i":"_7ic54843l","moved":false,"static":false}}],"createdAt":1656949974836,"gistId":"fcba97819488f611eae99f5cd18d8bd9","baskets":{"amazon-uk":false,"amazon-usa":false,"ebay":false,"steam":false},"bookmarks":{"above":false,"bookmarklets":true,"enable":false,"foldercontents":true,"merge":false,"split":false},"general":{"apps":false,"clock":{"seconds":true,"show":true,"twentyfour":true},"keyboard":false,"notepad":{"show":false},"proxy":false,"timer":{"beep":true,"countdown":false,"stopwatch":false},"weather":{"celsius":true,"location":"","show":false}},"history":{"enable":false,"limit":10},"notifs":{"facebook":{"enable":{"friends":false,"messages":false,"notifs":false}},"github":{"enable":false},"gmail":{"accounts":[],"enable":false},"linkedin":{"enable":{"invites":false,"messages":false,"notifs":false}},"outlook":{"enable":false},"reddit":{"enable":false},"steam":{"enable":{"comments":false,"gifts":false,"inventory":false,"invites":false,"messages":false}},"ticktick":{"due":false,"enable":false,"include":false},"twitter":{"enable":false}}}
+{
+  "links": [
+    {
+      "buttons": [
+        { "id": "_weuaa29z1", "style": "danger", "title": "YouTube", "url": "https://youtube.com" },
+        { "id": "_4o6pptssm", "title": "Netflix", "url": "https://www.netflix.com/", "style": "dark" }
+      ],
+      "id": "_t8o4ysnhk",
+      "layout": { "w": 2, "h": 11, "x": 0, "y": 0, "i": "_t8o4ysnhk", "moved": false, "static": false },
+      "title": "🎬 Entertainment"
+    },
+    {
+      "id": "_jzwuivfrd",
+      "title": "🧑🏻‍💻 Frontend",
+      "buttons": [
+        { "id": "_mwkmly5ra", "title": "React", "url": "https://reactjs.org/", "style": "info" },
+        { "id": "_ltku9wqpe", "title": "Vue", "url": "https://vuejs.org/index.html", "style": "#10daa8" },
+        { "id": "_zp6tye41z", "title": "Solidjs", "url": "https://www.solidjs.com/", "style": "#299cf5" }
+      ],
+      "layout": { "w": 2, "h": 14, "x": 2, "y": 0, "i": "_jzwuivfrd", "moved": false, "static": false }
+    },
+    {
+      "id": "_p4s35nmbx",
+      "title": "💅 Social",
+      "buttons": [
+        { "id": "_hopedbjyk", "title": "Facebook", "url": "https://www.facebook.com/", "style": "primary" },
+        { "id": "_qzfgwsgdk", "title": "Twitter", "url": "https://twitter.com/", "style": "info" }
+      ],
+      "layout": { "w": 2, "h": 11, "x": 4, "y": 0, "i": "_p4s35nmbx", "moved": false, "static": false }
+    },
+    {
+      "id": "_3u8qt65k5",
+      "title": "🌎 Google",
+      "buttons": [
+        {
+          "id": "_5784f0b6z",
+          "title": "Chrome Web Store",
+          "url": "https://chrome.google.com/webstore/",
+          "style": "primary"
+        },
+        { "id": "_yki3mzizf", "title": "Google Earth", "url": "https://earth.google.com/", "style": "dark" }
+      ],
+      "layout": { "w": 2, "h": 11, "x": 6, "y": 0, "i": "_3u8qt65k5", "moved": false, "static": false }
+    },
+    {
+      "id": "_hxlaa363l",
+      "title": "📷 Photography",
+      "buttons": [
+        { "id": "_jistzjo8e", "title": "Flicker", "url": "https://www.flickr.com/", "style": "#bd009a" },
+        { "id": "_7gnoy6usb", "title": "unsplash", "url": "https://unsplash.com/", "style": "dark" }
+      ],
+      "layout": { "w": 2, "h": 11, "x": 8, "y": 0, "i": "_hxlaa363l", "moved": false, "static": false }
+    },
+    {
+      "id": "_7ic54843l",
+      "title": "✏️ Productive",
+      "buttons": [
+        { "id": "_q0qt4ckfc", "title": "notion", "url": "https://www.notion.so/", "style": "dark" },
+        { "id": "_nieinnkoa", "title": "Draw.io", "url": "https://app.diagrams.net/", "style": "warning" }
+      ],
+      "layout": { "w": 2, "h": 11, "x": 10, "y": 0, "i": "_7ic54843l", "moved": false, "static": false }
+    }
+  ],
+  "baskets": { "amazon-uk": false, "amazon-usa": false, "ebay": false, "steam": false },
+  "bookmarks": {
+    "above": false,
+    "bookmarklets": true,
+    "enable": false,
+    "foldercontents": true,
+    "merge": false,
+    "split": false
+  },
+  "general": {
+    "apps": false,
+    "clock": { "seconds": true, "show": true, "twentyfour": true },
+    "keyboard": false,
+    "notepad": { "show": false },
+    "proxy": false,
+    "timer": { "beep": true, "countdown": false, "stopwatch": false },
+    "weather": { "celsius": true, "location": "", "show": false }
+  },
+  "history": { "enable": false, "limit": 10 },
+  "notifs": {
+    "facebook": { "enable": { "friends": false, "messages": false, "notifs": false } },
+    "github": { "enable": false },
+    "gmail": { "accounts": [], "enable": false },
+    "linkedin": { "enable": { "invites": false, "messages": false, "notifs": false } },
+    "outlook": { "enable": false },
+    "reddit": { "enable": false },
+    "steam": {
+      "enable": { "comments": false, "gifts": false, "inventory": false, "invites": false, "messages": false }
+    },
+    "ticktick": { "due": false, "enable": false, "include": false },
+    "twitter": { "enable": false }
+  }
+}

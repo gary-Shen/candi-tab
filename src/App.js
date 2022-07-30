@@ -3,25 +3,27 @@ import { hot } from 'react-hot-loader/root';
 import GridLayout from 'react-grid-layout';
 import classNames from 'classnames';
 import { Octokit } from '@octokit/rest';
-import { ReactQueryDevtools } from 'react-query/devtools';
-import { QueryClient, QueryClientProvider, useMutation, useQuery } from 'react-query';
-// Create a client
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { QueryClient, QueryClientProvider, useMutation, useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
+import { set } from 'lodash/fp';
 const queryClient = new QueryClient();
-import { Toast, ToastContainer } from 'react-bootstrap';
+import { Toast, ToastContainer, Button } from 'react-bootstrap';
 import styled from 'styled-components';
 import BarLoader from 'react-spinners/BarLoader';
 
 import useStorage from './hooks/useStorage';
 import Header from './partials/Header';
 import Block from './partials/Block';
-import styles from './styles.less';
 import useSettings from './hooks/useSettings';
-import bg from './assets/bg.png';
 import SettingsContext from './context/settings.context';
 import * as gistService from './service/gist';
 import { FILE_NAME, GIST_DESCRIPTION } from './constant';
 import parseGistContent from './utils/parseGistContent';
+import EditModal from './partials/Block/EditModal';
+import { uuid } from './utils';
+import GlobalStyle from './globalStyle';
+import AppStyle from './AppStyle';
 
 const Grid = styled(GridLayout)`
   margin: 48px 0;
@@ -35,7 +37,8 @@ function App() {
     .get('links')
     .map((item) => item.layout)
     .value();
-  // const [code, setCode] = useState('');
+  const [firstBlock, setFirstBlockData] = useState('');
+  const [fistBlockVisible, toggleFirstBlockVisible] = useState(false);
 
   const handleLayoutChange = useCallback(
     (layout) => {
@@ -70,9 +73,36 @@ function App() {
     setActiveBlockIndex(index);
   };
 
+  const handleCreateFirstBlock = useCallback(() => {
+    toggleEditable(true);
+    toggleFirstBlockVisible(true);
+    setFirstBlockData({
+      id: uuid(),
+      title: '',
+      buttons: [],
+      layout: {
+        w: 2,
+        h: 8,
+        x: 0,
+        y: 0,
+      },
+    });
+  }, []);
+
+  const handleSaveFirstBlock = useCallback(() => {
+    updateSettings(set(`links[0]`)(firstBlock)(settings));
+  }, [updateSettings, firstBlock, settings]);
+
+  const handleBlockChange = useCallback(
+    (field) => (value) => {
+      setFirstBlockData(set(field)(value)(firstBlock));
+    },
+    [firstBlock],
+  );
+
   if (!settings) {
     return (
-      <div className={styles.spinner}>
+      <div className="spinner">
         <BarLoader />
       </div>
     );
@@ -80,57 +110,73 @@ function App() {
 
   const links = settings.links.map((item, index) => {
     return (
-      <div
-        key={item.id}
-        data-grid={item.layout}
-        className={classNames(styles.linkBlock, {
-          [styles.blockActive]: activeBlockIndex === index,
-        })}
-      >
-        <Block
-          editable={editable}
-          settings={settings}
-          updateSettings={updateSettings}
-          block={item}
-          index={index}
-          onMenuClick={handleSetActiveBlockIndex}
-        />
+      <div key={item.id}>
+        <div
+          data-grid={item.layout}
+          className={classNames('block-wrap', {
+            blockActive: activeBlockIndex === index,
+          })}
+        >
+          <Block
+            editable={editable}
+            settings={settings}
+            updateSettings={updateSettings}
+            block={item}
+            index={index}
+            onMenuClick={handleSetActiveBlockIndex}
+          />
+        </div>
       </div>
     );
   });
 
   return (
-    <section
-      className={classNames(styles.main, {
+    <AppStyle
+      className={classNames('main', {
         editable,
       })}
     >
-      <style>
-        {`
-          body {
-            background-image: url('${bg}');
-            background-repeat: repeat;
-            background-attachment: fixed;
-            background-position: initial;
-          }
-          `}
-      </style>
       <Header onEdit={handleToggleEditable} editable={editable} />
-      <Grid
-        layout={layouts}
-        draggableHandle=".card-header"
-        isResizable={editable}
-        isDraggable={editable}
-        isDroppable={editable}
-        onLayoutChange={handleLayoutChange}
-        className="layout"
-        cols={12}
-        rowHeight={4}
-        width={1200}
-      >
-        {links}
-      </Grid>
-    </section>
+      {links.length ? (
+        <Grid
+          layout={layouts}
+          draggableHandle=".card-header"
+          isResizable={editable}
+          isDraggable={editable}
+          isDroppable={editable}
+          onLayoutChange={handleLayoutChange}
+          className="layout"
+          cols={12}
+          rowHeight={4}
+          width={1200}
+          margin={[0, 0]}
+          resizeHandles={['e', 'w']}
+        >
+          {links}
+        </Grid>
+      ) : (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '80vh',
+          }}
+        >
+          <Button size="lg" onClick={handleCreateFirstBlock}>
+            Create first block
+          </Button>
+          <EditModal
+            data={firstBlock}
+            onChange={handleBlockChange}
+            onSave={handleSaveFirstBlock}
+            type="block"
+            visible={fistBlockVisible}
+            onClose={() => toggleFirstBlockVisible(false)}
+          />
+        </div>
+      )}
+    </AppStyle>
   );
 }
 
@@ -138,6 +184,7 @@ function withOauth(Comp) {
   return function OauthWrapper(props) {
     const [accessToken, setAccessToken] = useStorage('accessToken');
     const [settings, updateSettings] = useSettings();
+    const gistId = _.get(settings, `gistId`);
 
     useEffect(() => {
       window.initialTime = new Date().getTime();
@@ -166,7 +213,9 @@ function withOauth(Comp) {
       }
     }, [accessToken]);
 
-    const updateMutation = useMutation(gistService.updateGist);
+    const updateMutation = useMutation(gistService.updateGist, {
+      enabled: !!gistId && !!accessToken,
+    });
     const [successToastVisible, toggleSuccessToastVisible] = useState(false);
     const [errorToastVisible, toggleErrorToastVisible] = useState(false);
     useEffect(() => {
@@ -180,16 +229,16 @@ function withOauth(Comp) {
       }
     }, [updateMutation.isError]);
 
-    const gistId = _.get(settings, `gistId`);
     const queryOne = useQuery(['gist', gistId], gistService.fetchOne, {
       enabled: !!gistId,
+      initialData: {},
     });
-    const { data, isLoading } = queryOne;
-    const settingsContent = parseGistContent(_.get(data, 'data'));
+
+    const settingsContent = parseGistContent(_.get(queryOne, 'data.data'));
 
     // 上传gist
     const handleUploadGist = useCallback(() => {
-      if (!settings) {
+      if (!settings || !_.get(settings, 'gistId')) {
         return;
       }
 
@@ -236,7 +285,7 @@ function withOauth(Comp) {
           style={{ color: '#fff', right: 10, bottom: 10 }}
           containerPosition="fixed"
         >
-          <Toast autohide style={toastStyle} show={updateMutation.isLoading || isLoading}>
+          <Toast autohide style={toastStyle} show={updateMutation.isLoading || queryOne.isLoading}>
             <Toast.Body>
               <BarLoader />
             </Toast.Body>
@@ -272,6 +321,7 @@ function withQuery(Component) {
   return function QueryWrapped(props) {
     return (
       <QueryClientProvider client={queryClient}>
+        <GlobalStyle />
         <Component {...props} />
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>

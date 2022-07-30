@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { update } from 'lodash/fp';
 
 import { save, load } from './settings';
@@ -51,7 +51,7 @@ export default function useSettings() {
     });
   }, []);
 
-  const updateSettings = (newSettings) => {
+  const updateSettings = useCallback((newSettings) => {
     const _value = {
       ...newSettings,
     };
@@ -60,7 +60,7 @@ export default function useSettings() {
       return _value;
     });
     save(_value);
-  };
+  }, []);
 
   return [settings, updateSettings];
 }

@@ -1,0 +1,2 @@
+(self.webpackChunkcandi_tab=self.webpackChunkcandi_tab||[]).push([[42],{7381:()=>{"undefined"!=typeof reactHotLoaderGlobal&&reactHotLoaderGlobal.default.signature,console.log("Jaja2")}},a=>{a(a.s=7381)}]);
+//# sourceMappingURL=popup.js.map

@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
-import { DragOutlined } from '@ant-design/icons'
+import { DragOutlined } from '@ant-design/icons';
 import upperFirst from 'lodash/upperFirst';
 import pick from 'lodash/pick';
 import get from 'lodash/get';
 import update from 'lodash/fp/update';
 import compose from 'lodash/fp/compose';
 import fpGet from 'lodash/fp/get';
-import { Button, Form, Tabs, Tab, ButtonGroup, Popover, InputGroup, OverlayTrigger, ToggleButton, ToggleButtonGroup } from 'react-bootstrap';
+import { Button, Form, Tabs, Tab, ButtonGroup, Popover, InputGroup, OverlayTrigger } from 'react-bootstrap';
 
 import { uuid } from '../../../utils';
 import { TYPES } from '../../../const';
 import IconText from '../../IconText';
 import Modal from '../../../partials/Modal';
-import styles from './index.less';
+import StyledBody from './ModalStyle';
 
 const StylePicker = ({ value, onChange, className, ...props }) => {
   const handleChangeStyle = (type) => {
@@ -21,13 +21,18 @@ const StylePicker = ({ value, onChange, className, ...props }) => {
       onChange(typeof type === 'object' ? type.target.value : type);
     }
   };
-  
+
   return (
     <div>
-      <Tabs className={classNames(styles.tab, className)} defaultActiveKey="preset" id="uncontrolled-tab-example" {...props}>
+      <Tabs
+        className={classNames('color-tab', className)}
+        defaultActiveKey="preset"
+        id="uncontrolled-tab-example"
+        {...props}
+      >
         <Tab eventKey="preset" title="Built-in">
           <ButtonGroup className="me-2" aria-label="Second group">
-            {TYPES.map(type => (
+            {TYPES.map((type) => (
               <Button key={type} variant={type} onClick={() => handleChangeStyle(type)} />
             ))}
           </ButtonGroup>
@@ -43,12 +48,12 @@ const StylePicker = ({ value, onChange, className, ...props }) => {
         </Tab>
       </Tabs>
     </div>
-  )
-}
+  );
+};
 
-const LinkForm = ({ data, onChange }) => {
+const LinkForm = ({ data, onChange, onClose, onSave }) => {
   const [isMenu, toggleIsMenu] = useState(!!data.menu);
-  const handleOnChange = field => (e) => {
+  const handleOnChange = (field) => (e) => {
     onChange(field)(e.target ? e.target.value : e);
   };
 
@@ -67,18 +72,27 @@ const LinkForm = ({ data, onChange }) => {
     onChange('menu')(
       compose(
         fpGet('menu'),
-        update('menu')(items => (items || []).concat([{ id: uuid(), title: 'untitled', url: '' }]))
-      )(data))
+        update('menu')((items) => (items || []).concat([{ id: uuid(), title: 'untitled', url: '' }])),
+      )(data),
+    );
   };
 
   const handleDeleteMenu = (id) => () => {
     onChange('menu')(
       compose(
         fpGet('menu'),
-        update('menu')(items => (items || []).filter(item => item.id !== id))
-      )(data)
-    )
-  }
+        update('menu')((items) => (items || []).filter((item) => item.id !== id)),
+      )(data),
+    );
+  };
+
+  const handleSubmit = useCallback(
+    (e) => {
+      e.preventDefault();
+      onSave();
+    },
+    [onSave],
+  );
 
   const popover = (
     <Popover>
@@ -88,12 +102,14 @@ const LinkForm = ({ data, onChange }) => {
     </Popover>
   );
 
-  const buttonStyle = TYPES.includes(data.style) ? {} : {
-    backgroundColor: data.style,
-  };
+  const buttonStyle = TYPES.includes(data.style)
+    ? {}
+    : {
+        backgroundColor: data.style,
+      };
 
   return (
-    <Form>
+    <Form onSubmit={handleSubmit}>
       <Form.Group className="mb-3" controlId="title">
         <Form.Label>Name</Form.Label>
         <Form.Control
@@ -106,22 +122,21 @@ const LinkForm = ({ data, onChange }) => {
       </Form.Group>
 
       <Form.Group className="mb-3" controlId="isMenu">
-        <Form.Check 
-          type="checkbox"
-          checked={isMenu}
-          onChange={handleToggleIsMenu}
-          label="Convert to Menu"
-        />
+        <Form.Check type="checkbox" checked={isMenu} onChange={handleToggleIsMenu} label="Convert to Menu" />
       </Form.Group>
-      
+
       {!isMenu && (
         <Form.Group className="mb-3" controlId="url">
           <Form.Label>Link</Form.Label>
           <InputGroup className="mb-3">
             <OverlayTrigger trigger="click" placement="bottom" overlay={popover}>
-              <Button variant={TYPES.includes(data.style) ? data.style : 'light'} className={styles.styleBtn} style={buttonStyle} />
+              <Button
+                variant={TYPES.includes(data.style) ? data.style : 'light'}
+                className="style-btn"
+                style={buttonStyle}
+              />
             </OverlayTrigger>
-            
+
             <Form.Control
               type="input"
               placeholder="Type link name here"
@@ -135,30 +150,21 @@ const LinkForm = ({ data, onChange }) => {
       {isMenu && (
         <Form.Group className="mb-3" controlId="url">
           <Form.Label>Links</Form.Label>
-          {
-            data.menu && data.menu.map((item, index) => (
+          {data.menu &&
+            data.menu.map((item, index) => (
               <InputGroup className="mb-3" key={item.id}>
-                <Button size="sm" variant="secondary" className={styles.moveLink} onClick={handleDeleteMenu(item.id)}>
+                <Button size="sm" variant="secondary" className="move-link" onClick={handleDeleteMenu(item.id)}>
                   <IconText text="">
                     <DragOutlined />
                   </IconText>
                 </Button>
-                <Form.Control
-                  type="input"
-                  onChange={handleOnChange(`menu[${index}].title`)}
-                  value={item.title}
-                />
-                <Form.Control
-                  type="input"
-                  onChange={handleOnChange(`menu[${index}].url`)}
-                  value={item.url}
-                />
+                <Form.Control type="input" onChange={handleOnChange(`menu[${index}].title`)} value={item.title} />
+                <Form.Control type="input" onChange={handleOnChange(`menu[${index}].url`)} value={item.url} />
                 <Button size="sm" variant="danger" onClick={handleDeleteMenu(item.id)}>
                   Delete
                 </Button>
               </InputGroup>
-            ))
-          }
+            ))}
           <div className="d-grid gap-2">
             <Button variant="primary" onClick={handleAddMenu} size="sm">
               Add link
@@ -166,10 +172,7 @@ const LinkForm = ({ data, onChange }) => {
           </div>
         </Form.Group>
       )}
-      <Form.Group
-        className="mb-3"
-        controlId="description"
-      >
+      <Form.Group className="mb-3" controlId="description">
         <Form.Label>Description</Form.Label>
         <Form.Control value={data.description} onChange={handleOnChange('description')} as="textarea" rows={3} />
       </Form.Group>
@@ -177,13 +180,21 @@ const LinkForm = ({ data, onChange }) => {
   );
 };
 
-const BlockForm = ({ data, onChange }) => {
-  const handleOnChange = field => (e) => {
+const BlockForm = ({ data, onChange, onClose, onSave }) => {
+  const handleOnChange = (field) => (e) => {
     onChange(field)(e.target.value);
   };
 
+  const handleSubmit = useCallback(
+    (e) => {
+      e.preventDefault();
+      onSave();
+    },
+    [onSave],
+  );
+
   return (
-    <Form>
+    <Form onSubmit={handleSubmit}>
       <Form.Group className="mb-3" controlId="title">
         <Form.Label>Title</Form.Label>
         <Form.Control
@@ -196,27 +207,27 @@ const BlockForm = ({ data, onChange }) => {
       </Form.Group>
     </Form>
   );
-} 
+};
 
 const FormSet = {
   Link: LinkForm,
   Block: BlockForm,
 };
 
-export default function EditModal({ data, type, onChange, ...props}) {
+export default function EditModal({ data, type, onChange, ...props }) {
   const EditForm = FormSet[upperFirst(type)];
   return (
-    <Modal
-      {...props}
-    >
-      <Modal.Header closeButton>
-        {data.title || 'untitled'}
-      </Modal.Header>
+    <Modal {...props} onClose={props.onClose}>
+      <Modal.Header closeButton>{data.title || 'untitled'}</Modal.Header>
       <Modal.Body>
-        <EditForm data={data} onChange={onChange} />
+        <StyledBody>
+          <EditForm data={data} onChange={onChange} onSave={props.onSave} onClose={props.onClose} />
+        </StyledBody>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={props.onClose}>Close</Button>
+        <Button variant="secondary" onClick={props.onClose}>
+          Close
+        </Button>
         <Button onClick={props.onSave}>Save</Button>
       </Modal.Footer>
     </Modal>

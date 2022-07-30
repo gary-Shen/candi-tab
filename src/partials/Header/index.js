@@ -4,6 +4,7 @@ import { BiEditAlt, BiCog, BiCheck, BiSync, BiImport, BiExport } from 'react-ico
 import '@reach/dialog/styles.css';
 import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button';
 import { Button, Form, ListGroup, Col, Row, Badge, Toast, ToastContainer, Card } from 'react-bootstrap';
+import { omit } from 'lodash/fp';
 
 import IconText from '../IconText';
 import OAuth from '../OAuth';
@@ -90,9 +91,13 @@ export default function Header({ onEdit, editable }) {
   }, []);
 
   const handleSaveImport = useCallback(() => {
-    updateSettings(toImport);
+    updateSettings({
+      ...omit(['gistId'])(toImport),
+      gistId: settings.gistId,
+      createdAt: Date.now(),
+    });
     setImportVisible(false);
-  }, [updateSettings, toImport]);
+  }, [updateSettings, toImport, settings]);
 
   return (
     <>
