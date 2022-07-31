@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
-import { DragOutlined } from '@ant-design/icons';
+import { BiTrash } from 'react-icons/bi';
 import upperFirst from 'lodash/upperFirst';
 import pick from 'lodash/pick';
 import get from 'lodash/get';
@@ -153,15 +153,15 @@ const LinkForm = ({ data, onChange, onClose, onSave }) => {
           {data.menu &&
             data.menu.map((item, index) => (
               <InputGroup className="mb-3" key={item.id}>
-                <Button size="sm" variant="secondary" className="move-link" onClick={handleDeleteMenu(item.id)}>
+                {/* <Button size="sm" variant="secondary" className="move-link">
                   <IconText text="">
                     <DragOutlined />
                   </IconText>
-                </Button>
+                </Button> */}
                 <Form.Control type="input" onChange={handleOnChange(`menu[${index}].title`)} value={item.title} />
                 <Form.Control type="input" onChange={handleOnChange(`menu[${index}].url`)} value={item.url} />
                 <Button size="sm" variant="danger" onClick={handleDeleteMenu(item.id)}>
-                  Delete
+                  <BiTrash />
                 </Button>
               </InputGroup>
             ))}

@@ -6,18 +6,44 @@
         { "id": "_4o6pptssm", "title": "Netflix", "url": "https://www.netflix.com/", "style": "dark" }
       ],
       "id": "_t8o4ysnhk",
-      "layout": { "w": 2, "h": 11, "x": 0, "y": 0, "i": "_t8o4ysnhk", "moved": false, "static": false },
+      "layout": { "w": 2, "h": 39.75, "x": 0, "y": 0, "i": "_t8o4ysnhk", "moved": false, "static": false },
       "title": "🎬 Entertainment"
     },
     {
       "id": "_jzwuivfrd",
-      "title": "🧑🏻‍💻 Frontend",
+      "title": "🧑🏻‍💻 Programming",
       "buttons": [
-        { "id": "_mwkmly5ra", "title": "React", "url": "https://reactjs.org/", "style": "info" },
-        { "id": "_ltku9wqpe", "title": "Vue", "url": "https://vuejs.org/index.html", "style": "#10daa8" },
-        { "id": "_zp6tye41z", "title": "Solidjs", "url": "https://www.solidjs.com/", "style": "#299cf5" }
+        {
+          "id": "_1f6ihof66",
+          "title": "Frontend",
+          "style": "success",
+          "menu": [
+            { "id": "_552lg2s06", "title": "React", "url": "https://reactjs.org/" },
+            { "id": "_661erjktr", "title": "Vue", "url": "https://vuejs.org/index.html" },
+            { "id": "_p87fhxkg0", "title": "SolidJS", "url": "https://www.solidjs.com/" }
+          ]
+        },
+        {
+          "id": "_oswcu3gq4",
+          "title": "Backend",
+          "url": "https://go.dev/",
+          "style": "primary",
+          "menu": [
+            { "id": "_rsz9bxcrz", "title": "GoLang", "url": "https://go.dev/" },
+            { "id": "_uvpwo2l72", "title": "Python", "url": "https://www.python.org/" }
+          ]
+        },
+        {
+          "id": "_y5419kzsl",
+          "title": "Database",
+          "style": "warning",
+          "menu": [
+            { "id": "_kcsgxdo5j", "title": "MySQL", "url": "https://www.mysql.com/cn/" },
+            { "id": "_wwk9tgvs5", "title": "MongoDB", "url": "https://www.mongodb.com/" }
+          ]
+        }
       ],
-      "layout": { "w": 2, "h": 14, "x": 2, "y": 0, "i": "_jzwuivfrd", "moved": false, "static": false }
+      "layout": { "w": 2, "h": 49.5, "x": 2, "y": 0, "i": "_jzwuivfrd", "moved": false, "static": false }
     },
     {
       "id": "_p4s35nmbx",
@@ -26,7 +52,7 @@
         { "id": "_hopedbjyk", "title": "Facebook", "url": "https://www.facebook.com/", "style": "primary" },
         { "id": "_qzfgwsgdk", "title": "Twitter", "url": "https://twitter.com/", "style": "info" }
       ],
-      "layout": { "w": 2, "h": 11, "x": 4, "y": 0, "i": "_p4s35nmbx", "moved": false, "static": false }
+      "layout": { "w": 2, "h": 39.75, "x": 8, "y": 0, "i": "_p4s35nmbx", "moved": false, "static": false }
     },
     {
       "id": "_3u8qt65k5",
@@ -38,59 +64,28 @@
           "url": "https://chrome.google.com/webstore/",
           "style": "primary"
         },
-        { "id": "_yki3mzizf", "title": "Google Earth", "url": "https://earth.google.com/", "style": "dark" }
+        { "id": "_yki3mzizf", "title": "Google Earth", "url": "https://earth.google.com/", "style": "secondary" }
       ],
-      "layout": { "w": 2, "h": 11, "x": 6, "y": 0, "i": "_3u8qt65k5", "moved": false, "static": false }
+      "layout": { "w": 2, "h": 39.75, "x": 6, "y": 0, "i": "_3u8qt65k5", "moved": false, "static": false }
     },
     {
       "id": "_hxlaa363l",
       "title": "📷 Photography",
       "buttons": [
-        { "id": "_jistzjo8e", "title": "Flicker", "url": "https://www.flickr.com/", "style": "#bd009a" },
-        { "id": "_7gnoy6usb", "title": "unsplash", "url": "https://unsplash.com/", "style": "dark" }
+        { "id": "_jistzjo8e", "title": "Flickr", "url": "https://www.flickr.com/", "style": "#bd009a" },
+        { "id": "_7gnoy6usb", "title": "Unsplash", "url": "https://unsplash.com/", "style": "dark" }
       ],
-      "layout": { "w": 2, "h": 11, "x": 8, "y": 0, "i": "_hxlaa363l", "moved": false, "static": false }
+      "layout": { "w": 2, "h": 39.75, "x": 4, "y": 0, "i": "_hxlaa363l", "moved": false, "static": false }
     },
     {
       "id": "_7ic54843l",
       "title": "✏️ Productive",
       "buttons": [
-        { "id": "_q0qt4ckfc", "title": "notion", "url": "https://www.notion.so/", "style": "dark" },
+        { "id": "_q0qt4ckfc", "title": "Notion", "url": "https://www.notion.so/", "style": "dark" },
         { "id": "_nieinnkoa", "title": "Draw.io", "url": "https://app.diagrams.net/", "style": "warning" }
       ],
-      "layout": { "w": 2, "h": 11, "x": 10, "y": 0, "i": "_7ic54843l", "moved": false, "static": false }
+      "layout": { "w": 2, "h": 39.75, "x": 10, "y": 0, "i": "_7ic54843l", "moved": false, "static": false }
     }
   ],
-  "baskets": { "amazon-uk": false, "amazon-usa": false, "ebay": false, "steam": false },
-  "bookmarks": {
-    "above": false,
-    "bookmarklets": true,
-    "enable": false,
-    "foldercontents": true,
-    "merge": false,
-    "split": false
-  },
-  "general": {
-    "apps": false,
-    "clock": { "seconds": true, "show": true, "twentyfour": true },
-    "keyboard": false,
-    "notepad": { "show": false },
-    "proxy": false,
-    "timer": { "beep": true, "countdown": false, "stopwatch": false },
-    "weather": { "celsius": true, "location": "", "show": false }
-  },
-  "history": { "enable": false, "limit": 10 },
-  "notifs": {
-    "facebook": { "enable": { "friends": false, "messages": false, "notifs": false } },
-    "github": { "enable": false },
-    "gmail": { "accounts": [], "enable": false },
-    "linkedin": { "enable": { "invites": false, "messages": false, "notifs": false } },
-    "outlook": { "enable": false },
-    "reddit": { "enable": false },
-    "steam": {
-      "enable": { "comments": false, "gifts": false, "inventory": false, "invites": false, "messages": false }
-    },
-    "ticktick": { "due": false, "enable": false, "include": false },
-    "twitter": { "enable": false }
-  }
+  "createdAt": 1659237895796
 }

@@ -28,13 +28,13 @@ export function fetchOne({ queryKey }) {
   });
 }
 
-export function create(payload) {
-  octokit.rest.gists.create({
+export function create({ gist, settings }) {
+  return octokit.rest.gists.create({
     public: false,
-    description: 'A gist for settings syncing of candi-tab chrome extension',
+    description: gist.description,
     files: {
-      'candi_tab_settings.json': {
-        content: JSON.stringify(payload),
+      [`${gist.fileName}.json`]: {
+        content: JSON.stringify(settings),
       },
     },
   });

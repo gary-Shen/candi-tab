@@ -1,9 +1,8 @@
 import _ from 'lodash';
 
-import { FILE_NAME } from '../constant';
-
 export default function (data) {
-  const content = _.get(data, ['files', FILE_NAME, 'content']);
+  const fileName = _.chain(data).get('files').keys().first().value();
+  const content = _.get(data, ['files', fileName, 'content']);
   let result;
   try {
     result = JSON.parse(content);

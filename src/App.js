@@ -235,6 +235,8 @@ function withOauth(Comp) {
     });
 
     const settingsContent = parseGistContent(_.get(queryOne, 'data.data'));
+    const fileName = _.chain(queryOne).get('data.data.files').keys().first().value();
+    const description = _.get(queryOne, 'data.data.description');
 
     // 上传gist
     const handleUploadGist = useCallback(() => {
@@ -249,14 +251,14 @@ function withOauth(Comp) {
       updateMutation.mutate({
         gist_id: _.get(settings, 'gistId'),
         public: false,
-        description: GIST_DESCRIPTION,
+        description: description,
         files: {
-          [FILE_NAME]: {
+          [fileName]: {
             content: JSON.stringify(settings),
           },
         },
       });
-    }, [settings, settingsContent, updateMutation]);
+    }, [fileName, description, settings, settingsContent, updateMutation]);
 
     useEffect(() => {
       if (queryOne.status === 'success' && settingsContent?.createdAt > settings?.createdAt) {

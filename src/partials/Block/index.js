@@ -339,8 +339,6 @@ export default function Block({ block, onMenuClick, settings, updateSettings, in
                   color: isDark ? '#fff' : '#000',
                 };
 
-            buttonTitle === '本地Plex' && console.log('rgb', buttonTitle, isDark, style);
-
             if (menu) {
               const linkItem = (
                 <Dropdown align="start" className="link-btn" onClick={() => onMenuClick(index)}>

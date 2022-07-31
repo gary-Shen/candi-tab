@@ -1,4 +1,16 @@
-import { Button, Form, ListGroup, Col, Row, Badge, Toast, Alert, Card } from 'react-bootstrap';
+import {
+  Button,
+  Form,
+  ListGroup,
+  Col,
+  Row,
+  Badge,
+  Dropdown,
+  ButtonGroup,
+  DropdownButton,
+  Card,
+  InputGroup,
+} from 'react-bootstrap';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { set, get, map } from 'lodash/fp';
 import styled from 'styled-components';
@@ -6,6 +18,7 @@ import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider
 import _ from 'lodash';
 import BarLoader from 'react-spinners/BarLoader';
 import { v4 as uuid4 } from 'uuid';
+import dayjs from 'dayjs';
 
 import Modal from '../Modal';
 import SettingsContext from '../../context/settings.context';
@@ -69,15 +82,14 @@ export default function OAuth({ visible, onClose }) {
     </Button>
   );
 
-  const handleCreateGist = useCallback(() => {
-    createMutation.mutate(settings);
-  }, [createMutation, settings]);
+  /** ========================== 选中gist ========================== */
 
-  const gistId = useRef(_.get(settings, `gistId`));
+  const gistId = _.get(settings, `gistId`);
 
-  const queryOne = useQuery(['gist', gistId.current], gistService.fetchOne, {
+  const [selectedGist, setGist] = useState(null);
+  const queryOne = useQuery(['gist', selectedGist?.id || gistId], gistService.fetchOne, {
     initialData: settings.gist,
-    enabled: !!gistId.current && !!accessToken,
+    enabled: !!(selectedGist?.id || gistId) && !!accessToken,
     initialData: null,
   });
 
@@ -86,15 +98,76 @@ export default function OAuth({ visible, onClose }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryOne.data, onClose, settings]);
 
+  const filename = _.chain(queryOne.data).get(`data.files`).keys().head().value();
+  const [gistsModalVisible, toggleGistsModalVisible] = useState(false);
+
+  const handleOpenGists = useCallback(() => {
+    toggleGistsModalVisible(true);
+  }, [toggleGistsModalVisible]);
+  const queryList = useQuery(['gists'], gistService.fetchAll, {
+    enabled: gistsModalVisible && !!accessToken,
+    cacheTime: 0,
+    initialData: [],
+  });
+  const handleSelectGist = useCallback((gist) => {
+    setGist(gist);
+  }, []);
+  const handleSaveGist = useCallback(() => {
+    if (queryOne.data?.data) {
+      updateSettings({
+        ...settings,
+        ...parseGistContent(queryOne.data.data),
+        gistId: selectedGist.id,
+      });
+    }
+
+    toggleGistsModalVisible(false);
+  }, [queryOne.data?.data, selectedGist?.id, settings, updateSettings]);
+
+  /** ========================== 选中gist ========================== */
+
+  /** ========================== 创建gist ========================== */
   const createMutation = useMutation(gistService.create, {
-    onSuccess: (...args) => {
-      queryClient.invalidateQueries('gist');
-      toggleGistsModalVisible(true);
+    onSuccess: (response) => {
+      toggleCreateGistModalVisible(false);
+      setGist(response.data);
+      updateSettings({
+        ...settings,
+        gistId: response.data.id,
+      });
+      setTimeout(() => {
+        queryClient.invalidateQueries('gist');
+      });
     },
     enabled: !!accessToken,
   });
-
-  const filename = _.chain(queryOne.data).get(`data.files`).keys().head().value();
+  const [createGistModalVisible, toggleCreateGistModalVisible] = useState(false);
+  const [gistForm, setGistForm] = useState({
+    description: 'A gist for settings syncing of candi-tab chrome extension',
+    fileName: 'candi_tab_settings',
+  });
+  const handleCloseCreateModal = useCallback(() => {
+    toggleCreateGistModalVisible(false);
+  }, []);
+  const handleCreateGist = useCallback(() => {
+    toggleCreateGistModalVisible(true);
+  }, []);
+  const handleGistChange = useCallback(
+    (field) => (e) => {
+      setGistForm({
+        ...gistForm,
+        [field]: e.target.value,
+      });
+    },
+    [gistForm],
+  );
+  const handleSaveCreateGist = useCallback(() => {
+    createMutation.mutate({
+      gist: gistForm,
+      settings,
+    });
+  }, [createMutation, gistForm, settings]);
+  /** ========================== 创建gist ========================== */
 
   const gistNode = (
     <Form.Group className="mb-3">
@@ -106,43 +179,14 @@ export default function OAuth({ visible, onClose }) {
               <Card.Body>
                 {_.get(queryOne.data, 'data.description')}
                 <br />
-                <Badge bg="secondary">@{_.get(queryOne.data, 'data.created_at')}</Badge>
+                <Badge bg="light" text="dark">
+                  @{dayjs(_.get(queryOne.data, 'data.created_at')).format('YYYY-MM-DD HH:mm:ss')}
+                </Badge>
               </Card.Body>
             </Card>
           )}
     </Form.Group>
   );
-
-  const [gistsModalVisible, toggleGistsModalVisible] = useState(false);
-  const [selectedGist, setGist] = useState(null);
-  const handleOpenGists = useCallback(() => {
-    toggleGistsModalVisible(true);
-  }, [toggleGistsModalVisible]);
-  const queryList = useQuery(['gists'], gistService.fetchAll, {
-    enabled: gistsModalVisible && !!accessToken,
-    cacheTime: 0,
-    initialData: [],
-  });
-  const handleSelectGist = useCallback((gist) => {
-    gistId.current = gist.id;
-    setGist(gist);
-  }, []);
-  const handleSaveGist = useCallback(() => {
-    if (queryOne.data?.data) {
-      updateSettings({
-        ...settings,
-        ...parseGistContent(queryOne.data.data),
-        gistId: selectedGist.id,
-      });
-    } else {
-      updateSettings({
-        ...settings,
-        gistId: selectedGist.id,
-      });
-    }
-
-    toggleGistsModalVisible(false);
-  }, [queryOne.data?.data, selectedGist?.id, settings, updateSettings]);
 
   return (
     <StyledWrap>
@@ -211,25 +255,68 @@ export default function OAuth({ visible, onClose }) {
                   <ListGroup.Item
                     style={{ cursor: 'pointer' }}
                     key={item.id}
-                    variant={settings.gistId === item.id ? 'primary' : null}
+                    variant={
+                      selectedGist && selectedGist.id === item.id
+                        ? 'primary'
+                        : settings.gistId === item.id
+                        ? 'info'
+                        : null
+                    }
                     onClick={() => handleSelectGist(item)}
-                    active={selectedGist && selectedGist.id === item.id}
                   >
-                    {item.description}
-                    <br />
-                    {_.chain(item.files)
-                      .keys()
-                      .map((filename) => (
-                        <>
-                          <Badge key={filename} bg="primary">
-                            {filename}
-                          </Badge>
-                          <br />
-                        </>
-                      ))
-                      .value()}
-                    <br />
-                    <Badge bg="secondary">@{item.created_at}</Badge> <Badge bg="info">@{item.updated_at}</Badge>
+                    <div>{item.description}</div>
+                    <div
+                      className="file-info"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        justifyContent: 'space-between',
+                        marginTop: 8,
+                      }}
+                    >
+                      <div style={{ flexGrow: 1, marginRight: 8 }}>
+                        <DropdownButton
+                          size="sm"
+                          as={ButtonGroup}
+                          variant="light"
+                          title="files"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
+                        >
+                          {_.chain(item.files)
+                            .keys()
+                            .map((filename) => (
+                              <Dropdown.Item style={{ cursor: 'default' }} key={filename}>
+                                {filename}
+                              </Dropdown.Item>
+                            ))
+                            .value()}
+                        </DropdownButton>
+                        {/* <Form.Select
+                          size="sm"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
+                        >
+                          {_.chain(item.files)
+                            .keys()
+                            .slice(0, 3)
+                            .map((filename) => <option key={filename}>{filename}</option>)
+                            .value()}
+                        </Form.Select> */}
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <Badge bg="light" text="dark" style={{ marginBottom: 8 }}>
+                          created@{dayjs(item.created_at).format('YYYY-MM-DD HH:mm:ss')}
+                        </Badge>
+                        <Badge bg="light" text="dark">
+                          updated@{dayjs(item.updated_at).format('YYYY-MM-DD HH:mm:ss')}
+                        </Badge>
+                      </div>
+                    </div>
                   </ListGroup.Item>
                 ))
                 .value()}
@@ -242,6 +329,51 @@ export default function OAuth({ visible, onClose }) {
               Yes
             </Button>
           )}
+        </Modal.Footer>
+      </Modal>
+      <Modal visible={createGistModalVisible} onClose={handleCloseCreateModal}>
+        <Modal.Header>Create a gist</Modal.Header>
+        <Modal.Body>
+          <Form
+            className="gist-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              return;
+            }}
+          >
+            <Form.Group className="mb-3" controlId="description">
+              <Form.Label>File name</Form.Label>
+              <InputGroup className="mb-3">
+                <Form.Control
+                  autoFocus
+                  placeholder="file name"
+                  aria-label="file name"
+                  aria-describedby="fileName"
+                  onChange={handleGistChange('fileName')}
+                  value={gistForm.fileName}
+                />
+                <InputGroup.Text id="fileName">.json</InputGroup.Text>
+              </InputGroup>
+            </Form.Group>
+
+            <Form.Group className="mb-3" controlId="description">
+              <Form.Label>Description</Form.Label>
+              <Form.Control
+                value={gistForm.description}
+                onChange={handleGistChange('description')}
+                as="textarea"
+                rows={3}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseCreateModal}>
+            Close
+          </Button>
+          <Button disabled={createMutation.isLoading} onClick={handleSaveCreateGist}>
+            {createMutation.isLoading ? 'Processing' : 'Save'}
+          </Button>
         </Modal.Footer>
       </Modal>
     </StyledWrap>
