@@ -1,5 +1,6 @@
-const webpack = require('webpack');
 const path = require('path');
+
+const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
@@ -12,7 +13,7 @@ const config = {
     popup: './src/popup.js',
     background: './src/background.js',
   },
-  devtool: 'source-map',
+  devtool: false,
   output: {
     path: path.resolve(__dirname, 'candi-tab'),
     filename: '[name].js',
@@ -26,11 +27,9 @@ const config = {
             loader: 'babel-loader',
             options: {
               // presets: ['@babel/preset-env', '@babel/preset-react'],
-              plugins: [
-                require.resolve('babel-plugin-module-resolver'),
-              ],
+              plugins: [require.resolve('babel-plugin-module-resolver')],
             },
-          }
+          },
         ],
         exclude: /node_modules/,
       },
@@ -45,12 +44,12 @@ const config = {
           {
             loader: 'css-loader',
             options: {
-              importLoaders: 1
-            }
+              importLoaders: 1,
+            },
           },
-          'postcss-loader'
+          'postcss-loader',
         ],
-        exclude: /\.module\.css$/
+        exclude: /\.module\.css$/,
       },
       {
         test: /\.css$/,
@@ -64,13 +63,13 @@ const config = {
               modules: {
                 localIdentName: '[local]___[hash:base64:5]',
               },
-            }
+            },
           },
           {
             loader: 'postcss-loader',
           },
         ],
-        include: /\.module\.css$/
+        include: /\.module\.css$/,
       },
       {
         test: /\.less$/,
@@ -84,7 +83,7 @@ const config = {
               modules: {
                 localIdentName: '[local]___[hash:base64:5]',
               },
-            }
+            },
           },
           {
             loader: 'postcss-loader',
@@ -130,10 +129,7 @@ const config = {
       inject: false,
     }),
     new CopyPlugin({
-      patterns: [
-        { from: 'manifest.json' },
-        { from: 'src/icons', to: 'icons' },
-      ],
+      patterns: [{ from: 'manifest.json' }, { from: 'src/icons', to: 'icons' }],
     }),
     new CleanWebpackPlugin(),
     new MiniCssExtractPlugin(),
@@ -145,16 +141,16 @@ const config = {
         vendor: {
           test: /[\\/]node_modules[\\/]/,
           name: 'vendors',
-          chunks: 'all'
-        }
-      }
-    }
+          chunks: 'all',
+        },
+      },
+    },
   },
   devServer: {
-    'static': {
+    static: {
       directory: './candi-tab',
-    }
-  }
+    },
+  },
 };
 
 module.exports = config;

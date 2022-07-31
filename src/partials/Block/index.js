@@ -184,15 +184,17 @@ export default function Block({ block, onMenuClick, settings, updateSettings, in
    */
   const handleAddBlock = useCallback(() => {
     toggleAddition(true);
+    const newId = uuid();
     setEditData({
-      id: uuid(),
-      title: '',
+      id: newId,
+      title: 'Untitled',
       buttons: [],
       layout: {
+        i: newId,
         w: 2,
-        h: 8,
+        h: 30,
         x: block.layout.x,
-        y: 0,
+        y: 39.5,
       },
     });
     toggleEditVisible(true);

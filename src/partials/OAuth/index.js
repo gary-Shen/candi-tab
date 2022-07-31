@@ -244,7 +244,7 @@ export default function OAuth({ visible, onClose }) {
         </Modal.Body>
       </Modal>
       <Modal visible={gistsModalVisible} onClose={() => toggleGistsModalVisible(false)}>
-        <Modal.Header>Select a gist from your gists</Modal.Header>
+        <Modal.Header>Select a gist from existing gists</Modal.Header>
         <Modal.Body>
           {queryList.isFetching && spinner}
           {!queryList.isFetching && (
