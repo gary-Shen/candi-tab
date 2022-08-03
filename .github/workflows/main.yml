@@ -9,6 +9,8 @@ env:
 on:
   # Triggers the workflow on push or pull request events but only for the "master" branch
   push:
+    tags:
+      - "v*.*.*"
     branches: ["master", "beta"]
   pull_request:
     branches: ["master", "beta"]
@@ -26,6 +28,8 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      - name: Set env
+      - run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node-version }}
@@ -35,4 +39,5 @@ jobs:
           cache: "npm"
       - run: npm ci
       - run: npm run build-prod --if-present
+      - run: zip -r candi-tab-${{ env.RELEASE_VERSION }}.zip candi-tab
       - run: npm run release
