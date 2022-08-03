@@ -10,9 +10,16 @@
     ],
     "@semantic-release/release-notes-generator",
     [
+      "semantic-release-chrome",
+      {
+        "extensionId": "oceflfkedkgjbamdjonjnjchfmimbceb",
+        "asset": "candi-tab.zip"
+      }
+    ],
+    [
       "@semantic-release/github",
       {
-        "assets": [{ "path": "candi-tab.zip", "label": "candi-tab-${nextRelease.notes}" }]
+        "assets": ["candi-tab.zip"]
       }
     ],
     [
