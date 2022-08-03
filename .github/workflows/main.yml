@@ -42,5 +42,4 @@ jobs:
           cache: "npm"
       - run: npm ci
       - run: npm run build-prod --if-present
-      - run: zip -r candi-tab-${{ env.RELEASE_VERSION }}.zip candi-tab
       - run: npm run release
