@@ -15,7 +15,7 @@ const config = {
   },
   devtool: false,
   output: {
-    path: path.resolve(__dirname, 'candi-tab'),
+    path: path.resolve(__dirname, 'dist'),
     filename: '[name].js',
   },
   module: {
