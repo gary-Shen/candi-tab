@@ -8,7 +8,8 @@
     "clean": "rm -rf candi-tab",
     "start": "webpack serve --hot --mode development",
     "build-dev": "webpack --mode development",
-    "build-prod": "webpack --mode production"
+    "build-prod": "webpack --mode production",
+    "release": "semantic-release"
   },
   "repository": {
     "type": "git",
