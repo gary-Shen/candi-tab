@@ -113,6 +113,10 @@ export default function OAuth({ visible, onClose }) {
     setGist(gist);
   }, []);
   const handleSaveGist = useCallback(() => {
+    if (!selectedGist) {
+      toggleGistsModalVisible(false);
+      return;
+    }
     if (queryOne.data?.data) {
       updateSettings({
         ...settings,
@@ -122,7 +126,7 @@ export default function OAuth({ visible, onClose }) {
     }
 
     toggleGistsModalVisible(false);
-  }, [queryOne.data?.data, selectedGist?.id, settings, updateSettings]);
+  }, [queryOne.data?.data, selectedGist, settings, updateSettings]);
 
   /** ========================== 选中gist ========================== */
 

@@ -349,9 +349,9 @@ export default function Block({ block, onMenuClick, settings, updateSettings, in
                   </Dropdown.Toggle>
 
                   <Dropdown.Menu>
-                    {menu.map(({ title: menuTitle, url: menuUrl }) => {
+                    {menu.map(({ title: menuTitle, url: menuUrl, id: menuItemId }) => {
                       return (
-                        <Dropdown.Item size="sm" key={menuUrl} href={menuUrl}>
+                        <Dropdown.Item size="sm" key={menuItemId} href={menuUrl}>
                           {menuTitle}
                         </Dropdown.Item>
                       );
@@ -361,12 +361,7 @@ export default function Block({ block, onMenuClick, settings, updateSettings, in
               );
 
               return editable ? (
-                <ContextMenu
-                  // key={id}
-                  data={link}
-                  menu={linkMenu}
-                  onOpen={() => handleLinkContextOpen(linkIndex)}
-                >
+                <ContextMenu key={id} data={link} menu={linkMenu} onOpen={() => handleLinkContextOpen(linkIndex)}>
                   {linkItem}
                 </ContextMenu>
               ) : (
@@ -390,12 +385,7 @@ export default function Block({ block, onMenuClick, settings, updateSettings, in
 
             if (editable) {
               return (
-                <ContextMenu
-                  // key={id}
-                  data={link}
-                  menu={linkMenu}
-                  onOpen={() => handleLinkContextOpen(linkIndex)}
-                >
+                <ContextMenu key={id} data={link} menu={linkMenu} onOpen={() => handleLinkContextOpen(linkIndex)}>
                   {button}
                 </ContextMenu>
               );
@@ -403,6 +393,7 @@ export default function Block({ block, onMenuClick, settings, updateSettings, in
 
             return (
               <OverlayTrigger
+                key={id}
                 placement="top"
                 show={typeof description === 'undefined' ? false : undefined}
                 overlay={<Tooltip>{description}</Tooltip>}

@@ -18,5 +18,5 @@
       "128": "icons/candi-tab@3x.png"
     }
   },
-  "permissions": ["fontSettings", "storage"]
+  "permissions": ["storage"]
 }
