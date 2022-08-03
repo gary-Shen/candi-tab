@@ -22,7 +22,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [16.x]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -35,11 +35,17 @@ jobs:
           echo ${{ env.RELEASE_VERSION }}
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+
+      - uses: borales/actions-yarn@v3.0.0
         with:
-          node-version: ${{ matrix.node-version }}
-          cache: "npm"
-      - run: npm ci
-      - run: npm run build-prod --if-present
-      - run: npm run release
+          cmd: install
+      - run: yarn build-prod
+      - run: yarn release
+      # - name: Use Node.js ${{ matrix.node-version }}
+      #   uses: actions/setup-node@v3
+      #   with:
+      #     node-version: ${{ matrix.node-version }}
+      #     cache: "npm"
+      # - run: npm ci
+      # - run: npm run build-prod --if-present
+      # - run: npm run release
