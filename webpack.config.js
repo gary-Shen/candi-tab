@@ -148,7 +148,7 @@ const config = {
   },
   devServer: {
     static: {
-      directory: './candi-tab',
+      directory: './dist',
     },
   },
 };

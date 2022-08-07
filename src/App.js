@@ -110,13 +110,13 @@ function App() {
 
   const links = settings.links.map((item, index) => {
     return (
-      <div key={item.id}>
-        <div
-          data-grid={item.layout}
-          className={classNames('block-wrap', {
-            blockActive: activeBlockIndex === index,
-          })}
-        >
+      <div
+        key={item.id}
+        className={classNames({
+          blockActive: activeBlockIndex === index,
+        })}
+      >
+        <div data-grid={item.layout} className={classNames('block-wrap')}>
           <Block
             editable={editable}
             settings={settings}
