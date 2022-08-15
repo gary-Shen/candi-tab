@@ -1,33 +1,17 @@
-# empty-project
+# Candi-tab
 
-Empty project.
+A succinct extension for Chrome New Tab page.
 
-## Building and running on localhost
+Features
 
-First install dependencies:
+- Custom layout via Drag and Drop
+- Colorful links
+- Managing and Syncing multiple settings via Github gist
 
-```sh
-npm install
-```
+# Install
 
-To create a production build:
+👉🏻 [Chrome Web Store](https://chrome.google.com/webstore/detail/candi-tab/oceflfkedkgjbamdjonjnjchfmimbceb?hl=zh-CN)
 
-```sh
-npm run build-prod
-```
+# Screen shots
 
-To create a development build:
-
-```sh
-npm run build-dev
-```
-
-## Running
-
-```sh
-node dist/bundle.js
-```
-
-## Credits
-
-Made with [createapp.dev](https://createapp.dev/)
+TODO
