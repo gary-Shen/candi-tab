@@ -14,4 +14,4 @@ Features
 
 # Screen shots
 
-TODO
+👉🏻 [Chrome Web Store](https://chrome.google.com/webstore/detail/candi-tab/oceflfkedkgjbamdjonjnjchfmimbceb?hl=zh-CN)
