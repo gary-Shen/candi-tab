@@ -1,6 +1,6 @@
 # Candi-tab
 
-A succinct extension for Chrome New Tab page.
+A simple extension for Chrome New Tab page.
 
 Features
 
