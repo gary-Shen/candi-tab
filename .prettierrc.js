@@ -1,4 +1,4 @@
-const fabric = require('@umijs/fabric');
+const fabric = require('@shlab/fabric');
 
 module.exports = {
   ...fabric.prettier,

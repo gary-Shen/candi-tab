@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 const isChrome = !!(chrome && chrome.storage);
 
-export function get(key) {
+export function get(key: string) {
   return new Promise((resolve, reject) => {
     try {
       if (isChrome) {
@@ -10,7 +10,8 @@ export function get(key) {
           resolve(_.get(store, key));
         });
       } else {
-        resolve(JSON.parse(localStorage.getItem(key)));
+        const result = localStorage.getItem(key);
+        resolve(result ? JSON.parse(result) : result);
       }
     } catch (err) {
       reject(err);
@@ -18,7 +19,7 @@ export function get(key) {
   });
 }
 
-export function set(key, payload) {
+export function set(key: string, payload: string | number | any) {
   return new Promise((resolve, reject) => {
     if (isChrome) {
       chrome.storage.local.set({ [key]: payload }, () => {

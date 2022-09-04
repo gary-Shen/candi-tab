@@ -1,31 +1,31 @@
-import {
-  Button,
-  Form,
-  ListGroup,
-  Col,
-  Row,
-  Badge,
-  Dropdown,
-  ButtonGroup,
-  DropdownButton,
-  Card,
-  InputGroup,
-} from 'react-bootstrap';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { set, get, map } from 'lodash/fp';
-import styled from 'styled-components';
-import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import _ from 'lodash';
-import BarLoader from 'react-spinners/BarLoader';
-import { v4 as uuid4 } from 'uuid';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
+import _ from 'lodash';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import {
+  Badge,
+  Button,
+  ButtonGroup,
+  Card,
+  Col,
+  Dropdown,
+  DropdownButton,
+  Form,
+  InputGroup,
+  ListGroup,
+  Row,
+} from 'react-bootstrap';
+import BarLoader from 'react-spinners/BarLoader';
+import styled from 'styled-components';
+import { v4 as uuid4 } from 'uuid';
 
-import Modal from '../Modal';
+import type { IGist } from '@/types/gist.type';
+
 import SettingsContext from '../../context/settings.context';
 import * as gistService from '../../service/gist';
-import * as candiService from '../../service/candi';
 import parseGistContent from '../../utils/parseGistContent';
-import StyledWrap from './OAuthStyle';
+import Modal from '../Modal';
+import StyledOauth from './styled';
 
 const SpinnerStyle = styled.div`
   width: 100%;
@@ -44,7 +44,12 @@ const spinner = (
 const uuid = uuid4();
 const OAUTH_URL = `https://github.com/login/oauth/authorize?scope=gist&client_id=9f776027a79806fc1363&redirect_uri=https://candi-tab.vercel.app/api/github?uuid=${uuid}`;
 
-export default function OAuth({ visible, onClose }) {
+export interface OAuthProps {
+  visible?: boolean;
+  onClose?: () => void;
+}
+
+export default function OAuth({ visible, onClose }: OAuthProps) {
   const { settings, updateSettings, accessToken, updateAccessToken } = useContext(SettingsContext);
   const [tokenValue, setTokenValue] = useState(accessToken);
   const queryClient = useQueryClient();
@@ -53,7 +58,7 @@ export default function OAuth({ visible, onClose }) {
     setTokenValue(accessToken);
   }, [accessToken]);
 
-  const handleOnChange = (e) => {
+  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTokenValue(e.target.value);
   };
 
@@ -61,23 +66,8 @@ export default function OAuth({ visible, onClose }) {
     updateAccessToken(tokenValue);
   }, [tokenValue, updateAccessToken]);
 
-  /**
-   * 开始授权时，创建轮询，直到获取到token
-   */
-  const [isStartFetchToken, toggleStartFetchToken] = useState(false);
-  const handleOauthStart = useCallback(() => {
-    toggleStartFetchToken(true);
-  }, []);
-  // const queryToken = useQuery(['access-token', uuid], candiService.fetchToken, {
-  //   enabled: isStartFetchToken,
-  //   retry: 10,
-  //   onSuccess: (data) => {
-  //     toggleStartFetchToken(false);
-  //   },
-  // });
-
   const createTokenNode = accessToken ? null : (
-    <Button variant="link" style={{ width: '100%' }} href={OAUTH_URL} onClick={handleOauthStart} target="_blank">
+    <Button variant="link" style={{ width: '100%' }} href={OAUTH_URL} target="_blank">
       Create Access Token with github OAuth
     </Button>
   );
@@ -86,17 +76,17 @@ export default function OAuth({ visible, onClose }) {
 
   const gistId = _.get(settings, `gistId`);
 
-  const [selectedGist, setGist] = useState(null);
-  const queryOne = useQuery(['gist', selectedGist?.id || gistId], gistService.fetchOne, {
-    initialData: settings.gist,
+  const [selectedGist, setGist] = useState<IGist | null>(null);
+  const queryOne = useQuery(['gist', selectedGist?.id || gistId!], gistService.fetchOne, {
     enabled: !!(selectedGist?.id || gistId) && !!accessToken,
     initialData: null,
   });
 
   const handleClose = useCallback(() => {
-    onClose();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queryOne.data, onClose, settings]);
+    if (typeof onClose === 'function') {
+      onClose();
+    }
+  }, [onClose]);
 
   const filename = _.chain(queryOne.data).get(`data.files`).keys().head().value();
   const [gistsModalVisible, toggleGistsModalVisible] = useState(false);
@@ -107,9 +97,10 @@ export default function OAuth({ visible, onClose }) {
   const queryList = useQuery(['gists'], gistService.fetchAll, {
     enabled: gistsModalVisible && !!accessToken,
     cacheTime: 0,
-    initialData: [],
+    // @ts-ignore
+    initialData: () => [],
   });
-  const handleSelectGist = useCallback((gist) => {
+  const handleSelectGist = useCallback((gist: IGist) => {
     setGist(gist);
   }, []);
   const handleSaveGist = useCallback(() => {
@@ -120,7 +111,8 @@ export default function OAuth({ visible, onClose }) {
     if (queryOne.data?.data) {
       updateSettings({
         ...settings,
-        ...parseGistContent(queryOne.data.data),
+        // @ts-ignore
+        ...parseGistContent(queryOne.data.data!),
         gistId: selectedGist.id,
       });
     }
@@ -131,8 +123,9 @@ export default function OAuth({ visible, onClose }) {
   /** ========================== 选中gist ========================== */
 
   /** ========================== 创建gist ========================== */
+  const [createGistModalVisible, toggleCreateGistModalVisible] = useState(false);
   const createMutation = useMutation(gistService.create, {
-    onSuccess: (response) => {
+    onSuccess: (response: { data: IGist }) => {
       toggleCreateGistModalVisible(false);
       setGist(response.data);
       updateSettings({
@@ -140,13 +133,15 @@ export default function OAuth({ visible, onClose }) {
         gistId: response.data.id,
       });
       setTimeout(() => {
-        queryClient.invalidateQueries('gist');
+        queryClient.invalidateQueries('gist' as any);
       });
     },
     enabled: !!accessToken,
-  });
-  const [createGistModalVisible, toggleCreateGistModalVisible] = useState(false);
+  } as any);
+
   const [gistForm, setGistForm] = useState({
+    files: {},
+    public: false,
     description: 'A gist for settings syncing of candi-tab chrome extension',
     fileName: 'candi_tab_settings',
   });
@@ -157,7 +152,7 @@ export default function OAuth({ visible, onClose }) {
     toggleCreateGistModalVisible(true);
   }, []);
   const handleGistChange = useCallback(
-    (field) => (e) => {
+    (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
       setGistForm({
         ...gistForm,
         [field]: e.target.value,
@@ -193,7 +188,7 @@ export default function OAuth({ visible, onClose }) {
   );
 
   return (
-    <StyledWrap>
+    <StyledOauth>
       <Modal visible={visible} onClose={handleClose}>
         <Modal.Header>Syncing with github gist</Modal.Header>
         <Modal.Body className="oauth-modal-content">
@@ -229,6 +224,7 @@ export default function OAuth({ visible, onClose }) {
                   <Col>
                     <Button
                       style={{ width: '100%' }}
+                      // @ts-ignore
                       disabled={createMutation.isFetching}
                       variant="primary"
                       onClick={handleCreateGist}
@@ -254,8 +250,9 @@ export default function OAuth({ visible, onClose }) {
           {!queryList.isFetching && (
             <ListGroup style={{ margin: '16px 0' }}>
               {_.chain(queryList)
-                .get('data.data')
-                .map((item) => (
+                .get('data.data', [])
+                // @ts-ignore
+                .map((item: IGist) => (
                   <ListGroup.Item
                     style={{ cursor: 'pointer' }}
                     key={item.id}
@@ -264,7 +261,7 @@ export default function OAuth({ visible, onClose }) {
                         ? 'primary'
                         : settings.gistId === item.id
                         ? 'info'
-                        : null
+                        : undefined
                     }
                     onClick={() => handleSelectGist(item)}
                   >
@@ -291,9 +288,9 @@ export default function OAuth({ visible, onClose }) {
                         >
                           {_.chain(item.files)
                             .keys()
-                            .map((filename) => (
-                              <Dropdown.Item style={{ cursor: 'default' }} key={filename}>
-                                {filename}
+                            .map((innerFilename) => (
+                              <Dropdown.Item style={{ cursor: 'default' }} key={innerFilename}>
+                                {innerFilename}
                               </Dropdown.Item>
                             ))
                             .value()}
@@ -380,6 +377,6 @@ export default function OAuth({ visible, onClose }) {
           </Button>
         </Modal.Footer>
       </Modal>
-    </StyledWrap>
+    </StyledOauth>
   );
 }

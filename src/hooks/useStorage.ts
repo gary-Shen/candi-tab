@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 
 import * as storage from './storage';
 
-export default function useStorage(key) {
-  const [value, setValue] = useState();
+export default function useStorage(key: string) {
+  const [value, setValue] = useState<any>();
 
   useEffect(() => {
     try {
@@ -17,7 +17,7 @@ export default function useStorage(key) {
   }, [key]);
 
   const handleUpdate = useCallback(
-    (payload) => {
+    (payload: any) => {
       try {
         setValue(payload);
         storage.set(key, payload);

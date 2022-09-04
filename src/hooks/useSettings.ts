@@ -1,18 +1,20 @@
-import { useCallback, useEffect, useState } from 'react';
 import { update } from 'lodash/fp';
+import { useCallback, useEffect, useState } from 'react';
 
-import { save, load } from './settings';
-import { uuid } from '../utils';
+import type { Block, Link, Setting } from '@/types/setting.type';
+import { uuid } from '@/utils';
+
+import { load, save } from './settings';
 
 const defaultSettings = require('../default-settings.json');
 
-const setIds = update('links')((blocks) =>
+const setIds = update('links')((blocks: Block[]) =>
   blocks.map((block) => {
     const extra = {
       id: uuid(),
     };
 
-    const mapLink = (link) => {
+    const mapLink = (link: Link) => {
       const withId = {
         id: uuid(),
       };
@@ -31,19 +33,19 @@ const setIds = update('links')((blocks) =>
       return {
         ...block,
         ...extra,
-        buttons: block.buttons.map(mapLink),
+        buttons: block?.buttons?.map(mapLink),
       };
     }
     return {
       ...block,
-      buttons: block.buttons.map(mapLink),
+      buttons: block?.buttons?.map(mapLink),
     };
   }),
 );
 
-export default function useSettings() {
-  const [settings, setSettings] = useState(null);
-  // const manifest = chrome.runtime.getManifest();
+export default function useSettings(): [Setting | null, (settings: Setting) => void] {
+  const [settings, setSettings] = useState<Setting | null>(null);
+
   useEffect(() => {
     load().then((result) => {
       const newSettings = setIds({ ...defaultSettings, ...result });
@@ -51,7 +53,7 @@ export default function useSettings() {
     });
   }, []);
 
-  const updateSettings = useCallback((newSettings) => {
+  const updateSettings = useCallback((newSettings: Setting) => {
     const _value = {
       ...newSettings,
     };

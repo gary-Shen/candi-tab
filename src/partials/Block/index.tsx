@@ -1,45 +1,34 @@
-import React, { useCallback, useEffect, useState, useRef } from 'react';
-import { Button, Card, Dropdown, Tooltip, OverlayTrigger } from 'react-bootstrap';
-import { BiEditAlt, BiListPlus, BiTrash, BiPlusCircle } from 'react-icons/bi';
 import ContextMenu from 'lina-context-menu';
-import { set, update, concat } from 'lodash/fp';
 import _ from 'lodash';
-import styled from 'styled-components';
+import { concat, set, update } from 'lodash/fp';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Button, Card, Dropdown, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { BiEditAlt, BiListPlus, BiPlusCircle, BiTrash } from 'react-icons/bi';
 
-import { uuid } from '../../utils';
-import EditModal from './EditModal';
+import { TYPES } from '@/constant';
+import type { Block, Link, Setting } from '@/types/setting.type';
+import { uuid } from '@/utils';
+import { isDark } from '@/utils/hsp';
+
 import Modal from '../Modal';
-import { TYPES } from '../../const';
-import StyledBlock from './BlockStyle';
+import type { EditType } from './EditModal';
+import EditModal from './EditModal';
+import StyledBlock from './styled';
 
 const iconStyle = {
   fontSize: 16,
 };
 
-function hexToRgb(hex) {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result
-    ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16),
-      }
-    : null;
+export interface ConfirmProps {
+  title: React.ReactNode;
+  visible: boolean;
+  onConfirm: () => void;
+  onClose: () => void;
 }
-
-function rgbString2Obj(rgb) {
-  const [r, g, b] = rgb.replace(/rgb|\(\|\)/, '').split(' ');
-  return {
-    r: parseInt(r),
-    g: parseInt(g),
-    b: parseInt(b),
-  };
-}
-
-const Confirm = ({ title, visible, onConfirm, onClose }) => {
+const Confirm = ({ title, visible, onConfirm, onClose }: ConfirmProps) => {
   return (
     <Modal visible={visible} onClose={onClose}>
-      <Modal.Header closeButton>Confirm</Modal.Header>
+      <Modal.Header>Confirm</Modal.Header>
       <Modal.Body>
         Are you sure to delete <strong>{title}</strong>?
       </Modal.Body>
@@ -61,42 +50,42 @@ const blockStyle = {
   blockMargin: 8,
 };
 
-export default function Block({ block, onMenuClick, settings, updateSettings, index, editable }) {
+export interface BlockProps {
+  block: Block;
+  onMenuClick: (index: number) => void;
+  settings: Setting;
+  updateSettings: (setting: Setting) => void;
+  index: number;
+  editable?: boolean;
+}
+export default function BlockContainer({ block, onMenuClick, settings, updateSettings, index, editable }: BlockProps) {
   const { buttons: links, title } = block;
-  const [editVisible, toggleEditVisible] = useState(false);
-  const [editType, setEditType] = useState('block');
-  const [editData, setEditData] = useState(block);
-  const [activeLinkIndex, setActiveLinkIndex] = useState(-1);
-  const [isAddition, toggleAddition] = useState(null);
+  const [editVisible, toggleEditVisible] = useState<boolean>(false);
+  const [editType, setEditType] = useState<EditType>('block');
+  const [editData, setEditData] = useState<Block | Link>(block);
+  const [activeLinkIndex, setActiveLinkIndex] = useState<number>(-1);
+  const [isAddition, toggleAddition] = useState<boolean>(false);
   const [confirmVisible, toggleConfirmVisible] = useState(false);
-  const [dataToDelete, setDataToDelete] = useState(null);
+  const [dataToDelete, setDataToDelete] = useState<Block | Link | null>(null);
 
-  const blockBodyRef = useRef(null);
-  const blockHeaderRef = useRef(null);
-
-  useEffect(() => {
-    document.addEventListener('candi-add-block', handleAddBlock);
-
-    return () => {
-      document.removeEventListener('candi-add-block', handleAddBlock);
-    };
-  }, [handleAddBlock]);
+  const blockBodyRef = useRef<HTMLDivElement | null>(null);
+  const blockHeaderRef = useRef<HTMLDivElement | null>(null);
 
   /**
    * 动态更新block尺寸
    */
   const updateLayout = useCallback(
-    (inputSettings) => {
+    (inputSettings: Setting) => {
       if (!blockBodyRef.current || !blockHeaderRef.current) {
         return;
       }
 
       setTimeout(() => {
-        const headerHeight = blockHeaderRef.current.offsetHeight;
-        const linkSize = blockBodyRef.current.childNodes.length;
-        const linkHeight = _.chain(blockBodyRef.current.childNodes)
+        const headerHeight = blockHeaderRef.current?.offsetHeight;
+        const linkSize = blockBodyRef.current?.childNodes.length;
+        const linkHeight = _.chain(blockBodyRef.current?.children)
           .map((item) => {
-            return item.offsetHeight;
+            return (item as HTMLElement).offsetHeight;
           })
           .reduce((memo, cur) => {
             return memo + cur;
@@ -111,10 +100,10 @@ export default function Block({ block, onMenuClick, settings, updateSettings, in
                 ...blockItem.layout,
                 h:
                   (linkHeight +
-                    (linkSize - 1) * blockStyle.linkMargin +
+                    (linkSize! - 1) * blockStyle.linkMargin +
                     blockStyle.blockPadding * 2 +
                     blockStyle.blockMargin * 2 +
-                    headerHeight) /
+                    headerHeight!) /
                   4,
               },
             };
@@ -128,36 +117,39 @@ export default function Block({ block, onMenuClick, settings, updateSettings, in
   /**
    * 编辑block
    */
-  const handleEditBlock = () => {
+  const handleEditBlock = useCallback(() => {
     setEditType('block');
     toggleEditVisible(true);
     setEditData(block);
-  };
+  }, [block]);
 
   /**
    * 编辑Link
    */
-  const handleEditLink = (e, _, link) => {
+  const handleEditLink = useCallback((e: React.MouseEvent, unused: any, link: Link) => {
     setEditType('link');
     toggleEditVisible(true);
     setEditData(link);
-  };
+  }, []);
 
   /**
    * 编辑表单
    */
-  const handleOnChange = (field) => (value) => {
-    setEditData(set(field)(value)(editData));
-  };
+  const handleOnChange = useCallback(
+    (field: string) => (value: string | number | undefined | any[]) => {
+      setEditData(set(field)(value)(editData));
+    },
+    [editData],
+  );
 
   /**
    * 保存表单
    */
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     let newSettings = _.cloneDeep(settings);
     if (isAddition) {
       if (editType === 'link') {
-        newSettings.links[index].buttons.splice(activeLinkIndex + 1, 0, editData);
+        newSettings.links[index].buttons!.splice(activeLinkIndex + 1, 0, editData as Link);
       } else {
         newSettings = update('links')((blocks) => concat(blocks || [])([editData]))(newSettings);
       }
@@ -177,7 +169,7 @@ export default function Block({ block, onMenuClick, settings, updateSettings, in
       document.dispatchEvent(new CustomEvent('sync-upload'));
     }, 1000);
     updateLayout(newSettings);
-  };
+  }, [activeLinkIndex, editData, editType, index, isAddition, settings, updateLayout, updateSettings]);
 
   /**
    * 添加block
@@ -201,12 +193,20 @@ export default function Block({ block, onMenuClick, settings, updateSettings, in
     setEditType('block');
   }, [block.layout.x]);
 
+  useEffect(() => {
+    document.addEventListener('candi-add-block', handleAddBlock);
+
+    return () => {
+      document.removeEventListener('candi-add-block', handleAddBlock);
+    };
+  }, [handleAddBlock]);
+
   /**
    * 删除block
    */
-  const handleDelete = () => {
-    const isBlock = dataToDelete && typeof dataToDelete.url === 'undefined';
-    const isLink = !isBlock || dataToDelete.menu;
+  const handleDelete = useCallback(() => {
+    const isBlock = dataToDelete && (dataToDelete as Block).layout;
+    const isLink = !isBlock;
     let path = '';
 
     if (isLink) {
@@ -216,7 +216,9 @@ export default function Block({ block, onMenuClick, settings, updateSettings, in
     }
 
     setDataToDelete(null);
-    const newSettings = update(path)((items) => items.filter((item) => item.id !== dataToDelete.id))(settings);
+    const newSettings = update(path)((items) => items.filter((item: Link | Block) => item.id !== dataToDelete?.id))(
+      settings,
+    );
     newSettings.createdAt = new Date().getTime();
     updateSettings(newSettings);
     toggleConfirmVisible(false);
@@ -224,16 +226,16 @@ export default function Block({ block, onMenuClick, settings, updateSettings, in
       document.dispatchEvent(new CustomEvent('sync-upload'));
     }, 1000);
     updateLayout(newSettings);
-  };
+  }, [dataToDelete, index, settings, updateLayout, updateSettings]);
 
-  const handleCloseConfirm = () => {
+  const handleCloseConfirm = useCallback(() => {
     toggleConfirmVisible(false);
-  };
+  }, []);
 
   /**
    * 添加链接
    */
-  const handleAddLink = () => {
+  const handleAddLink = useCallback(() => {
     setEditType('link');
     toggleAddition(true);
     setEditData({
@@ -243,77 +245,83 @@ export default function Block({ block, onMenuClick, settings, updateSettings, in
       style: 'info',
     });
     toggleEditVisible(true);
-  };
+  }, []);
 
   /**
    * 打开右键菜单时记录link索引
-   * @param {*} index
+   * @param {*} linkIndex
    */
-  const handleLinkContextOpen = (index) => {
-    setActiveLinkIndex(index);
-  };
+  const handleLinkContextOpen = useCallback((linkIndex: number) => {
+    setActiveLinkIndex(linkIndex);
+  }, []);
 
-  const blockMenu = [
-    [
-      {
-        key: 1,
-        className: 'menu-item',
-        title: 'Edit',
-        icon: <BiEditAlt style={iconStyle} />,
-        onClick: handleEditBlock,
-      },
-      {
-        key: 2,
-        className: 'menu-item',
-        title: 'Add block',
-        icon: <BiPlusCircle style={iconStyle} />,
-        onClick: handleAddBlock,
-      },
-    ],
-    [
-      {
-        key: 4,
-        className: 'menu-item',
-        title: 'Delete',
-        icon: <BiTrash style={iconStyle} />,
-        onClick: () => {
-          setDataToDelete(block);
-          toggleConfirmVisible(true);
+  const blockMenu = useMemo(
+    () => [
+      [
+        {
+          key: 1,
+          className: 'menu-item',
+          title: 'Edit',
+          icon: <BiEditAlt style={iconStyle} />,
+          onClick: handleEditBlock,
         },
-      },
+        {
+          key: 2,
+          className: 'menu-item',
+          title: 'Add block',
+          icon: <BiPlusCircle style={iconStyle} />,
+          onClick: handleAddBlock,
+        },
+      ],
+      [
+        {
+          key: 4,
+          className: 'menu-item',
+          title: 'Delete',
+          icon: <BiTrash style={iconStyle} />,
+          onClick: () => {
+            setDataToDelete(block);
+            toggleConfirmVisible(true);
+          },
+        },
+      ],
     ],
-  ];
+    [block, handleAddBlock, handleEditBlock],
+  );
 
-  const linkMenu = [
-    [
-      {
-        key: 2,
-        className: 'menu-item',
-        title: 'Edit',
-        icon: <BiEditAlt style={iconStyle} />,
-        onClick: handleEditLink,
-      },
-      {
-        key: 1,
-        className: 'menu-item',
-        title: 'Insert link after',
-        icon: <BiListPlus style={iconStyle} />,
-        onClick: handleAddLink,
-      },
-    ],
-    [
-      {
-        key: 3,
-        className: 'menu-item',
-        title: 'Delete',
-        icon: <BiTrash style={iconStyle} />,
-        onClick: (e, _, link) => {
-          setDataToDelete(link);
-          toggleConfirmVisible(true);
+  const linkMenu = useMemo(
+    () => [
+      [
+        {
+          key: 2,
+          className: 'menu-item',
+          title: 'Edit',
+          icon: <BiEditAlt style={iconStyle} />,
+          onClick: handleEditLink,
         },
-      },
+        {
+          key: 1,
+          className: 'menu-item',
+          title: 'Insert link after',
+          icon: <BiListPlus style={iconStyle} />,
+          onClick: handleAddLink,
+        },
+      ],
+      [
+        {
+          key: 3,
+          className: 'menu-item',
+          title: 'Delete',
+          icon: <BiTrash style={iconStyle} />,
+          onClick: (e: React.MouseEvent, unused: unknown, link: Link) => {
+            setDataToDelete(link);
+            toggleConfirmVisible(true);
+          },
+        },
+      ],
     ],
-  ];
+    [handleAddLink, handleEditLink],
+  );
 
   const card = (
     <StyledBlock>
@@ -322,23 +330,18 @@ export default function Block({ block, onMenuClick, settings, updateSettings, in
           {title}
         </Card.Header>
         <Card.Body className="block-content" ref={blockBodyRef}>
-          {links.length === 0 && editable && (
+          {links?.length === 0 && editable && (
             <Button size="sm" className="link-btn" onClick={handleAddLink} variant="light">
               Add link
             </Button>
           )}
-          {links.map((link, linkIndex) => {
+          {links?.map((link, linkIndex) => {
             const { title: buttonTitle, style, url, menu, id, description } = link;
-            const rgb = style && (style.startsWith('#') ? hexToRgb(style) : rgbString2Obj(style));
-            const hsp = rgb
-              ? Math.sqrt(0.299 * (rgb.r * rgb.r) + 0.587 * (rgb.g * rgb.g) + 0.114 * (rgb.b * rgb.b))
-              : 0;
-            const isDark = hsp <= 127.5;
             const buttonStyle = TYPES.includes(style)
               ? {}
               : {
                   backgroundColor: style,
-                  color: isDark ? '#fff' : '#000',
+                  color: isDark(style) ? '#fff' : '#000',
                 };
 
             if (menu) {
@@ -362,7 +365,8 @@ export default function Block({ block, onMenuClick, settings, updateSettings, in
 
               return editable ? (
                 <ContextMenu key={id} data={link} menu={linkMenu} onOpen={() => handleLinkContextOpen(linkIndex)}>
-                  {linkItem}
+                  {/*@ts-ignore*/}
+                  {linkItem!}
                 </ContextMenu>
               ) : (
                 linkItem
@@ -386,7 +390,9 @@ export default function Block({ block, onMenuClick, settings, updateSettings, in
             if (editable) {
               return (
                 <ContextMenu key={id} data={link} menu={linkMenu} onOpen={() => handleLinkContextOpen(linkIndex)}>
-                  {button}
+                  {/* @ts-ignore*/}
+                  {button! as React.ReactNode}
+                  {/*  TODO: 移除ignore*/}
                 </ContextMenu>
               );
             }
@@ -410,6 +416,7 @@ export default function Block({ block, onMenuClick, settings, updateSettings, in
   if (editable) {
     return (
       <>
+        {/* @ts-ignore */}
         <ContextMenu menu={blockMenu}>{card}</ContextMenu>
         <EditModal
           visible={editVisible}

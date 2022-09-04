@@ -13,15 +13,17 @@ export const buttonStyle = css`
   width: 24px;
   height: 24px;
   cursor: pointer;
-  transition: all .2s;
+  transition: all 0.2s;
   border-radius: 3px;
   background-color: transparent;
   &:hover {
-    background-color: rgba(0, 0, 0, 0.1);
     color: #333;
+    background-color: rgba(0, 0, 0, 0.1);
   }
 `;
 
-const IconButton = styled.button(buttonStyle);
+const IconButton = styled.button`
+  ${buttonStyle}
+`;
 
 export default IconButton;

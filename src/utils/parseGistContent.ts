@@ -1,6 +1,8 @@
 import _ from 'lodash';
 
-export default function (data) {
+import type { IGist } from '@/types/gist.type';
+
+export default function (data: IGist) {
   const fileName = _.chain(data).get('files').keys().first().value();
   const content = _.get(data, ['files', fileName, 'content']);
   let result;

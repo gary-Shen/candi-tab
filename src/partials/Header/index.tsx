@@ -1,57 +1,36 @@
-import React, { useState, useCallback, useContext } from 'react';
-import styled from 'styled-components';
-import { BiEditAlt, BiCog, BiCheck, BiSync, BiImport, BiExport } from 'react-icons/bi';
 import '@reach/dialog/styles.css';
-import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button';
-import { Button, Form, ListGroup, Col, Row, Badge, Toast, ToastContainer, Card } from 'react-bootstrap';
+import type { MenuButtonProps } from '@reach/menu-button';
+import { Menu, MenuButton } from '@reach/menu-button';
 import { omit } from 'lodash/fp';
+import React, { useCallback, useContext, useState } from 'react';
+import { Button, Form } from 'react-bootstrap';
+import { BiCheck, BiCog, BiEditAlt, BiExport, BiImport, BiSync } from 'react-icons/bi';
 
-import IconText from '../IconText';
-import OAuth from '../OAuth';
-import { buttonStyle } from '../IconButton';
+import type { Setting } from '@/types/setting.type';
+import download from '@/utils/download';
+
 import SettingsContext from '../../context/settings.context';
+import { buttonStyle } from '../IconButton';
+import IconText from '../IconText';
 import Modal from '../Modal';
+import OAuth from '../OAuth';
+import { StyledHeader, StyledMenuItem, StyledMenuList } from './styled';
 
-const StyledHeader = styled.div`
-  position: absolute;
-  display: flex;
-  top: 16px;
-  right: 16px;
-  z-index: 2;
-`;
+// @ts-ignore
+const StyledMenuButton = (props: Polymorphic.ForwardRefComponent<'button', MenuButtonProps>) => (
+  <MenuButton {...props} css={buttonStyle} />
+);
 
-const StyledMenuButton = (props) => <MenuButton {...props} css={buttonStyle} />;
-
-const Menus = styled(MenuList)`
-  background-color: #fff;
-  padding: 8px 0;
-  border-radius: 3px;
-  box-shadow: rgb(15 15 15 / 5%) 0px 0px 0px 1px, rgb(15 15 15 / 10%) 0px 3px 6px, rgb(15 15 15 / 20%) 0px 9px 24px;
-`;
-
-const StyledMenuItem = styled(MenuItem)`
-  cursor: pointer;
-  padding: 4px 16px;
-  transition: all 0.2s;
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.1);
-  }
-`;
-
-function download(url, name) {
-  const link = document.createElement('a');
-  link.setAttribute('download', name);
-  link.href = url;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
+export interface HeaderProps {
+  onEdit: (e: React.MouseEvent) => void;
+  editable?: boolean;
 }
 
-export default function Header({ onEdit, editable }) {
+export default function Header({ onEdit, editable }: HeaderProps) {
   const { settings, updateSettings } = useContext(SettingsContext);
   const [oauthVisible, setOauthVisible] = useState(false);
   const [importVisible, setImportVisible] = useState(false);
-  const [toImport, setToImport] = useState(null);
+  const [toImport, setToImport] = useState<Setting | null>(null);
 
   const handleOpenSyncing = () => {
     setOauthVisible(true);
@@ -71,28 +50,33 @@ export default function Header({ onEdit, editable }) {
     setImportVisible(true);
   }, []);
 
-  const handleFileOnload = useCallback((e) => {
+  const handleFileOnload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const { files } = e.target;
-    if (files.length) {
+
+    if (files && files.length) {
       const file = files.item(0);
       const reader = new FileReader();
-      reader.readAsText(file);
+      reader.readAsText(file!);
       reader.onload = () => {
-        let toImport;
+        let imported;
         try {
-          toImport = JSON.parse(reader.result);
-        } catch (e) {
+          imported = JSON.parse(reader.result as string);
+        } catch (err) {
           // return window.alert(file.name + " doesn't seem to be a valid JSON file.");
         }
 
-        setToImport(toImport);
+        setToImport(imported);
       };
     }
   }, []);
 
   const handleSaveImport = useCallback(() => {
+    if (!toImport) {
+      return;
+    }
+
     updateSettings({
-      ...omit(['gistId'])(toImport),
+      ...(omit(['gistId'])(toImport) as Setting),
       gistId: settings.gistId,
       createdAt: Date.now(),
     });
@@ -109,7 +93,7 @@ export default function Header({ onEdit, editable }) {
           <StyledMenuButton>
             <BiCog />
           </StyledMenuButton>
-          <Menus>
+          <StyledMenuList>
             <StyledMenuItem onSelect={handleOpenSyncing}>
               <IconText text="Syncing">
                 <BiSync />
@@ -125,7 +109,7 @@ export default function Header({ onEdit, editable }) {
                 <BiExport />
               </IconText>
             </StyledMenuItem>
-          </Menus>
+          </StyledMenuList>
         </Menu>
       </StyledHeader>
       {oauthVisible && <OAuth visible={oauthVisible} onClose={handleCloseSyncing} />}

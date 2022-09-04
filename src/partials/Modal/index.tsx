@@ -26,7 +26,13 @@ const CloseButton = styled(IconButton)`
   right: 16px;
 `;
 
-export default function Modal({ visible, onClose, children }) {
+export interface ModalProps {
+  visible?: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+}
+
+export default function Modal({ visible, onClose, children }: ModalProps) {
   return (
     <StyledModal isOpen={visible} onDismiss={onClose}>
       <CloseButton onClick={onClose}>
@@ -38,11 +44,20 @@ export default function Modal({ visible, onClose, children }) {
   );
 }
 
-Modal.Header = function ModalHeader({ children }) {
+export interface ModalHeaderProps {
+  children: React.ReactNode;
+}
+
+Modal.Header = function ModalHeader({ children }: ModalHeaderProps) {
   return <h3 style={{ overflowWrap: 'break-word' }}>{children}</h3>;
 };
 
-Modal.Body = function ModalBody({ children, className }) {
+export interface ModalBodyProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+Modal.Body = function ModalBody({ children, className }: ModalBodyProps) {
   return <div className={className}>{children}</div>;
 };
 
@@ -58,6 +73,10 @@ const StyledFooter = styled.div`
   }
 `;
 
-Modal.Footer = function ModalFooter({ children }) {
+export interface ModalFooterProps {
+  children: React.ReactNode;
+}
+
+Modal.Footer = function ModalFooter({ children }: ModalFooterProps) {
   return <StyledFooter>{children}</StyledFooter>;
 };

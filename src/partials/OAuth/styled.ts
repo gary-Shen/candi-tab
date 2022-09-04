@@ -1,12 +1,12 @@
 import styled from 'styled-components';
 
-const StyledWrap = styled.div`
+const StyledOauth = styled.div`
   .oauth-modal-content {
-    padding: 16px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    flex-direction: column;
+    padding: 16px;
   }
 
   .oauth-form {
@@ -14,4 +14,4 @@ const StyledWrap = styled.div`
   }
 `;
 
-export default StyledWrap;
+export default StyledOauth;

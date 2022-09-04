@@ -1,22 +1,29 @@
-import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
-import { BiTrash } from 'react-icons/bi';
-import upperFirst from 'lodash/upperFirst';
-import pick from 'lodash/pick';
-import get from 'lodash/get';
-import update from 'lodash/fp/update';
 import compose from 'lodash/fp/compose';
 import fpGet from 'lodash/fp/get';
-import { Button, Form, Tabs, Tab, ButtonGroup, Popover, InputGroup, OverlayTrigger } from 'react-bootstrap';
+import update from 'lodash/fp/update';
+import get from 'lodash/get';
+import pick from 'lodash/pick';
+import upperFirst from 'lodash/upperFirst';
+import React, { useCallback, useState } from 'react';
+import { Button, ButtonGroup, Form, InputGroup, OverlayTrigger, Popover, Tab, Tabs } from 'react-bootstrap';
+import { BiTrash } from 'react-icons/bi';
 
-import { uuid } from '../../../utils';
-import { TYPES } from '../../../const';
-import IconText from '../../IconText';
-import Modal from '../../../partials/Modal';
-import StyledBody from './ModalStyle';
+import { TYPES } from '@/constant';
+import type { Block, Link, MenuLink } from '@/types/setting.type';
+import { uuid } from '@/utils';
 
-const StylePicker = ({ value, onChange, className, ...props }) => {
-  const handleChangeStyle = (type) => {
+import Modal from '../../Modal';
+import StyledBody from './styled';
+
+export interface LinkColorPickerProps {
+  value: string;
+  onChange: (value: string) => void;
+  className?: string;
+}
+
+const StylePicker = ({ value, onChange, className, ...props }: LinkColorPickerProps) => {
+  const handleChangeStyle = (type: React.ChangeEvent<HTMLInputElement>) => {
     if (onChange) {
       onChange(typeof type === 'object' ? type.target.value : type);
     }
@@ -33,7 +40,7 @@ const StylePicker = ({ value, onChange, className, ...props }) => {
         <Tab eventKey="preset" title="Built-in">
           <ButtonGroup className="me-2" aria-label="Second group">
             {TYPES.map((type) => (
-              <Button key={type} variant={type} onClick={() => handleChangeStyle(type)} />
+              <Button key={type} variant={type} onClick={() => handleChangeStyle(type as any)} />
             ))}
           </ButtonGroup>
         </Tab>
@@ -51,10 +58,23 @@ const StylePicker = ({ value, onChange, className, ...props }) => {
   );
 };
 
-const LinkForm = ({ data, onChange, onClose, onSave }) => {
+export type FormOnChange = (field: string) => (value: string | number | undefined | any[]) => void;
+
+export interface LinkFormProps {
+  data: Link;
+  onChange: FormOnChange;
+  onClose: () => void;
+  onSave: () => void;
+}
+
+const LinkForm = ({ data, onChange, onSave }: LinkFormProps) => {
   const [isMenu, toggleIsMenu] = useState(!!data.menu);
-  const handleOnChange = (field) => (e) => {
-    onChange(field)(e.target ? e.target.value : e);
+  const handleOnChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(field)(e.target.value);
+  };
+
+  const handleValueChange = (field: string) => (value: string) => {
+    onChange(field)(value);
   };
 
   const handleToggleIsMenu = () => {
@@ -77,17 +97,17 @@ const LinkForm = ({ data, onChange, onClose, onSave }) => {
     );
   };
 
-  const handleDeleteMenu = (id) => () => {
+  const handleDeleteMenu = (id: string) => () => {
     onChange('menu')(
       compose(
         fpGet('menu'),
-        update('menu')((items) => (items || []).filter((item) => item.id !== id)),
+        update('menu')((items) => (items || []).filter((item: MenuLink) => item.id !== id)),
       )(data),
     );
   };
 
   const handleSubmit = useCallback(
-    (e) => {
+    (e: React.FormEvent) => {
       e.preventDefault();
       onSave();
     },
@@ -97,7 +117,7 @@ const LinkForm = ({ data, onChange, onClose, onSave }) => {
   const popover = (
     <Popover>
       <Popover.Body>
-        <StylePicker onChange={handleOnChange('style')} value={data.style} />
+        <StylePicker onChange={handleValueChange('style')} value={data.style} />
       </Popover.Body>
     </Popover>
   );
@@ -153,11 +173,6 @@ const LinkForm = ({ data, onChange, onClose, onSave }) => {
           {data.menu &&
             data.menu.map((item, index) => (
               <InputGroup className="mb-3" key={item.id}>
-                {/* <Button size="sm" variant="secondary" className="move-link">
-                  <IconText text="">
-                    <DragOutlined />
-                  </IconText>
-                </Button> */}
                 <Form.Control type="input" onChange={handleOnChange(`menu[${index}].title`)} value={item.title} />
                 <Form.Control type="input" onChange={handleOnChange(`menu[${index}].url`)} value={item.url} />
                 <Button size="sm" variant="danger" onClick={handleDeleteMenu(item.id)}>
@@ -180,13 +195,20 @@ const LinkForm = ({ data, onChange, onClose, onSave }) => {
   );
 };
 
-const BlockForm = ({ data, onChange, onClose, onSave }) => {
-  const handleOnChange = (field) => (e) => {
+export interface BlockFormProps {
+  data: Block;
+  onChange: FormOnChange;
+  onClose: () => void;
+  onSave: () => void;
+}
+
+const BlockForm = ({ data, onChange, onSave }: BlockFormProps) => {
+  const handleOnChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(field)(e.target.value);
   };
 
   const handleSubmit = useCallback(
-    (e) => {
+    (e: React.FormEvent) => {
       e.preventDefault();
       onSave();
     },
@@ -209,19 +231,31 @@ const BlockForm = ({ data, onChange, onClose, onSave }) => {
   );
 };
 
-const FormSet = {
+const FormSet: Record<FormType, typeof LinkForm | typeof BlockForm> = {
   Link: LinkForm,
   Block: BlockForm,
 };
 
-export default function EditModal({ data, type, onChange, ...props }) {
-  const EditForm = FormSet[upperFirst(type)];
+type FormType = 'Link' | 'Block';
+export type EditType = 'link' | 'block';
+
+export interface EditModalProps {
+  data: Link | Block;
+  visible: boolean;
+  type: EditType;
+  onChange: FormOnChange;
+  onSave: () => void;
+  onClose: () => void;
+}
+
+export default function EditModal({ data, type, onChange, ...props }: EditModalProps) {
+  const EditForm = FormSet[upperFirst(type) as FormType];
   return (
     <Modal {...props} onClose={props.onClose}>
-      <Modal.Header closeButton>{data.title || 'untitled'}</Modal.Header>
+      <Modal.Header>{data.title || 'untitled'}</Modal.Header>
       <Modal.Body>
         <StyledBody>
-          <EditForm data={data} onChange={onChange} onSave={props.onSave} onClose={props.onClose} />
+          <EditForm data={data as Link & Block} onChange={onChange} onSave={props.onSave} onClose={props.onClose} />
         </StyledBody>
       </Modal.Body>
       <Modal.Footer>

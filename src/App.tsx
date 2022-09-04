@@ -1,83 +1,95 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { hot } from 'react-hot-loader/root';
-import GridLayout from 'react-grid-layout';
-import classNames from 'classnames';
 import { Octokit } from '@octokit/rest';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { QueryClient, QueryClientProvider, useMutation, useQuery } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import classNames from 'classnames';
 import _ from 'lodash';
 import { set } from 'lodash/fp';
-const queryClient = new QueryClient();
-import { Toast, ToastContainer, Button } from 'react-bootstrap';
-import styled from 'styled-components';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { Button, Toast, ToastContainer } from 'react-bootstrap';
+import type { Layout } from 'react-grid-layout';
+import GridLayout from 'react-grid-layout';
+import { hot } from 'react-hot-loader/root';
 import BarLoader from 'react-spinners/BarLoader';
+import styled from 'styled-components';
+const queryClient = new QueryClient();
 
-import useStorage from './hooks/useStorage';
-import Header from './partials/Header';
-import Block from './partials/Block';
-import useSettings from './hooks/useSettings';
+import type { SettingsContextType } from './context/settings.context';
 import SettingsContext from './context/settings.context';
-import * as gistService from './service/gist';
-import { FILE_NAME, GIST_DESCRIPTION } from './constant';
-import parseGistContent from './utils/parseGistContent';
+import GlobalStyle from './GlobalStyle';
+import useSettings from './hooks/useSettings';
+import useStorage from './hooks/useStorage';
+import Block from './partials/Block';
 import EditModal from './partials/Block/EditModal';
+import Header from './partials/Header';
+import * as gistService from './service/gist';
+import StyledApp from './styled';
+import type { Block as IBlock, Setting } from './types/setting.type';
 import { uuid } from './utils';
-import GlobalStyle from './globalStyle';
-import AppStyle from './AppStyle';
+import parseGistContent from './utils/parseGistContent';
 
 const Grid = styled(GridLayout)`
   margin: 48px 0;
 `;
 
+declare global {
+  interface Window {
+    initialTime: number;
+  }
+}
+
 function App() {
   const { settings, updateSettings } = useContext(SettingsContext);
   const [editable, toggleEditable] = useState(false);
-  const [activeBlockIndex, setActiveBlockIndex] = useState('');
+  const [activeBlockIndex, setActiveBlockIndex] = useState<number | undefined>();
   const layouts = _.chain(settings)
     .get('links')
     .map((item) => item.layout)
     .value();
-  const [firstBlock, setFirstBlockData] = useState('');
+  const [firstBlock, setFirstBlockData] = useState<IBlock>({} as IBlock);
   const [fistBlockVisible, toggleFirstBlockVisible] = useState(false);
 
-  const handleLayoutChange = useCallback(
-    (layout) => {
-      if (Date.now() - window.initialTime < 1000) {
-        console.log('Should not update settings');
-        return;
-      }
-      const newLinks = settings.links.map((item, index) => {
-        return { ...item, layout: layout[index] };
-      });
+  const handleLayoutChange = _.debounce(
+    useCallback(
+      (layout: Layout[]) => {
+        if (Date.now() - window.initialTime < 1000) {
+          console.log('Should not update settings');
+          return;
+        }
+        const newLinks = settings.links.map((item, index) => {
+          return { ...item, layout: layout[index] };
+        });
 
-      const newSettings = {
-        ...settings,
-        links: newLinks,
-      };
+        const newSettings = {
+          ...settings,
+          links: newLinks,
+        };
 
-      newSettings.createdAt = new Date().getTime();
-      setTimeout(() => {
-        document.dispatchEvent(new CustomEvent('sync-upload'));
-      }, 1000);
+        newSettings.createdAt = new Date().getTime();
+        setTimeout(() => {
+          document.dispatchEvent(new CustomEvent('sync-upload'));
+        }, 1000);
 
-      updateSettings(newSettings);
-    },
-    [settings, updateSettings],
+        updateSettings(newSettings);
+      },
+      [settings, updateSettings],
+    ),
+    1000,
   );
 
-  const handleToggleEditable = () => {
+  const handleToggleEditable = useCallback(() => {
     toggleEditable(!editable);
-  };
+  }, [editable]);
 
-  const handleSetActiveBlockIndex = (index) => {
+  const handleSetActiveBlockIndex = useCallback((index: number) => {
     setActiveBlockIndex(index);
-  };
+  }, []);
 
   const handleCreateFirstBlock = useCallback(() => {
     toggleEditable(true);
     toggleFirstBlockVisible(true);
+    const id = uuid();
     setFirstBlockData({
-      id: uuid(),
+      id: id,
       title: '',
       buttons: [],
       layout: {
@@ -85,6 +97,7 @@ function App() {
         h: 8,
         x: 0,
         y: 0,
+        i: id,
       },
     });
   }, []);
@@ -94,7 +107,7 @@ function App() {
   }, [updateSettings, firstBlock, settings]);
 
   const handleBlockChange = useCallback(
-    (field) => (value) => {
+    (field: string) => (value: string | number | undefined | any[]) => {
       setFirstBlockData(set(field)(value)(firstBlock));
     },
     [firstBlock],
@@ -131,7 +144,7 @@ function App() {
   });
 
   return (
-    <AppStyle
+    <StyledApp
       className={classNames('main', {
         editable,
       })}
@@ -176,12 +189,12 @@ function App() {
           />
         </div>
       )}
-    </AppStyle>
+    </StyledApp>
   );
 }
 
-function withOauth(Comp) {
-  return function OauthWrapper(props) {
+function withOauth<WrapComponentProps>(Comp: React.ComponentType<WrapComponentProps>) {
+  return function OauthWrapper(props: WrapComponentProps) {
     const [accessToken, setAccessToken] = useStorage('accessToken');
     const [settings, updateSettings] = useSettings();
     const gistId = _.get(settings, `gistId`);
@@ -200,19 +213,22 @@ function withOauth(Comp) {
     }, [updateSettings, settings, accessToken, setAccessToken]);
 
     useEffect(() => {
-      if (accessToken) {
-        gistService.setOctokit(
-          new Octokit({
-            auth: accessToken,
-          }),
-        );
-
-        return () => {
-          gistService.destroyOctokit();
-        };
+      if (!accessToken) {
+        return;
       }
+
+      gistService.setOctokit(
+        new Octokit({
+          auth: accessToken,
+        }),
+      );
+
+      return () => {
+        gistService.destroyOctokit();
+      };
     }, [accessToken]);
 
+    // @ts-ignore
     const updateMutation = useMutation(gistService.updateGist, {
       enabled: !!gistId && !!accessToken,
     });
@@ -223,15 +239,15 @@ function withOauth(Comp) {
         toggleSuccessToastVisible(true);
       }
     }, [updateMutation.isSuccess]);
+
     useEffect(() => {
       if (updateMutation.isError) {
         toggleErrorToastVisible(true);
       }
     }, [updateMutation.isError]);
-
-    const queryOne = useQuery(['gist', gistId], gistService.fetchOne, {
+    const queryOne = useQuery(['gist', gistId!], gistService.fetchOne, {
       enabled: !!gistId,
-      initialData: {},
+      initialData: {} as any,
     });
 
     const settingsContent = parseGistContent(_.get(queryOne, 'data.data'));
@@ -244,7 +260,7 @@ function withOauth(Comp) {
         return;
       }
 
-      if (settingsContent && settingsContent.createdAt > settings.createdAt) {
+      if (settingsContent && settingsContent.createdAt > (settings as Setting).createdAt) {
         return;
       }
 
@@ -261,7 +277,12 @@ function withOauth(Comp) {
     }, [fileName, description, settings, settingsContent, updateMutation]);
 
     useEffect(() => {
-      if (queryOne.status === 'success' && settingsContent?.createdAt > settings?.createdAt) {
+      if (
+        queryOne.status === 'success' &&
+        settings &&
+        settingsContent?.createdAt > settings?.createdAt &&
+        updateSettings
+      ) {
         updateSettings(settingsContent);
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -280,9 +301,10 @@ function withOauth(Comp) {
     };
 
     return (
-      <SettingsContext.Provider value={value}>
+      <SettingsContext.Provider value={value as NonNullable<SettingsContextType>}>
         <Comp {...props} />
         <ToastContainer
+          // @ts-ignore
           position="bottom-end-2"
           style={{ color: '#fff', right: 10, bottom: 10 }}
           containerPosition="fixed"
@@ -311,6 +333,7 @@ function withOauth(Comp) {
             onClose={() => toggleErrorToastVisible(false)}
           >
             <Toast.Header closeButton={false}>Upload failed</Toast.Header>
+            {/* @ts-ignore */}
             <Toast.Body>{updateMutation.error?.message}</Toast.Body>
           </Toast>
         </ToastContainer>
@@ -319,8 +342,8 @@ function withOauth(Comp) {
   };
 }
 
-function withQuery(Component) {
-  return function QueryWrapped(props) {
+function withQuery<WrapComponentProps>(Component: React.ComponentType<WrapComponentProps>) {
+  return function QueryWrapped(props: WrapComponentProps) {
     return (
       <QueryClientProvider client={queryClient}>
         <GlobalStyle />

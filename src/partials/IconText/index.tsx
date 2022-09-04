@@ -15,7 +15,13 @@ const Icon = styled.span`
   font-size: 18px;
 `;
 
-export default function IconText({ children, className, text, ...props }) {
+export interface IconTextProps {
+  children: React.ReactNode;
+  className?: string;
+  text?: string;
+}
+
+export default function IconText({ children, className, text, ...props }: IconTextProps) {
   return (
     <Wrap className={className} {...props}>
       <Icon>{children}</Icon>
