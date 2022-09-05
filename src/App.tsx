@@ -354,4 +354,6 @@ function withQuery<WrapComponentProps>(Component: React.ComponentType<WrapCompon
   };
 }
 
-export default hot(withQuery(withOauth(App)));
+const AppWrapper = hot(withQuery(withOauth(App)));
+
+export default AppWrapper;

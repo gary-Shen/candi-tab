@@ -3,8 +3,6 @@ import styled, { createGlobalStyle } from 'styled-components';
 import { BiX } from 'react-icons/bi';
 import { Dialog } from '@reach/dialog';
 
-import '@reach/dialog/styles.css';
-
 import IconButton from '../IconButton';
 
 const GlobalStyle = createGlobalStyle`

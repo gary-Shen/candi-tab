@@ -1,4 +1,4 @@
-import '@reach/dialog/styles.css';
+
 import type { MenuButtonProps } from '@reach/menu-button';
 import { Menu, MenuButton } from '@reach/menu-button';
 import { omit } from 'lodash/fp';

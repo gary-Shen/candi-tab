@@ -1,10 +1,10 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
+import { render } from 'react-dom';
 
 import 'bootstrap/dist/css/bootstrap.css';
+import '@reach/dialog/styles.css';
 
-import App from './App';
+import App from '@/App';
 
 const mountNode = document.getElementById('app');
-const root = createRoot(mountNode!);
-root.render(<App />);
+render(<App />, mountNode);
