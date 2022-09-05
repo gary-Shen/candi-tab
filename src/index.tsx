@@ -1,10 +1,13 @@
-import React from 'react';
-import { render } from 'react-dom';
-
-import 'bootstrap/dist/css/bootstrap.css';
 import '@reach/dialog/styles.css';
+import 'bootstrap/dist/css/bootstrap.css';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 
-import App from '@/App';
+import App from './App';
 
-const mountNode = document.getElementById('app');
-render(<App />, mountNode);
+const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+);

@@ -2,7 +2,7 @@ import { update } from 'lodash/fp';
 import { useCallback, useEffect, useState } from 'react';
 
 import type { Block, Link, Setting } from '@/types/setting.type';
-import { uuid } from '@/utils';
+import { gid } from '@/utils/gid';
 
 import { load, save } from './settings';
 
@@ -11,12 +11,12 @@ const defaultSettings = require('../default-settings.json');
 const setIds = update('links')((blocks: Block[]) =>
   blocks.map((block) => {
     const extra = {
-      id: uuid(),
+      id: gid(),
     };
 
     const mapLink = (link: Link) => {
       const withId = {
-        id: uuid(),
+        id: gid(),
       };
 
       if (!link.id) {

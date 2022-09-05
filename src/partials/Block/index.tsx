@@ -7,7 +7,7 @@ import { BiEditAlt, BiListPlus, BiPlusCircle, BiTrash } from 'react-icons/bi';
 
 import { TYPES } from '@/constant';
 import type { Block, Link, Setting } from '@/types/setting.type';
-import { uuid } from '@/utils';
+import { gid } from '@/utils/gid';
 import { isDark } from '@/utils/hsp';
 
 import Modal from '../Modal';
@@ -176,7 +176,7 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
    */
   const handleAddBlock = useCallback(() => {
     toggleAddition(true);
-    const newId = uuid();
+    const newId = gid();
     setEditData({
       id: newId,
       title: 'Untitled',
@@ -239,7 +239,7 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
     setEditType('link');
     toggleAddition(true);
     setEditData({
-      id: uuid(),
+      id: gid(),
       title: '',
       url: '',
       style: 'info',

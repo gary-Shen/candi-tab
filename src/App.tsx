@@ -1,17 +1,25 @@
 import { Octokit } from '@octokit/rest';
-import { QueryClient, QueryClientProvider, useMutation, useQuery } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import {
+  QueryClient,
+  QueryClientProvider,
+  useMutation,
+  useQuery,
+} from '@tanstack/react-query';
 import classNames from 'classnames';
 import _ from 'lodash';
 import { set } from 'lodash/fp';
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { Button, Toast, ToastContainer } from 'react-bootstrap';
 import type { Layout } from 'react-grid-layout';
 import GridLayout from 'react-grid-layout';
-import { hot } from 'react-hot-loader/root';
 import BarLoader from 'react-spinners/BarLoader';
 import styled from 'styled-components';
-const queryClient = new QueryClient();
 
 import type { SettingsContextType } from './context/settings.context';
 import SettingsContext from './context/settings.context';
@@ -24,8 +32,9 @@ import Header from './partials/Header';
 import * as gistService from './service/gist';
 import StyledApp from './styled';
 import type { Block as IBlock, Setting } from './types/setting.type';
-import { uuid } from './utils';
+import { gid } from './utils/gid';
 import parseGistContent from './utils/parseGistContent';
+const queryClient = new QueryClient();
 
 const Grid = styled(GridLayout)`
   margin: 48px 0;
@@ -40,7 +49,9 @@ declare global {
 function App() {
   const { settings, updateSettings } = useContext(SettingsContext);
   const [editable, toggleEditable] = useState(false);
-  const [activeBlockIndex, setActiveBlockIndex] = useState<number | undefined>();
+  const [activeBlockIndex, setActiveBlockIndex] = useState<
+    number | undefined
+  >();
   const layouts = _.chain(settings)
     .get('links')
     .map((item) => item.layout)
@@ -71,9 +82,9 @@ function App() {
 
         updateSettings(newSettings);
       },
-      [settings, updateSettings],
+      [settings, updateSettings]
     ),
-    1000,
+    1000
   );
 
   const handleToggleEditable = useCallback(() => {
@@ -87,7 +98,7 @@ function App() {
   const handleCreateFirstBlock = useCallback(() => {
     toggleEditable(true);
     toggleFirstBlockVisible(true);
-    const id = uuid();
+    const id = gid();
     setFirstBlockData({
       id: id,
       title: '',
@@ -110,7 +121,7 @@ function App() {
     (field: string) => (value: string | number | undefined | any[]) => {
       setFirstBlockData(set(field)(value)(firstBlock));
     },
-    [firstBlock],
+    [firstBlock]
   );
 
   if (!settings) {
@@ -193,7 +204,9 @@ function App() {
   );
 }
 
-function withOauth<WrapComponentProps>(Comp: React.ComponentType<WrapComponentProps>) {
+function withOauth<WrapComponentProps>(
+  Comp: any
+) {
   return function OauthWrapper(props: WrapComponentProps) {
     const [accessToken, setAccessToken] = useStorage('accessToken');
     const [settings, updateSettings] = useSettings();
@@ -220,7 +233,7 @@ function withOauth<WrapComponentProps>(Comp: React.ComponentType<WrapComponentPr
       gistService.setOctokit(
         new Octokit({
           auth: accessToken,
-        }),
+        })
       );
 
       return () => {
@@ -251,7 +264,11 @@ function withOauth<WrapComponentProps>(Comp: React.ComponentType<WrapComponentPr
     });
 
     const settingsContent = parseGistContent(_.get(queryOne, 'data.data'));
-    const fileName = _.chain(queryOne).get('data.data.files').keys().first().value();
+    const fileName = _.chain(queryOne)
+      .get('data.data.files')
+      .keys()
+      .first()
+      .value();
     const description = _.get(queryOne, 'data.data.description');
 
     // 上传gist
@@ -260,7 +277,10 @@ function withOauth<WrapComponentProps>(Comp: React.ComponentType<WrapComponentPr
         return;
       }
 
-      if (settingsContent && settingsContent.createdAt > (settings as Setting).createdAt) {
+      if (
+        settingsContent &&
+        settingsContent.createdAt > (settings as Setting).createdAt
+      ) {
         return;
       }
 
@@ -301,7 +321,9 @@ function withOauth<WrapComponentProps>(Comp: React.ComponentType<WrapComponentPr
     };
 
     return (
-      <SettingsContext.Provider value={value as NonNullable<SettingsContextType>}>
+      <SettingsContext.Provider
+        value={value as NonNullable<SettingsContextType>}
+      >
         <Comp {...props} />
         <ToastContainer
           // @ts-ignore
@@ -309,7 +331,11 @@ function withOauth<WrapComponentProps>(Comp: React.ComponentType<WrapComponentPr
           style={{ color: '#fff', right: 10, bottom: 10 }}
           containerPosition="fixed"
         >
-          <Toast autohide style={toastStyle} show={updateMutation.isLoading || queryOne.isLoading}>
+          <Toast
+            autohide
+            style={toastStyle}
+            show={updateMutation.isLoading || queryOne.isLoading}
+          >
             <Toast.Body>
               <BarLoader />
             </Toast.Body>
@@ -342,18 +368,19 @@ function withOauth<WrapComponentProps>(Comp: React.ComponentType<WrapComponentPr
   };
 }
 
-function withQuery<WrapComponentProps>(Component: React.ComponentType<WrapComponentProps>) {
+function withQuery<WrapComponentProps>(
+  Component: any
+) {
   return function QueryWrapped(props: WrapComponentProps) {
     return (
       <QueryClientProvider client={queryClient}>
         <GlobalStyle />
         <Component {...props} />
-        <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     );
   };
 }
 
-const AppWrapper = hot(withQuery(withOauth(App)));
+const AppWrapper = withQuery(withOauth(App));
 
 export default AppWrapper;

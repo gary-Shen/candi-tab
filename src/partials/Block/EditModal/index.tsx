@@ -11,7 +11,7 @@ import { BiTrash } from 'react-icons/bi';
 
 import { TYPES } from '@/constant';
 import type { Block, Link, MenuLink } from '@/types/setting.type';
-import { uuid } from '@/utils';
+import { gid } from '@/utils/gid';
 
 import Modal from '../../Modal';
 import StyledBody from './styled';
@@ -79,7 +79,7 @@ const LinkForm = ({ data, onChange, onSave }: LinkFormProps) => {
 
   const handleToggleIsMenu = () => {
     if (!isMenu) {
-      onChange('menu')(data.url ? [{ id: uuid(), ...pick(data, ['title', 'url']) }] : []);
+      onChange('menu')(data.url ? [{ id: gid(), ...pick(data, ['title', 'url']) }] : []);
       onChange('url')(undefined);
     } else {
       onChange('menu')(undefined);
@@ -92,7 +92,7 @@ const LinkForm = ({ data, onChange, onSave }: LinkFormProps) => {
     onChange('menu')(
       compose(
         fpGet('menu'),
-        update('menu')((items) => (items || []).concat([{ id: uuid(), title: 'untitled', url: '' }])),
+        update('menu')((items) => (items || []).concat([{ id: gid(), title: 'untitled', url: '' }])),
       )(data),
     );
   };

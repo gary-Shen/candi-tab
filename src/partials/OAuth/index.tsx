@@ -17,9 +17,9 @@ import {
 } from 'react-bootstrap';
 import BarLoader from 'react-spinners/BarLoader';
 import styled from 'styled-components';
-import { v4 as uuid4 } from 'uuid';
 
 import type { IGist } from '@/types/gist.type';
+import { gid } from '@/utils/gid';
 
 import SettingsContext from '../../context/settings.context';
 import * as gistService from '../../service/gist';
@@ -41,7 +41,7 @@ const spinner = (
   </SpinnerStyle>
 );
 
-const uuid = uuid4();
+const uuid = gid();
 const OAUTH_URL = `https://github.com/login/oauth/authorize?scope=gist&client_id=9f776027a79806fc1363&redirect_uri=https://candi-tab.vercel.app/api/github?uuid=${uuid}`;
 
 export interface OAuthProps {

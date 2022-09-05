@@ -10,7 +10,7 @@ const GlobalStyle = createGlobalStyle`
     background-position: initial;
   }
 
-  #app {
+  #root {
     display: flex;
     justify-content: center;
   }
