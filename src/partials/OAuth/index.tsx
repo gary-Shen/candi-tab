@@ -187,6 +187,8 @@ export default function OAuth({ visible, onClose }: OAuthProps) {
     </Form.Group>
   );
 
+  console.log(gistForm);
+
   return (
     <StyledOauth>
       <Modal visible={visible} onClose={handleClose}>
@@ -295,19 +297,6 @@ export default function OAuth({ visible, onClose }: OAuthProps) {
                             ))
                             .value()}
                         </DropdownButton>
-                        {/* <Form.Select
-                          size="sm"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                          }}
-                        >
-                          {_.chain(item.files)
-                            .keys()
-                            .slice(0, 3)
-                            .map((filename) => <option key={filename}>{filename}</option>)
-                            .value()}
-                        </Form.Select> */}
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column' }}>
                         <Badge bg="light" text="dark" style={{ marginBottom: 8 }}>
