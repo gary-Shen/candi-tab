@@ -9,6 +9,7 @@ export default function parseGistContent(data: IGist) {
   try {
     result = JSON.parse(content);
   } catch (err) {
+    // eslint-disable-next-line
     console.warn(err);
   }
 

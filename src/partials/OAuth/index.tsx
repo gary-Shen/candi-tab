@@ -187,8 +187,6 @@ export default function OAuth({ visible, onClose }: OAuthProps) {
     </Form.Group>
   );
 
-  console.log(gistForm);
-
   return (
     <StyledOauth>
       <Modal visible={visible} onClose={handleClose}>

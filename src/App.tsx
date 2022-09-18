@@ -49,6 +49,7 @@ function App() {
   const handleLayoutChange = useCallback(
     (layout: Layout[]) => {
       if (Date.now() - window.initialTime < 1000) {
+        // eslint-disable-next-line
         console.log('Should not update settings');
         return;
       }

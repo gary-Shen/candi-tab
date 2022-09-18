@@ -11,6 +11,7 @@ export default function useStorage(key: string) {
         setValue(result);
       });
     } catch (err) {
+      // eslint-disable-next-line
       console.warn(err);
       setValue(undefined);
     }
@@ -22,6 +23,7 @@ export default function useStorage(key: string) {
         setValue(payload);
         storage.set(key, payload);
       } catch (err) {
+        // eslint-disable-next-line
         console.warn(err);
       }
     },
