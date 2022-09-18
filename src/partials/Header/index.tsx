@@ -1,10 +1,14 @@
-
 import type { MenuButtonProps } from '@reach/menu-button';
 import { Menu, MenuButton } from '@reach/menu-button';
+import { BiCheck } from '@react-icons/all-files/bi/BiCheck';
+import { BiCog } from '@react-icons/all-files/bi/BiCog';
+import { BiEditAlt } from '@react-icons/all-files/bi/BiEditAlt';
+import { BiExport } from '@react-icons/all-files/bi/BiExport';
+import { BiImport } from '@react-icons/all-files/bi/BiImport';
+import { BiSync } from '@react-icons/all-files/bi/BiSync';
 import { omit } from 'lodash/fp';
 import React, { useCallback, useContext, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
-import { BiCheck, BiCog, BiEditAlt, BiExport, BiImport, BiSync } from 'react-icons/bi';
 
 import type { Setting } from '@/types/setting.type';
 import download from '@/utils/download';

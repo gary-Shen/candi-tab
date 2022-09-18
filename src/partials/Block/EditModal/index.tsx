@@ -1,3 +1,4 @@
+import { BiTrash } from '@react-icons/all-files/bi/BiTrash';
 import classNames from 'classnames';
 import compose from 'lodash/fp/compose';
 import fpGet from 'lodash/fp/get';
@@ -7,7 +8,6 @@ import pick from 'lodash/pick';
 import upperFirst from 'lodash/upperFirst';
 import React, { useCallback, useState } from 'react';
 import { Button, ButtonGroup, Form, InputGroup, OverlayTrigger, Popover, Tab, Tabs } from 'react-bootstrap';
-import { BiTrash } from 'react-icons/bi';
 
 import { TYPES } from '@/constant';
 import type { Block, Link, MenuLink } from '@/types/setting.type';

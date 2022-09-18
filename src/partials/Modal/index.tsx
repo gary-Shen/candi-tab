@@ -1,7 +1,7 @@
+import { Dialog } from '@reach/dialog';
+import { BiX } from '@react-icons/all-files/bi/BiX';
 import React from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
-import { BiX } from 'react-icons/bi';
-import { Dialog } from '@reach/dialog';
 
 import IconButton from '../IconButton';
 
