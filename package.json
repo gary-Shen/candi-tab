@@ -5,7 +5,8 @@
   "scripts": {
     "build": "node scripts/build.js",
     "start": "node scripts/start.js",
-    "test": "node scripts/test.js"
+    "test": "node scripts/test.js",
+    "release": "semantic-release"
   },
   "babel": {
     "presets": [
@@ -106,6 +107,12 @@
     "styled-theming": "^2.2.0"
   },
   "devDependencies": {
+    "@semantic-release/commit-analyzer": "^9.0.2",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^8.0.5",
+    "@semantic-release/release-notes-generator": "^10.0.3",
+    "semantic-release": "^19.0.3",
+    "semantic-release-chrome": "^3.1.0",
     "@babel/core": "^7.16.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
     "@shlab/fabric": "^1.1.0",
