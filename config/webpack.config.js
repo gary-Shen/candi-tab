@@ -215,7 +215,7 @@ module.exports = function (webpackEnv) {
             tsconfig: [paths.appTsConfig, paths.appJsConfig].filter((f) => fs.existsSync(f)),
           },
         }
-      : {},
+      : false,
     infrastructureLogging: {
       level: 'none',
     },
