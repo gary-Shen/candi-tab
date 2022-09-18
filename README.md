@@ -1,4 +1,4 @@
-# Candi-tab
+# Candi-Tab
 
 A simple extension for Chrome New Tab page.
 
