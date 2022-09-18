@@ -1,20 +1,9 @@
 import { Octokit } from '@octokit/rest';
-import {
-  QueryClient,
-  QueryClientProvider,
-  useMutation,
-  useQuery,
-} from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, useMutation, useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import _ from 'lodash';
 import { set } from 'lodash/fp';
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Button, Toast, ToastContainer } from 'react-bootstrap';
 import type { Layout } from 'react-grid-layout';
 import GridLayout from 'react-grid-layout';
@@ -49,9 +38,7 @@ declare global {
 function App() {
   const { settings, updateSettings } = useContext(SettingsContext);
   const [editable, toggleEditable] = useState(false);
-  const [activeBlockIndex, setActiveBlockIndex] = useState<
-    number | undefined
-  >();
+  const [activeBlockIndex, setActiveBlockIndex] = useState<number | undefined>();
   const layouts = _.chain(settings)
     .get('links')
     .map((item) => item.layout)
@@ -59,32 +46,29 @@ function App() {
   const [firstBlock, setFirstBlockData] = useState<IBlock>({} as IBlock);
   const [fistBlockVisible, toggleFirstBlockVisible] = useState(false);
 
-  const handleLayoutChange = _.debounce(
-    useCallback(
-      (layout: Layout[]) => {
-        if (Date.now() - window.initialTime < 1000) {
-          console.log('Should not update settings');
-          return;
-        }
-        const newLinks = settings.links.map((item, index) => {
-          return { ...item, layout: layout[index] };
-        });
+  const handleLayoutChange = useCallback(
+    (layout: Layout[]) => {
+      if (Date.now() - window.initialTime < 1000) {
+        console.log('Should not update settings');
+        return;
+      }
+      const newLinks = settings.links.map((item, index) => {
+        return { ...item, layout: layout[index] };
+      });
 
-        const newSettings = {
-          ...settings,
-          links: newLinks,
-        };
+      const newSettings = {
+        ...settings,
+        links: newLinks,
+      };
 
-        newSettings.createdAt = new Date().getTime();
-        setTimeout(() => {
-          document.dispatchEvent(new CustomEvent('sync-upload'));
-        }, 1000);
+      newSettings.createdAt = new Date().getTime();
+      setTimeout(() => {
+        document.dispatchEvent(new CustomEvent('sync-upload'));
+      }, 1000);
 
-        updateSettings(newSettings);
-      },
-      [settings, updateSettings]
-    ),
-    1000
+      updateSettings(newSettings);
+    },
+    [settings, updateSettings],
   );
 
   const handleToggleEditable = useCallback(() => {
@@ -121,7 +105,7 @@ function App() {
     (field: string) => (value: string | number | undefined | any[]) => {
       setFirstBlockData(set(field)(value)(firstBlock));
     },
-    [firstBlock]
+    [firstBlock],
   );
 
   if (!settings) {
@@ -204,9 +188,7 @@ function App() {
   );
 }
 
-function withOauth<WrapComponentProps>(
-  Comp: any
-) {
+function withOauth<WrapComponentProps>(Comp: any) {
   return function OauthWrapper(props: WrapComponentProps) {
     const [accessToken, setAccessToken] = useStorage('accessToken');
     const [settings, updateSettings] = useSettings();
@@ -233,7 +215,7 @@ function withOauth<WrapComponentProps>(
       gistService.setOctokit(
         new Octokit({
           auth: accessToken,
-        })
+        }),
       );
 
       return () => {
@@ -264,11 +246,7 @@ function withOauth<WrapComponentProps>(
     });
 
     const settingsContent = parseGistContent(_.get(queryOne, 'data.data'));
-    const fileName = _.chain(queryOne)
-      .get('data.data.files')
-      .keys()
-      .first()
-      .value();
+    const fileName = _.chain(queryOne).get('data.data.files').keys().first().value();
     const description = _.get(queryOne, 'data.data.description');
 
     // 上传gist
@@ -277,10 +255,7 @@ function withOauth<WrapComponentProps>(
         return;
       }
 
-      if (
-        settingsContent &&
-        settingsContent.createdAt > (settings as Setting).createdAt
-      ) {
+      if (settingsContent && settingsContent.createdAt > (settings as Setting).createdAt) {
         return;
       }
 
@@ -321,9 +296,7 @@ function withOauth<WrapComponentProps>(
     };
 
     return (
-      <SettingsContext.Provider
-        value={value as NonNullable<SettingsContextType>}
-      >
+      <SettingsContext.Provider value={value as NonNullable<SettingsContextType>}>
         <Comp {...props} />
         <ToastContainer
           // @ts-ignore
@@ -331,11 +304,7 @@ function withOauth<WrapComponentProps>(
           style={{ color: '#fff', right: 10, bottom: 10 }}
           containerPosition="fixed"
         >
-          <Toast
-            autohide
-            style={toastStyle}
-            show={updateMutation.isLoading || queryOne.isLoading}
-          >
+          <Toast autohide style={toastStyle} show={updateMutation.isLoading || queryOne.isLoading}>
             <Toast.Body>
               <BarLoader />
             </Toast.Body>
@@ -368,9 +337,7 @@ function withOauth<WrapComponentProps>(
   };
 }
 
-function withQuery<WrapComponentProps>(
-  Component: any
-) {
+function withQuery<WrapComponentProps>(Component: any) {
   return function QueryWrapped(props: WrapComponentProps) {
     return (
       <QueryClientProvider client={queryClient}>

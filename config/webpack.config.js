@@ -174,7 +174,11 @@ module.exports = function (webpackEnv) {
       : isEnvDevelopment && 'cheap-module-source-map',
     // These are the "entry points" to our application.
     // This means they will be the "root" imports that are included in JS bundle.
-    entry: paths.appIndexJs,
+    entry: {
+      app: paths.appIndexJs,
+      popup: paths.popupJs,
+      background: paths.backgroundJs,
+    },
     output: {
       // The build folder.
       path: paths.appBuild,
@@ -182,7 +186,11 @@ module.exports = function (webpackEnv) {
       pathinfo: isEnvDevelopment,
       // There will be one main bundle, and one file per asynchronous chunk.
       // In development, it does not produce real files.
-      filename: isEnvProduction ? '[name].[contenthash:8].js' : isEnvDevelopment && 'bundle.js',
+      filename: isEnvProduction
+        ? (pathData) => {
+            return pathData.chunk.name === 'app' ? '[name].[contenthash:8].js' : '[name].js';
+          }
+        : isEnvDevelopment && 'bundle.js',
       // There are also additional JS chunk files if you use code splitting.
       chunkFilename: isEnvProduction ? '[name].[contenthash:8].chunk.js' : isEnvDevelopment && '[name].chunk.js',
       assetModuleFilename: '[name].[hash][ext]',

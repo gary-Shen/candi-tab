@@ -11,9 +11,13 @@ import { gid } from '@/utils/gid';
 import { isDark } from '@/utils/hsp';
 
 import Modal from '../Modal';
+import { MovableContainer, MovableTarget } from '../Movable';
 import type { EditType } from './EditModal';
 import EditModal from './EditModal';
 import StyledBlock from './styled';
+
+let movingLink: Link | null = null;
+let movingLinkFromWhichBlock: number | undefined;
 
 const iconStyle = {
   fontSize: 16,
@@ -80,20 +84,23 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
         return;
       }
 
+      // 更新全部Block布局
       setTimeout(() => {
         const headerHeight = blockHeaderRef.current?.offsetHeight;
-        const linkSize = blockBodyRef.current?.childNodes.length;
-        const linkHeight = _.chain(blockBodyRef.current?.children)
-          .map((item) => {
-            return (item as HTMLElement).offsetHeight;
-          })
-          .reduce((memo, cur) => {
-            return memo + cur;
-          }, 0)
-          .value();
+        const blockElements = document.querySelectorAll(`.${blockBodyRef.current!.classList[0]}`);
+        let newSettings = inputSettings;
+        _.forEach(blockElements, (blockElem, blockIndex) => {
+          const linkSize = blockElem.children!.length;
+          const linkHeight = _.chain(blockElem.children)
+            .map((item) => {
+              return (item as HTMLElement).offsetHeight;
+            })
+            .reduce((memo, cur) => {
+              return memo + cur;
+            }, 0)
+            .value();
 
-        updateSettings(
-          update(`links[${index}]`)((blockItem) => {
+          newSettings = update(`links[${blockIndex}]`)((blockItem) => {
             return {
               ...blockItem,
               layout: {
@@ -107,11 +114,13 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
                   4,
               },
             };
-          })(inputSettings),
-        );
+          })(newSettings);
+        });
+
+        updateSettings(newSettings);
       });
     },
-    [index, updateSettings],
+    [updateSettings],
   );
 
   /**
@@ -162,14 +171,13 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
     }
 
     newSettings.createdAt = new Date().getTime();
-    updateSettings(newSettings);
     toggleEditVisible(false);
     toggleAddition(false);
     setTimeout(() => {
       document.dispatchEvent(new CustomEvent('sync-upload'));
     }, 1000);
     updateLayout(newSettings);
-  }, [activeLinkIndex, editData, editType, index, isAddition, settings, updateLayout, updateSettings]);
+  }, [activeLinkIndex, editData, editType, index, isAddition, settings, updateLayout]);
 
   /**
    * 添加block
@@ -255,6 +263,35 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
     setActiveLinkIndex(linkIndex);
   }, []);
 
+  // link排序
+  const handleContainerMouseUp = useCallback(
+    (insertOrder: number) => {
+      if (!movingLink || _.isNil(movingLinkFromWhichBlock)) {
+        return;
+      }
+
+      let newSettings = _.cloneDeep(settings);
+      // 在原来的block中删除
+      newSettings = update(`links[${movingLinkFromWhichBlock}].buttons`)((buttons) => {
+        return buttons.filter((item: Link) => item.id !== movingLink!.id);
+      })(newSettings);
+
+      newSettings.links[index].buttons?.splice(insertOrder, 0, _.cloneDeep(movingLink));
+
+      newSettings.createdAt = new Date().getTime();
+      updateSettings(newSettings);
+
+      setTimeout(() => {
+        document.dispatchEvent(new CustomEvent('sync-upload'));
+      }, 1000);
+      // 延时任务，等待渲染完成后自动更新布局
+      setTimeout(() => {
+        updateLayout(newSettings);
+      }, 100);
+    },
+    [index, settings, updateLayout, updateSettings],
+  );
+
   const blockMenu = useMemo(
     () => [
       [
@@ -329,7 +366,13 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
         <Card.Header className="card-header" ref={blockHeaderRef}>
           {title}
         </Card.Header>
-        <Card.Body className="block-content" ref={blockBodyRef}>
+        {/* @ts-ignore */}
+        <MovableContainer
+          className="block-content card-body"
+          ref={blockBodyRef}
+          disabled={!editable}
+          onMouseUp={handleContainerMouseUp}
+        >
           {links?.length === 0 && editable && (
             <Button size="sm" className="link-btn" onClick={handleAddLink} variant="light">
               Add link
@@ -346,21 +389,29 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
 
             if (menu) {
               const linkItem = (
-                <Dropdown align="start" className="link-btn" onClick={() => onMenuClick(index)}>
-                  <Dropdown.Toggle size="sm" className="link-group" variant={style}>
-                    {buttonTitle}
-                  </Dropdown.Toggle>
+                <MovableTarget
+                  disabled={!editable}
+                  onMouseDown={() => {
+                    movingLink = link;
+                    movingLinkFromWhichBlock = index;
+                  }}
+                >
+                  <Dropdown align="start" className="link-btn" onClick={() => onMenuClick(index)}>
+                    <Dropdown.Toggle size="sm" className="link-group" variant={style}>
+                      {buttonTitle}
+                    </Dropdown.Toggle>
 
-                  <Dropdown.Menu>
-                    {menu.map(({ title: menuTitle, url: menuUrl, id: menuItemId }) => {
-                      return (
-                        <Dropdown.Item size="sm" key={menuItemId} href={menuUrl}>
-                          {menuTitle}
-                        </Dropdown.Item>
-                      );
-                    })}
-                  </Dropdown.Menu>
-                </Dropdown>
+                    <Dropdown.Menu>
+                      {menu.map(({ title: menuTitle, url: menuUrl, id: menuItemId }) => {
+                        return (
+                          <Dropdown.Item size="sm" key={menuItemId} href={menuUrl}>
+                            {menuTitle}
+                          </Dropdown.Item>
+                        );
+                      })}
+                    </Dropdown.Menu>
+                  </Dropdown>
+                </MovableTarget>
               );
 
               return editable ? (
@@ -374,25 +425,33 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
             }
 
             const button = (
-              <Button
-                as="a"
-                href={url}
-                size="sm"
-                date-url={url}
-                className="link-btn"
-                variant={TYPES.includes(style) ? style : 'light'}
-                style={buttonStyle}
+              // @ts-ignore
+              <MovableTarget
+                disabled={!editable}
+                onMouseDown={() => {
+                  movingLink = link;
+                  movingLinkFromWhichBlock = index;
+                }}
               >
-                {buttonTitle}
-              </Button>
+                <Button
+                  as={editable ? 'button' : 'a'}
+                  href={url}
+                  size="sm"
+                  date-url={url}
+                  className="link-btn"
+                  variant={TYPES.includes(style) ? style : 'light'}
+                  style={buttonStyle}
+                >
+                  {buttonTitle}
+                </Button>
+              </MovableTarget>
             );
 
             if (editable) {
               return (
                 <ContextMenu key={id} data={link} menu={linkMenu} onOpen={() => handleLinkContextOpen(linkIndex)}>
-                  {/* @ts-ignore*/}
-                  {button! as React.ReactNode}
-                  {/*  TODO: 移除ignore*/}
+                  {/* @ts-ignore */}
+                  <div className="link-btn under-context-menu">{button! as React.ReactNode}</div>
                 </ContextMenu>
               );
             }
@@ -408,7 +467,7 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
               </OverlayTrigger>
             );
           })}
-        </Card.Body>
+        </MovableContainer>
       </Card>
     </StyledBlock>
   );

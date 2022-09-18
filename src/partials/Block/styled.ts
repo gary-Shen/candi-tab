@@ -22,10 +22,19 @@ const StyledBlock = styled.div`
   }
 
   .link-btn {
-    margin-top: 0.5rem;
+    width: 100%;
+    margin: 0.25rem 0;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
 
     &:first-child {
       margin-top: 0;
+    }
+
+    .under-context-menu & {
+      margin: 0;
     }
   }
 
