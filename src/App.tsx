@@ -2,7 +2,7 @@ import { Octokit } from '@octokit/rest';
 import { QueryClient, QueryClientProvider, useMutation, useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import _ from 'lodash';
-import { set } from 'lodash/fp';
+import set from 'lodash/fp/set';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Button, Toast, ToastContainer } from 'react-bootstrap';
 import type { Layout } from 'react-grid-layout';

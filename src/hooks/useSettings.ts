@@ -1,4 +1,4 @@
-import { update } from 'lodash/fp';
+import update from 'lodash/fp/update';
 import { useCallback, useEffect, useState } from 'react';
 
 import type { Block, Link, Setting } from '@/types/setting.type';

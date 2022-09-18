@@ -6,7 +6,7 @@ import { BiEditAlt } from '@react-icons/all-files/bi/BiEditAlt';
 import { BiExport } from '@react-icons/all-files/bi/BiExport';
 import { BiImport } from '@react-icons/all-files/bi/BiImport';
 import { BiSync } from '@react-icons/all-files/bi/BiSync';
-import { omit } from 'lodash/fp';
+import omit from 'lodash/fp/omit';
 import React, { useCallback, useContext, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 

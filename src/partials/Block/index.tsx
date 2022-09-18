@@ -1,6 +1,8 @@
 import ContextMenu from 'lina-context-menu';
 import _ from 'lodash';
-import { concat, set, update } from 'lodash/fp';
+import concat from 'lodash/fp/concat';
+import set from 'lodash/fp/set';
+import update from 'lodash/fp/update';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Card, Dropdown, OverlayTrigger, Tooltip } from 'react-bootstrap';
 // import { BiEditAlt, BiListPlus, BiPlusCircle, BiTrash } from 'react-icons/bi';
