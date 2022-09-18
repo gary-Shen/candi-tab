@@ -42,7 +42,7 @@ jobs:
       - uses: borales/actions-yarn@v3.0.0
         with:
           cmd: install
-      - run: yarn build-prod
+      - run: yarn build
       - run: yarn release
       # - name: Use Node.js ${{ matrix.node-version }}
       #   uses: actions/setup-node@v3
