@@ -52,7 +52,7 @@ export const MovableContainer = React.forwardRef(function MovableContainerWithRe
       // }
 
       positions.current.push({
-        mid: boundingRect.top + boundingRect.height / 2,
+        mid: boundingRect.top + window.scrollY + boundingRect.height / 2,
         elem: itemNode,
       });
     }
@@ -65,7 +65,7 @@ export const MovableContainer = React.forwardRef(function MovableContainerWithRe
           return;
         }
 
-        const elements = document.elementsFromPoint(e.pageX, e.pageY);
+        const elements = document.elementsFromPoint(e.clientX, e.clientY);
 
         if (!elements.includes(containerRef.current!)) {
           setInsertOrder(undefined);
@@ -78,6 +78,7 @@ export const MovableContainer = React.forwardRef(function MovableContainerWithRe
         let order = 0;
         const mids = positions.current;
         let indexOfActiveTarget = -1;
+        const y = e.clientY + window.scrollY;
 
         for (let i = 0; i < mids.length; i += 1) {
           const { mid, elem } = mids[i];
@@ -86,10 +87,7 @@ export const MovableContainer = React.forwardRef(function MovableContainerWithRe
             indexOfActiveTarget = i;
           }
 
-          if (
-            (i !== mids.length - 1 && e.clientY >= mid && e.clientY <= mids[i + 1].mid) ||
-            (i === mids.length - 1 && e.clientY >= mid)
-          ) {
+          if ((i !== mids.length - 1 && y >= mid && y <= mids[i + 1].mid) || (i === mids.length - 1 && y >= mid)) {
             order = i + 1;
 
             shouldCorrect.current = indexOfActiveTarget > -1 && order > indexOfActiveTarget;
@@ -127,7 +125,7 @@ export const MovableContainer = React.forwardRef(function MovableContainerWithRe
 
       if (!e.detail.elem) {
         // 只向位于上方的container触发回调
-        const elements = document.elementsFromPoint(e.detail.evt.pageX, e.detail.evt.pageY);
+        const elements = document.elementsFromPoint(e.detail.evt.clientX, e.detail.evt.clientY);
         if (elements.includes(containerRef.current!)) {
           onMouseUp(shouldCorrect.current ? insertOrder! - 1 : insertOrder!);
           shouldCorrect.current = false;
@@ -186,8 +184,8 @@ export function MovableTarget({ children, className = '', disabled, onMouseDown,
       if (!active) {
         toggleActive(true);
       }
-      const left = e.clientX - positionRef.current.innerOffsetLeft;
-      const top = e.clientY - positionRef.current.innerOffsetTop;
+      const left = e.pageX - positionRef.current.innerOffsetLeft;
+      const top = e.pageY - positionRef.current.innerOffsetTop + window.scrollY;
 
       shadowRef.current.style.transform = `translate(${left}px, ${top}px)`;
     },
@@ -244,10 +242,10 @@ export function MovableTarget({ children, className = '', disabled, onMouseDown,
 
       const boundingRect = targetRef.current?.getBoundingClientRect();
       positionRef.current = {
-        left: e.clientX,
-        top: e.clientY,
-        innerOffsetLeft: e.clientX - boundingRect.left,
-        innerOffsetTop: e.clientY - boundingRect.top,
+        left: e.pageX,
+        top: e.pageY,
+        innerOffsetLeft: e.pageX - boundingRect.left,
+        innerOffsetTop: e.pageY - boundingRect.top,
       };
 
       if (targetRef.current) {

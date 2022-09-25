@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "build": "node scripts/build.js",
+    "lint": "eslint ./src --ext .js,.jsx,.ts,.tsx",
     "release": "semantic-release",
-    "start": "node scripts/start.js",
+    "start": "node scripts/start.js --trace-deprecation --max_old_space_size=8128",
     "test": "node scripts/test.js"
   },
   "babel": {
