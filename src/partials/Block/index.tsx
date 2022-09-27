@@ -423,7 +423,7 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
               return editable ? (
                 <ContextMenu key={id} data={link} menu={linkMenu} onOpen={() => handleLinkContextOpen(linkIndex)}>
                   {/*@ts-ignore*/}
-                  {linkItem!}
+                  <span className="under-context-menu link-btn">{linkItem!}</span>
                 </ContextMenu>
               ) : (
                 linkItem
