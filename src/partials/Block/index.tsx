@@ -5,7 +5,6 @@ import set from 'lodash/fp/set';
 import update from 'lodash/fp/update';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Card, Dropdown, OverlayTrigger, Tooltip } from 'react-bootstrap';
-// import { BiEditAlt, BiListPlus, BiPlusCircle, BiTrash } from 'react-icons/bi';
 import { BiEditAlt } from '@react-icons/all-files/bi/BiEditAlt';
 import { BiListPlus } from '@react-icons/all-files/bi/BiListPlus';
 import { BiPlusCircle } from '@react-icons/all-files/bi/BiPlusCircle';
@@ -272,7 +271,7 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
   // link排序
   const handleContainerMouseUp = useCallback(
     (insertOrder: number) => {
-      if (!movingLink || _.isNil(movingLinkFromWhichBlock)) {
+      if (!movingLink || _.isNil(movingLinkFromWhichBlock) || _.isNil(insertOrder)) {
         return;
       }
 

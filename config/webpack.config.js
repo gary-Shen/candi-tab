@@ -176,7 +176,7 @@ module.exports = function (webpackEnv) {
       : isEnvDevelopment && 'cheap-module-source-map',
     // These are the "entry points" to our application.
     // This means they will be the "root" imports that are included in JS bundle.
-    entry: {
+    entry: isEnvDevelopment ? paths.appIndexJs : {
       app: paths.appIndexJs,
       popup: paths.popupJs,
       background: paths.backgroundJs,
@@ -205,7 +205,19 @@ module.exports = function (webpackEnv) {
         ? (info) => path.relative(paths.appSrc, info.absoluteResourcePath).replace(/\\/g, '/')
         : isEnvDevelopment && ((info) => path.resolve(info.absoluteResourcePath).replace(/\\/g, '/')),
     },
-    cache: false,
+    cache: {
+      type: 'filesystem',
+      version: createEnvironmentHash(env.raw),
+      cacheDirectory: paths.appWebpackCache,
+      store: 'pack',
+      buildDependencies: {
+        defaultWebpack: ['webpack/lib/'],
+        config: [__filename],
+        tsconfig: [paths.appTsConfig, paths.appJsConfig].filter(f =>
+          fs.existsSync(f)
+        ),
+      },
+    },
     infrastructureLogging: {
       level: 'none',
     },
@@ -388,7 +400,7 @@ module.exports = function (webpackEnv) {
                 // This is a feature of `babel-loader` for webpack (not Babel itself).
                 // It enables caching results in ./node_modules/.cache/babel-loader/
                 // directory for faster rebuilds.
-                cacheDirectory: false,
+                cacheDirectory: true,
                 // See #6846 for context on why cacheCompression is disabled
                 cacheCompression: false,
                 compact: isEnvProduction,
@@ -404,8 +416,13 @@ module.exports = function (webpackEnv) {
                 babelrc: false,
                 configFile: false,
                 compact: false,
-                presets: [[require.resolve('babel-preset-react-app/dependencies'), { helpers: true }]],
-                cacheDirectory: false,
+                presets: [
+                  [
+                    require.resolve('babel-preset-react-app/dependencies'),
+                    { helpers: true },
+                  ],
+                ],
+                cacheDirectory: true,
                 // See #6846 for context on why cacheCompression is disabled
                 cacheCompression: false,
 
@@ -428,7 +445,9 @@ module.exports = function (webpackEnv) {
               exclude: cssModuleRegex,
               use: getStyleLoaders({
                 importLoaders: 1,
-                sourceMap: isEnvProduction ? shouldUseSourceMap : isEnvDevelopment,
+                sourceMap: isEnvProduction
+                  ? shouldUseSourceMap
+                  : isEnvDevelopment,
                 modules: {
                   mode: 'icss',
                 },
@@ -592,48 +611,48 @@ module.exports = function (webpackEnv) {
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         }),
       // TypeScript type checking
-      // useTypeScript &&
-      //   new ForkTsCheckerWebpackPlugin({
-      //     async: isEnvDevelopment,
-      //     typescript: {
-      //       typescriptPath: resolve.sync('typescript', {
-      //         basedir: paths.appNodeModules,
-      //       }),
-      //       configOverwrite: {
-      //         compilerOptions: {
-      //           sourceMap: isEnvProduction ? shouldUseSourceMap : isEnvDevelopment,
-      //           skipLibCheck: true,
-      //           inlineSourceMap: false,
-      //           declarationMap: false,
-      //           noEmit: true,
-      //           incremental: true,
-      //           tsBuildInfoFile: paths.appTsBuildInfoFile,
-      //         },
-      //       },
-      //       context: paths.appPath,
-      //       diagnosticOptions: {
-      //         syntactic: true,
-      //       },
-      //       mode: 'write-references',
-      //       // profile: true,
-      //     },
-      //     issue: {
-      //       // This one is specifically to match during CI tests,
-      //       // as micromatch doesn't match
-      //       // '../cra-template-typescript/template/src/App.tsx'
-      //       // otherwise.
-      //       include: [{ file: '../**/src/**/*.{ts,tsx}' }, { file: '**/src/**/*.{ts,tsx}' }],
-      //       exclude: [
-      //         { file: '**/src/**/__tests__/**' },
-      //         { file: '**/src/**/?(*.){spec|test}.*' },
-      //         { file: '**/src/setupProxy.*' },
-      //         { file: '**/src/setupTests.*' },
-      //       ],
-      //     },
-      //     logger: {
-      //       infrastructure: 'silent',
-      //     },
-      //   }),
+      useTypeScript &&
+        new ForkTsCheckerWebpackPlugin({
+          async: isEnvDevelopment,
+          typescript: {
+            typescriptPath: resolve.sync('typescript', {
+              basedir: paths.appNodeModules,
+            }),
+            configOverwrite: {
+              compilerOptions: {
+                sourceMap: isEnvProduction ? shouldUseSourceMap : isEnvDevelopment,
+                skipLibCheck: true,
+                inlineSourceMap: false,
+                declarationMap: false,
+                noEmit: true,
+                incremental: true,
+                tsBuildInfoFile: paths.appTsBuildInfoFile,
+              },
+            },
+            context: paths.appPath,
+            diagnosticOptions: {
+              syntactic: true,
+            },
+            mode: 'write-references',
+            // profile: true,
+          },
+          issue: {
+            // This one is specifically to match during CI tests,
+            // as micromatch doesn't match
+            // '../cra-template-typescript/template/src/App.tsx'
+            // otherwise.
+            include: [{ file: '../**/src/**/*.{ts,tsx}' }, { file: '**/src/**/*.{ts,tsx}' }],
+            exclude: [
+              { file: '**/src/**/__tests__/**' },
+              { file: '**/src/**/?(*.){spec|test}.*' },
+              { file: '**/src/setupProxy.*' },
+              { file: '**/src/setupTests.*' },
+            ],
+          },
+          logger: {
+            infrastructure: 'silent',
+          },
+        }),
       !disableESLintPlugin &&
         new ESLintPlugin({
           // Plugin options
@@ -642,8 +661,11 @@ module.exports = function (webpackEnv) {
           eslintPath: require.resolve('eslint'),
           failOnError: !(isEnvDevelopment && emitErrorsAsWarnings),
           context: paths.appSrc,
-          cache: false,
-          cacheLocation: path.resolve(paths.appNodeModules, '.cache/.eslintcache'),
+          cache: true,
+          cacheLocation: path.resolve(
+            paths.appNodeModules,
+            '.cache/.eslintcache'
+          ),
           // ESLint class options
           cwd: paths.appPath,
           resolvePluginsRelativeTo: __dirname,
