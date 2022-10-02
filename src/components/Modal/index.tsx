@@ -28,14 +28,18 @@ export interface ModalProps {
   visible?: boolean;
   onClose: () => void;
   children: React.ReactNode;
+  style?: React.CSSProperties;
+  showCloseButton?: boolean;
 }
 
-export default function Modal({ visible, onClose, children }: ModalProps) {
+export default function Modal({ visible, onClose, children, style, showCloseButton = true }: ModalProps) {
   return (
-    <StyledModal isOpen={visible} onDismiss={onClose}>
-      <CloseButton onClick={onClose}>
-        <BiX />
-      </CloseButton>
+    <StyledModal isOpen={visible} onDismiss={onClose} style={style}>
+      {showCloseButton && (
+        <CloseButton onClick={onClose}>
+          <BiX />
+        </CloseButton>
+      )}
       {visible && children}
       <GlobalStyle />
     </StyledModal>

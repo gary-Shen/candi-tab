@@ -10,13 +10,13 @@ import GridLayout from 'react-grid-layout';
 import BarLoader from 'react-spinners/BarLoader';
 import styled from 'styled-components';
 
+import Block from './components/Block';
+import EditModal from './components/Block/EditModal';
 import type { SettingsContextType } from './context/settings.context';
 import SettingsContext from './context/settings.context';
 import GlobalStyle from './GlobalStyle';
 import useSettings from './hooks/useSettings';
 import useStorage from './hooks/useStorage';
-import Block from './partials/Block';
-import EditModal from './partials/Block/EditModal';
 import Header from './partials/Header';
 import * as gistService from './service/gist';
 import StyledApp from './styled';

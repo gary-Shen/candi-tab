@@ -1,3 +1,7 @@
+import { BiEditAlt } from '@react-icons/all-files/bi/BiEditAlt';
+import { BiListPlus } from '@react-icons/all-files/bi/BiListPlus';
+import { BiPlusCircle } from '@react-icons/all-files/bi/BiPlusCircle';
+import { BiTrash } from '@react-icons/all-files/bi/BiTrash';
 import ContextMenu from 'lina-context-menu';
 import _ from 'lodash';
 import concat from 'lodash/fp/concat';
@@ -5,10 +9,6 @@ import set from 'lodash/fp/set';
 import update from 'lodash/fp/update';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Card, Dropdown, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { BiEditAlt } from '@react-icons/all-files/bi/BiEditAlt';
-import { BiListPlus } from '@react-icons/all-files/bi/BiListPlus';
-import { BiPlusCircle } from '@react-icons/all-files/bi/BiPlusCircle';
-import { BiTrash } from '@react-icons/all-files/bi/BiTrash';
 
 import { TYPES } from '@/constant';
 import type { Block, Link, Setting } from '@/types/setting.type';

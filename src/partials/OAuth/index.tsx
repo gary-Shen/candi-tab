@@ -21,10 +21,10 @@ import styled from 'styled-components';
 import type { IGist } from '@/types/gist.type';
 import { gid } from '@/utils/gid';
 
+import Modal from '../../components/Modal';
 import SettingsContext from '../../context/settings.context';
 import * as gistService from '../../service/gist';
 import parseGistContent from '../../utils/parseGistContent';
-import Modal from '../Modal';
 import StyledOauth from './styled';
 
 const SpinnerStyle = styled.div`

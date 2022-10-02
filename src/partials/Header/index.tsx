@@ -5,6 +5,7 @@ import { BiCog } from '@react-icons/all-files/bi/BiCog';
 import { BiEditAlt } from '@react-icons/all-files/bi/BiEditAlt';
 import { BiExport } from '@react-icons/all-files/bi/BiExport';
 import { BiImport } from '@react-icons/all-files/bi/BiImport';
+import { BiInfoCircle } from '@react-icons/all-files/bi/BiInfoCircle';
 import { BiSync } from '@react-icons/all-files/bi/BiSync';
 import omit from 'lodash/fp/omit';
 import React, { useCallback, useContext, useState } from 'react';
@@ -13,10 +14,11 @@ import { Button, Form } from 'react-bootstrap';
 import type { Setting } from '@/types/setting.type';
 import download from '@/utils/download';
 
+import { buttonStyle } from '../../components/IconButton';
+import IconText from '../../components/IconText';
+import Modal from '../../components/Modal';
 import SettingsContext from '../../context/settings.context';
-import { buttonStyle } from '../IconButton';
-import IconText from '../IconText';
-import Modal from '../Modal';
+import About from '../About';
 import OAuth from '../OAuth';
 import { StyledHeader, StyledMenuItem, StyledMenuList } from './styled';
 
@@ -36,12 +38,12 @@ export default function Header({ onEdit, editable }: HeaderProps) {
   const [importVisible, setImportVisible] = useState(false);
   const [toImport, setToImport] = useState<Setting | null>(null);
 
-  const handleOpenSyncing = () => {
+  const handleOpenSyncing = useCallback(() => {
     setOauthVisible(true);
-  };
-  const handleCloseSyncing = () => {
+  }, []);
+  const handleCloseSyncing = useCallback(() => {
     setOauthVisible(false);
-  };
+  }, []);
 
   const handleExport = useCallback(() => {
     download(
@@ -87,6 +89,12 @@ export default function Header({ onEdit, editable }: HeaderProps) {
     setImportVisible(false);
   }, [updateSettings, toImport, settings]);
 
+  // 关于
+  const [aboutVisible, toggleAboutVisible] = useState(false);
+  const handleShowAbout = useCallback(() => {
+    toggleAboutVisible(true);
+  }, []);
+
   return (
     <>
       <StyledHeader>
@@ -113,10 +121,16 @@ export default function Header({ onEdit, editable }: HeaderProps) {
                 <BiExport />
               </IconText>
             </StyledMenuItem>
+            <StyledMenuItem onSelect={handleShowAbout}>
+              <IconText text="About">
+                <BiInfoCircle />
+              </IconText>
+            </StyledMenuItem>
           </StyledMenuList>
         </Menu>
       </StyledHeader>
       {oauthVisible && <OAuth visible={oauthVisible} onClose={handleCloseSyncing} />}
+      <About visible={aboutVisible} onClose={() => toggleAboutVisible(false)} />
       <Modal visible={importVisible} onClose={() => setImportVisible(false)}>
         <Form>
           <Modal.Header>Import setting file</Modal.Header>
