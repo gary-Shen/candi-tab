@@ -1,27 +1,13 @@
-import { Dialog } from '@reach/dialog';
 import { BiX } from '@react-icons/all-files/bi/BiX';
 import React from 'react';
-import styled, { createGlobalStyle } from 'styled-components';
+import { createGlobalStyle } from 'styled-components';
 
-import IconButton from '../IconButton';
+import { CloseButton, StyledModal, StyledModalBody, StyledModalFooter, StyledModalHeader } from './styled';
 
 const GlobalStyle = createGlobalStyle`
   [data-reach-dialog-overlay] {
     z-index: 2;
   }
-`;
-
-const StyledModal = styled(Dialog)`
-  position: relative;
-  border-radius: 3px;
-  box-shadow: rgb(15 15 15 / 5%) 0px 0px 0px 1px, rgb(15 15 15 / 10%) 0px 3px 6px, rgb(15 15 15 / 20%) 0px 9px 24px;
-`;
-
-const CloseButton = styled(IconButton)`
-  position: absolute;
-  z-index: 9;
-  top: 16px;
-  right: 16px;
 `;
 
 export interface ModalProps {
@@ -30,11 +16,12 @@ export interface ModalProps {
   children: React.ReactNode;
   style?: React.CSSProperties;
   showCloseButton?: boolean;
+  className?: string;
 }
 
-export default function Modal({ visible, onClose, children, style, showCloseButton = true }: ModalProps) {
+function Modal({ visible, onClose, children, style, showCloseButton = true, className }: ModalProps) {
   return (
-    <StyledModal isOpen={visible} onDismiss={onClose} style={style}>
+    <StyledModal isOpen={visible} onDismiss={onClose} style={style} className={className}>
       {showCloseButton && (
         <CloseButton onClick={onClose}>
           <BiX />
@@ -50,35 +37,29 @@ export interface ModalHeaderProps {
   children: React.ReactNode;
 }
 
-Modal.Header = function ModalHeader({ children }: ModalHeaderProps) {
-  return <h3 style={{ overflowWrap: 'break-word' }}>{children}</h3>;
-};
+function ModalHeader({ children }: ModalHeaderProps) {
+  return <StyledModalHeader style={{ overflowWrap: 'break-word' }}>{children}</StyledModalHeader>;
+}
 
 export interface ModalBodyProps {
   children: React.ReactNode;
   className?: string;
 }
 
-Modal.Body = function ModalBody({ children, className }: ModalBodyProps) {
-  return <div className={className}>{children}</div>;
-};
-
-const StyledFooter = styled.div`
-  display: flex;
-  justify-content: flex-end;
-
-  & > * {
-    margin-right: 16px;
-    &:last-child {
-      margin-right: 0;
-    }
-  }
-`;
+function ModalBody({ children, className }: ModalBodyProps) {
+  return <StyledModalBody className={className}>{children}</StyledModalBody>;
+}
 
 export interface ModalFooterProps {
   children: React.ReactNode;
 }
 
-Modal.Footer = function ModalFooter({ children }: ModalFooterProps) {
-  return <StyledFooter>{children}</StyledFooter>;
-};
+function ModalFooter({ children }: ModalFooterProps) {
+  return <StyledModalFooter>{children}</StyledModalFooter>;
+}
+
+export default Object.assign(Modal, {
+  Header: ModalHeader,
+  Body: ModalBody,
+  Footer: ModalFooter,
+});

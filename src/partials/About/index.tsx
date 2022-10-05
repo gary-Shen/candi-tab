@@ -23,30 +23,32 @@ export default function About({ visible, onClose }: AboutProps) {
   }, []);
   return (
     <Modal visible={visible} onClose={onClose} style={{ width: 300 }} showCloseButton={false}>
-      <StyledAbout>
-        <div className="logo">
-          <img src={icon} />
-        </div>
-        <div className="content">
-          <div className="title">
-            Candi-Tab
-            {/* @ts-ignore */}
-            <p className="version">{manifest.version || 'unknown'}</p>
+      <Modal.Body>
+        <StyledAbout>
+          <div className="logo">
+            <img src={icon} />
           </div>
-          <div className="refs">
-            <a
-              href="https://chrome.google.com/webstore/detail/candi-tab/oceflfkedkgjbamdjonjnjchfmimbceb"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <AiOutlineHome />
-            </a>
-            <a href="https://github.com/gary-Shen/candi-tab#candi-tab" target="_blank" rel="noreferrer">
-              <AiOutlineGithub />
-            </a>
+          <div className="content">
+            <div className="title">
+              Candi-Tab
+              {/* @ts-ignore */}
+              <p className="version">{manifest.version || 'unknown'}</p>
+            </div>
+            <div className="refs">
+              <a
+                href="https://chrome.google.com/webstore/detail/candi-tab/oceflfkedkgjbamdjonjnjchfmimbceb"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <AiOutlineHome />
+              </a>
+              <a href="https://github.com/gary-Shen/candi-tab#candi-tab" target="_blank" rel="noreferrer">
+                <AiOutlineGithub />
+              </a>
+            </div>
           </div>
-        </div>
-      </StyledAbout>
+        </StyledAbout>
+      </Modal.Body>
     </Modal>
   );
 }

@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 const StyledAbout = styled.div`
+  padding: 1rem;
   .logo {
     margin-bottom: 1rem;
     text-align: center;

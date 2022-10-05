@@ -2,9 +2,10 @@ import { MenuItem, MenuList } from '@reach/menu-button';
 import styled from 'styled-components';
 
 export const StyledMenuList = styled(MenuList)`
-  background-color: #fff;
+  background-color: var(--card-header-bg);
   padding: 8px 0;
   border-radius: 3px;
+  color: var(--font-color);
   box-shadow: rgb(15 15 15 / 5%) 0px 0px 0px 1px, rgb(15 15 15 / 10%) 0px 3px 6px, rgb(15 15 15 / 20%) 0px 9px 24px;
 `;
 

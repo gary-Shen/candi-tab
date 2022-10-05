@@ -8,8 +8,11 @@ import concat from 'lodash/fp/concat';
 import set from 'lodash/fp/set';
 import update from 'lodash/fp/update';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Card, Dropdown, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Button, Dropdown, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 
+import MyButton from '@/components/Button';
+import Card from '@/components/Card';
 import { TYPES } from '@/constant';
 import type { Block, Link, Setting } from '@/types/setting.type';
 import { gid } from '@/utils/gid';
@@ -35,18 +38,19 @@ export interface ConfirmProps {
   onClose: () => void;
 }
 const Confirm = ({ title, visible, onConfirm, onClose }: ConfirmProps) => {
+  const { t } = useTranslation();
   return (
     <Modal visible={visible} onClose={onClose}>
-      <Modal.Header>Confirm</Modal.Header>
+      <Modal.Header>{t('confirm')}</Modal.Header>
       <Modal.Body>
-        Are you sure to delete <strong>{title}</strong>?
+        {t('Are you sure to delete')} <strong>{title}</strong>?
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={onClose}>
-          Cancel
+          {t('cancel')}
         </Button>
         <Button variant="danger" autoFocus onClick={onConfirm}>
-          Confirm
+          {t('yes')}
         </Button>
       </Modal.Footer>
     </Modal>
@@ -69,6 +73,7 @@ export interface BlockProps {
 }
 export default function BlockContainer({ block, onMenuClick, settings, updateSettings, index, editable }: BlockProps) {
   const { buttons: links, title } = block;
+  const { t } = useTranslation();
   const [editVisible, toggleEditVisible] = useState<boolean>(false);
   const [editType, setEditType] = useState<EditType>('block');
   const [editData, setEditData] = useState<Block | Link>(block);
@@ -303,14 +308,14 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
         {
           key: 1,
           className: 'menu-item',
-          title: 'Edit',
+          title: t('edit'),
           icon: <BiEditAlt style={iconStyle} />,
           onClick: handleEditBlock,
         },
         {
           key: 2,
           className: 'menu-item',
-          title: 'Add block',
+          title: t('addBlock'),
           icon: <BiPlusCircle style={iconStyle} />,
           onClick: handleAddBlock,
         },
@@ -319,7 +324,7 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
         {
           key: 4,
           className: 'menu-item',
-          title: 'Delete',
+          title: t('delete'),
           icon: <BiTrash style={iconStyle} />,
           onClick: () => {
             setDataToDelete(block);
@@ -328,7 +333,7 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
         },
       ],
     ],
-    [block, handleAddBlock, handleEditBlock],
+    [block, handleAddBlock, handleEditBlock, t],
   );
 
   const linkMenu = useMemo(
@@ -337,14 +342,14 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
         {
           key: 2,
           className: 'menu-item',
-          title: 'Edit',
+          title: t('edit'),
           icon: <BiEditAlt style={iconStyle} />,
           onClick: handleEditLink,
         },
         {
           key: 1,
           className: 'menu-item',
-          title: 'Insert link after',
+          title: t('addLinkAfter'),
           icon: <BiListPlus style={iconStyle} />,
           onClick: handleAddLink,
         },
@@ -353,7 +358,7 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
         {
           key: 3,
           className: 'menu-item',
-          title: 'Delete',
+          title: t('delete'),
           icon: <BiTrash style={iconStyle} />,
           onClick: (e: React.MouseEvent, unused: unknown, link: Link) => {
             setDataToDelete(link);
@@ -362,26 +367,26 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
         },
       ],
     ],
-    [handleAddLink, handleEditLink],
+    [handleAddLink, handleEditLink, t],
   );
 
   const card = (
     <StyledBlock>
       <Card>
-        <Card.Header className="card-header" ref={blockHeaderRef}>
+        <Card.Header className="block-header" ref={blockHeaderRef}>
           {title}
         </Card.Header>
         {/* @ts-ignore */}
         <MovableContainer
-          className="block-content card-body"
+          className="block-content"
           ref={blockBodyRef}
           disabled={!editable}
           onMouseUp={handleContainerMouseUp}
         >
           {links?.length === 0 && editable && (
-            <Button size="sm" className="link-btn" onClick={handleAddLink} variant="light">
+            <MyButton className="link-btn" onClick={handleAddLink}>
               Add link
-            </Button>
+            </MyButton>
           )}
           {links?.map((link, linkIndex) => {
             const { title: buttonTitle, style, url, menu, id, description } = link;
@@ -402,7 +407,7 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
                   }}
                 >
                   <Dropdown align="start" className="link-btn" onClick={() => onMenuClick(index)}>
-                    <Dropdown.Toggle size="sm" className="link-group" variant={style}>
+                    <Dropdown.Toggle as={MyButton} size="sm" className="link-group" variant={style}>
                       {buttonTitle}
                     </Dropdown.Toggle>
 
@@ -438,8 +443,9 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
                   movingLinkFromWhichBlock = index;
                 }}
               >
-                <Button
+                <MyButton
                   as={editable ? 'button' : 'a'}
+                  // @ts-ignore
                   href={url}
                   size="sm"
                   date-url={url}
@@ -448,7 +454,7 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
                   style={buttonStyle}
                 >
                   {buttonTitle}
-                </Button>
+                </MyButton>
               </MovableTarget>
             );
 

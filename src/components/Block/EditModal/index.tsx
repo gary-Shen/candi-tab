@@ -8,11 +8,13 @@ import pick from 'lodash/pick';
 import upperFirst from 'lodash/upperFirst';
 import React, { useCallback, useState } from 'react';
 import { Button, ButtonGroup, Form, InputGroup, OverlayTrigger, Popover, Tab, Tabs } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 
 import { TYPES } from '@/constant';
 import type { Block, Link, MenuLink } from '@/types/setting.type';
 import { gid } from '@/utils/gid';
 
+import MyButton from '../../Button';
 import Modal from '../../Modal';
 import StyledBody from './styled';
 
@@ -23,11 +25,14 @@ export interface LinkColorPickerProps {
 }
 
 const StylePicker = ({ value, onChange, className, ...props }: LinkColorPickerProps) => {
-  const handleChangeStyle = (type: React.ChangeEvent<HTMLInputElement>) => {
-    if (onChange) {
-      onChange(typeof type === 'object' ? type.target.value : type);
-    }
-  };
+  const handleChangeStyle = useCallback(
+    (type: React.ChangeEvent<HTMLInputElement>) => {
+      if (onChange) {
+        onChange(typeof type === 'object' ? type.target.value : type);
+      }
+    },
+    [onChange],
+  );
 
   return (
     <div>
@@ -68,6 +73,7 @@ export interface LinkFormProps {
 }
 
 const LinkForm = ({ data, onChange, onSave }: LinkFormProps) => {
+  const { t } = useTranslation();
   const [isMenu, toggleIsMenu] = useState(!!data.menu);
   const handleOnChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(field)(e.target.value);
@@ -131,7 +137,7 @@ const LinkForm = ({ data, onChange, onSave }: LinkFormProps) => {
   return (
     <Form onSubmit={handleSubmit}>
       <Form.Group className="mb-3" controlId="title">
-        <Form.Label>Name</Form.Label>
+        <Form.Label>{t('name')}</Form.Label>
         <Form.Control
           type="input"
           placeholder="Type link name here"
@@ -142,12 +148,12 @@ const LinkForm = ({ data, onChange, onSave }: LinkFormProps) => {
       </Form.Group>
 
       <Form.Group className="mb-3" controlId="isMenu">
-        <Form.Check type="checkbox" checked={isMenu} onChange={handleToggleIsMenu} label="Convert to Menu" />
+        <Form.Check type="checkbox" checked={isMenu} onChange={handleToggleIsMenu} label={t('Convert to Menu')} />
       </Form.Group>
 
       {!isMenu && (
         <Form.Group className="mb-3" controlId="url">
-          <Form.Label>Link</Form.Label>
+          <Form.Label>{t('link')}</Form.Label>
           <InputGroup className="mb-3">
             <OverlayTrigger trigger="click" placement="bottom" overlay={popover}>
               <Button
@@ -159,7 +165,7 @@ const LinkForm = ({ data, onChange, onSave }: LinkFormProps) => {
 
             <Form.Control
               type="input"
-              placeholder="Type link name here"
+              placeholder={t('Type link name here')}
               onChange={handleOnChange('url')}
               value={data.url}
             />
@@ -169,7 +175,7 @@ const LinkForm = ({ data, onChange, onSave }: LinkFormProps) => {
 
       {isMenu && (
         <Form.Group className="mb-3" controlId="url">
-          <Form.Label>Links</Form.Label>
+          <Form.Label>{t('links')}</Form.Label>
           {data.menu &&
             data.menu.map((item, index) => (
               <InputGroup className="mb-3" key={item.id}>
@@ -181,14 +187,14 @@ const LinkForm = ({ data, onChange, onSave }: LinkFormProps) => {
               </InputGroup>
             ))}
           <div className="d-grid gap-2">
-            <Button variant="primary" onClick={handleAddMenu} size="sm">
-              Add link
-            </Button>
+            <MyButton type="primary" onClick={handleAddMenu}>
+              {t('addLink')}
+            </MyButton>
           </div>
         </Form.Group>
       )}
       <Form.Group className="mb-3" controlId="description">
-        <Form.Label>Description</Form.Label>
+        <Form.Label>{t('description')}</Form.Label>
         <Form.Control value={data.description} onChange={handleOnChange('description')} as="textarea" rows={3} />
       </Form.Group>
     </Form>
@@ -203,6 +209,7 @@ export interface BlockFormProps {
 }
 
 const BlockForm = ({ data, onChange, onSave }: BlockFormProps) => {
+  const { t } = useTranslation();
   const handleOnChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(field)(e.target.value);
   };
@@ -218,10 +225,10 @@ const BlockForm = ({ data, onChange, onSave }: BlockFormProps) => {
   return (
     <Form onSubmit={handleSubmit}>
       <Form.Group className="mb-3" controlId="title">
-        <Form.Label>Title</Form.Label>
+        <Form.Label>{t('title')}</Form.Label>
         <Form.Control
           type="input"
-          placeholder="Block title"
+          placeholder={t('blockTitle')}
           autoFocus
           onChange={handleOnChange('title')}
           value={data.title}
@@ -250,6 +257,7 @@ export interface EditModalProps {
 
 export default function EditModal({ data, type, onChange, ...props }: EditModalProps) {
   const EditForm = FormSet[upperFirst(type) as FormType];
+  const { t } = useTranslation();
   return (
     <Modal {...props} onClose={props.onClose}>
       <Modal.Header>{data.title || 'untitled'}</Modal.Header>
@@ -260,9 +268,9 @@ export default function EditModal({ data, type, onChange, ...props }: EditModalP
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={props.onClose}>
-          Close
+          {t('close')}
         </Button>
-        <Button onClick={props.onSave}>Save</Button>
+        <Button onClick={props.onSave}>{t('done')}</Button>
       </Modal.Footer>
     </Modal>
   );
