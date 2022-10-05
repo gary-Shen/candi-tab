@@ -31,6 +31,10 @@ export default function SettingModal({ visible, onClose }: OAuthProps) {
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       updateSettings(set('general.language')(e.target.value)(settings));
       i18next.changeLanguage(e.target.value);
+
+      setTimeout(() => {
+        document.dispatchEvent(new CustomEvent('sync-upload'));
+      }, 1000);
     },
     [settings, updateSettings],
   );
@@ -38,6 +42,10 @@ export default function SettingModal({ visible, onClose }: OAuthProps) {
   const handleThemeSolutionChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       updateSettings(set('theme.solution')(e.target.value)(settings));
+
+      setTimeout(() => {
+        document.dispatchEvent(new CustomEvent('sync-upload'));
+      }, 1000);
     },
     [settings, updateSettings],
   );
