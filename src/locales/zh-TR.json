@@ -29,7 +29,7 @@
   "name": "名稱",
   "delete": "刪除",
   "addBlock": "添加區塊",
-  "addLinkAfter": "在下方插入鏈接",
+  "addLinkAfter": "在後方插入鏈接",
   "links": "鏈接",
   "addLink": "添加鏈接",
   "title": "標題",
@@ -37,5 +37,5 @@
   "link": "鏈接",
   "Type link name here": "輸入鏈接名稱",
   "Convert to Menu": "轉換成清單",
-  "themeSolution": "主题方案"
+  "themeSolution": "主題方案"
 }

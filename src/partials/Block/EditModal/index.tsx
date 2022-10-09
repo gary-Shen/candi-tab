@@ -14,8 +14,8 @@ import { TYPES } from '@/constant';
 import type { Block, Link, MenuLink } from '@/types/setting.type';
 import { gid } from '@/utils/gid';
 
-import MyButton from '../../Button';
-import Modal from '../../Modal';
+import MyButton from '../../../components/Button';
+import Modal from '../../../components/Modal';
 import StyledBody from './styled';
 
 export interface LinkColorPickerProps {

@@ -9,7 +9,7 @@ const StyledBlock = styled.div`
     border-color: var(--border-color);
   }
 
-  .card-header {
+  .block-header {
     display: flex;
     justify-content: space-between;
     user-select: none;

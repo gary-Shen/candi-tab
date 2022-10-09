@@ -14,13 +14,13 @@ import { useTranslation } from 'react-i18next';
 
 import MyButton from '@/components/Button';
 import Card from '@/components/Card';
+import Modal from '@/components/Modal';
+import { MovableContainer, MovableTarget } from '@/components/Movable';
 import { TYPES } from '@/constant';
 import type { Block, Link, Setting } from '@/types/setting.type';
 import { gid } from '@/utils/gid';
 import { isDark } from '@/utils/hsp';
 
-import Modal from '../Modal';
-import { MovableContainer, MovableTarget } from '../Movable';
 import type { EditType } from './EditModal';
 import EditModal from './EditModal';
 import StyledBlock from './styled';
