@@ -97,7 +97,7 @@
     "classnames": "^2.3.1",
     "dayjs": "^1.11.4",
     "i18next": "^21.9.2",
-    "lina-context-menu": "0.0.11",
+    "lina-context-menu": "^1.1.2",
     "lodash": "^4.17.21",
     "polished": "^4.2.2",
     "react": "^18.2.0",

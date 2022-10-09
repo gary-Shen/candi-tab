@@ -1,3 +1,5 @@
+import bg from '@/assets/bg-dark.png';
+
 import type { ThemeTypes } from './types';
 
 const theme: ThemeTypes = {
@@ -9,6 +11,7 @@ const theme: ThemeTypes = {
   darkColor: '',
   // ======
   bodyBackground: '#0d1117',
+  bodyBackgroundImage: `url(${bg})`,
   borderColor: '#30363d',
   fontSize: '1rem',
   secondaryColor: '',

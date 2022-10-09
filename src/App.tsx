@@ -149,6 +149,7 @@ function App() {
         editable,
       })}
     >
+      <GlobalStyle editable={editable} />
       <Header onEdit={handleToggleEditable} editable={editable} />
       {links.length ? (
         <Grid
@@ -304,7 +305,6 @@ function withOauth<WrapComponentProps>(Comp: any) {
     return (
       <SettingsContext.Provider value={value as NonNullable<SettingsContextType>}>
         <Comp {...props} />
-        <GlobalStyle />
         <GlobalCSSVariables theme={themeVariables} />
         <ToastContainer
           // @ts-ignore

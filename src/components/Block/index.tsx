@@ -2,6 +2,7 @@ import { BiEditAlt } from '@react-icons/all-files/bi/BiEditAlt';
 import { BiListPlus } from '@react-icons/all-files/bi/BiListPlus';
 import { BiPlusCircle } from '@react-icons/all-files/bi/BiPlusCircle';
 import { BiTrash } from '@react-icons/all-files/bi/BiTrash';
+import type { MenuData } from 'lina-context-menu';
 import ContextMenu from 'lina-context-menu';
 import _ from 'lodash';
 import concat from 'lodash/fp/concat';
@@ -141,16 +142,6 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
     toggleEditVisible(true);
     setEditData(block);
   }, [block]);
-
-  /**
-   * 编辑Link
-   */
-  const handleEditLink = useCallback((e: React.MouseEvent, unused: any, link: Link) => {
-    setEditType('link');
-    toggleEditVisible(true);
-    setEditData(link);
-  }, []);
-
   /**
    * 编辑表单
    */
@@ -306,15 +297,11 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
     () => [
       [
         {
-          key: 1,
-          className: 'menu-item',
           title: t('edit'),
           icon: <BiEditAlt style={iconStyle} />,
           onClick: handleEditBlock,
         },
         {
-          key: 2,
-          className: 'menu-item',
           title: t('addBlock'),
           icon: <BiPlusCircle style={iconStyle} />,
           onClick: handleAddBlock,
@@ -322,8 +309,6 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
       ],
       [
         {
-          key: 4,
-          className: 'menu-item',
           title: t('delete'),
           icon: <BiTrash style={iconStyle} />,
           onClick: () => {
@@ -334,40 +319,6 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
       ],
     ],
     [block, handleAddBlock, handleEditBlock, t],
-  );
-
-  const linkMenu = useMemo(
-    () => [
-      [
-        {
-          key: 2,
-          className: 'menu-item',
-          title: t('edit'),
-          icon: <BiEditAlt style={iconStyle} />,
-          onClick: handleEditLink,
-        },
-        {
-          key: 1,
-          className: 'menu-item',
-          title: t('addLinkAfter'),
-          icon: <BiListPlus style={iconStyle} />,
-          onClick: handleAddLink,
-        },
-      ],
-      [
-        {
-          key: 3,
-          className: 'menu-item',
-          title: t('delete'),
-          icon: <BiTrash style={iconStyle} />,
-          onClick: (e: React.MouseEvent, unused: unknown, link: Link) => {
-            setDataToDelete(link);
-            toggleConfirmVisible(true);
-          },
-        },
-      ],
-    ],
-    [handleAddLink, handleEditLink, t],
   );
 
   const card = (
@@ -397,6 +348,35 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
                   color: isDark(style) ? '#fff' : '#000',
                 };
 
+            const linkMenu = [
+              [
+                {
+                  title: t('edit'),
+                  icon: <BiEditAlt style={iconStyle} />,
+                  onClick: () => {
+                    setEditType('link');
+                    toggleEditVisible(true);
+                    setEditData(link);
+                  },
+                },
+                {
+                  title: t('addLinkAfter'),
+                  icon: <BiListPlus style={iconStyle} />,
+                  onClick: handleAddLink,
+                },
+              ],
+              [
+                {
+                  title: t('delete'),
+                  icon: <BiTrash style={iconStyle} />,
+                  onClick: () => {
+                    setDataToDelete(link);
+                    toggleConfirmVisible(true);
+                  },
+                },
+              ],
+            ] as MenuData;
+
             if (menu) {
               const linkItem = (
                 <MovableTarget
@@ -425,8 +405,7 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
               );
 
               return editable ? (
-                <ContextMenu key={id} data={link} menu={linkMenu} onOpen={() => handleLinkContextOpen(linkIndex)}>
-                  {/*@ts-ignore*/}
+                <ContextMenu key={id} menu={linkMenu} onOpen={() => handleLinkContextOpen(linkIndex)}>
                   <span className="under-context-menu link-btn">{linkItem!}</span>
                 </ContextMenu>
               ) : (
@@ -460,9 +439,8 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
 
             if (editable) {
               return (
-                <ContextMenu key={id} data={link} menu={linkMenu} onOpen={() => handleLinkContextOpen(linkIndex)}>
-                  {/* @ts-ignore */}
-                  <div className="link-btn under-context-menu">{button! as React.ReactNode}</div>
+                <ContextMenu key={id} menu={linkMenu} onOpen={() => handleLinkContextOpen(linkIndex)}>
+                  <div className="link-btn under-context-menu">{button}</div>
                 </ContextMenu>
               );
             }
@@ -486,7 +464,6 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
   if (editable) {
     return (
       <>
-        {/* @ts-ignore */}
         <ContextMenu menu={blockMenu}>{card}</ContextMenu>
         <EditModal
           visible={editVisible}

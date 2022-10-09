@@ -7,6 +7,7 @@ export interface ThemeTypes {
   darkColor: string;
   // ======
   bodyBackground: string;
+  bodyBackgroundImage: string;
   fontSize: string;
   borderColor: string;
   secondaryColor: string;

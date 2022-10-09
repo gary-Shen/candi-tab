@@ -1,3 +1,5 @@
+import bg from '@/assets/bg-light.png';
+
 import type { ThemeTypes } from './types';
 
 const theme: ThemeTypes = {
@@ -9,6 +11,7 @@ const theme: ThemeTypes = {
   darkColor: '',
   // ======
   bodyBackground: '#fff',
+  bodyBackgroundImage: `url(${bg})`,
   fontSize: '1rem',
   borderColor: '#d0d7de',
   secondaryColor: '',

@@ -64,6 +64,7 @@ const GlobalCSSVariables = createGlobalStyle<ThemeProps>`
       --gray-color-hover: ${theme.grayColorHover};
       --border-color: ${theme.borderColor};
       --box-shadow: ${theme.boxShadow};
+      --background-image: ${theme.bodyBackgroundImage};
 
       /* card */
       --card-padding-x: ${theme.card.paddingX};

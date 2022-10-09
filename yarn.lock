@@ -4322,7 +4322,7 @@ cjs-module-lexer@^1.0.0:
   resolved "https://npm.shlab.tech/cjs-module-lexer/-/cjs-module-lexer-1.2.2.tgz"
   integrity sha512-cOU9usZw8/dXIXKtwa8pM0OTJQuJkxMN6w30csNRUerHfeQ5R6U3kkU/FtJeIf3M202OHfY2U8ccInBG7/xogA==
 
-classnames@^2.2.6, classnames@^2.3.1:
+classnames@^2.3.1:
   version "2.3.2"
   resolved "https://npm.shlab.tech/classnames/-/classnames-2.3.2.tgz"
   integrity sha512-CSbhY4cFEJRe6/GQzIk5qXZ4Jeg5pcsP7b5peFSDpffpe1cqjASH/n9UTjBwOp6XpMSTwQ8Za2K5V02ueA7Tmw==
@@ -8390,15 +8390,10 @@ lilconfig@^2.0.3:
   resolved "https://npm.shlab.tech/lilconfig/-/lilconfig-2.0.6.tgz"
   integrity sha512-9JROoBW7pobfsx+Sq2JsASvCo6Pfo6WWoUW79HuB1BCoBXD4PLWJPqDF6fNj67pqBYTbAHkE57M1kS/+L1neOg==
 
-lina-context-menu@0.0.11:
-  version "0.0.11"
-  resolved "https://npm.shlab.tech/lina-context-menu/-/lina-context-menu-0.0.11.tgz"
-  integrity sha512-17aSYFRjCEPj6/0AH3utZ24ovdEr/x61rEyTtqQo6ZvGV0prRxtFaonvUzgRWDb/Rt8Rjln5eoPXQt+KOt3TEA==
-  dependencies:
-    classnames "^2.2.6"
-    lodash "^4.17.20"
-    react "^16.13.1"
-    react-dom "^16.13.1"
+lina-context-menu@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.npmjs.org/lina-context-menu/-/lina-context-menu-1.1.2.tgz#18ffeb7f91a32b89564acb37110c381b027681ef"
+  integrity sha512-iaBTwTqiaATshoxW9TOHHM6Yr1xDStxndYhHT/cWW181zsuPfe1tJuKle97MSNGMbrkLsi/dfgbgAyH2tGgghg==
 
 lines-and-columns@^1.1.6:
   version "1.2.4"
@@ -10831,16 +10826,6 @@ react-dev-utils@^12.0.1:
     strip-ansi "^6.0.1"
     text-table "^0.2.0"
 
-react-dom@^16.13.1:
-  version "16.14.0"
-  resolved "https://npm.shlab.tech/react-dom/-/react-dom-16.14.0.tgz"
-  integrity sha512-1gCeQXDLoIqMgqD3IO2Ah9bnf0w9kzhwN5q4FGnHZ67hBm9yePzB5JJAIQCc8x3pFnNlwFq4RidZggNAAkzWWw==
-  dependencies:
-    loose-envify "^1.1.0"
-    object-assign "^4.1.1"
-    prop-types "^15.6.2"
-    scheduler "^0.19.1"
-
 react-dom@^18.2.0:
   version "18.2.0"
   resolved "https://npm.shlab.tech/react-dom/-/react-dom-18.2.0.tgz"
@@ -10986,15 +10971,6 @@ react-transition-group@^4.4.2:
     "@babel/runtime" "^7.5.5"
     dom-helpers "^5.0.1"
     loose-envify "^1.4.0"
-    prop-types "^15.6.2"
-
-react@^16.13.1:
-  version "16.14.0"
-  resolved "https://npm.shlab.tech/react/-/react-16.14.0.tgz"
-  integrity sha512-0X2CImDkJGApiAlcf0ODKIneSwBPhqJawOa5wCtKbu7ZECrmS26NvtSILynQ66cgkT/RJ4LidJOc3bUESwmU8g==
-  dependencies:
-    loose-envify "^1.1.0"
-    object-assign "^4.1.1"
     prop-types "^15.6.2"
 
 react@^18.2.0:
@@ -11440,14 +11416,6 @@ saxes@^5.0.1:
   integrity sha512-5LBh1Tls8c9xgGjw3QrMwETmTMVk0oFgvrFSvWx62llR2hcEInrKNZ2GZCCuuy2lvWrdl5jhbpeqc5hRYKFOcw==
   dependencies:
     xmlchars "^2.2.0"
-
-scheduler@^0.19.1:
-  version "0.19.1"
-  resolved "https://npm.shlab.tech/scheduler/-/scheduler-0.19.1.tgz"
-  integrity sha512-n/zwRWRYSUj0/3g/otKDRPMh6qv2SYMWNq85IEa8iZyAv8od9zDYpGSnpBEjNgcMNq6Scbu5KfIPxNF72R/2EA==
-  dependencies:
-    loose-envify "^1.1.0"
-    object-assign "^4.1.1"
 
 scheduler@^0.23.0:
   version "0.23.0"

@@ -1,8 +1,17 @@
-import { createGlobalStyle } from 'styled-components';
+import { createGlobalStyle, css } from 'styled-components';
 
-const GlobalStyle = createGlobalStyle`
+interface GlobalStyleProps {
+  editable?: boolean;
+}
+
+const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
   body {
     background: var(--background-color);
+    ${({ editable }: GlobalStyleProps) =>
+      editable &&
+      css`
+        background-image: var(--background-image);
+      `}
     background-repeat: repeat;
     background-attachment: fixed;
     background-position: initial;
@@ -82,10 +91,31 @@ const GlobalStyle = createGlobalStyle`
     box-sizing: border-box;
   }
 
+  [data-reach-menu-popover] {
+    z-index: 999;
+  }
+
   /* context-menu */
-  .menu-item {
+  .LCM {
+    border-radius: var(--border-radius);
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--box-shadow);
+  }
+
+  .LCM__group {
+    border-color: var(--border-color);
+  }
+
+  .LCM__item {
+    transition: none;
     font-size: 14px;
     min-height: 32px;
+
+    &:hover {
+      background-color: var(--primary-color);
+      color: #fff;
+    }
   }
 
   .form-control, .form-select {
