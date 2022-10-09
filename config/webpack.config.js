@@ -206,17 +206,19 @@ module.exports = function (webpackEnv) {
         ? (info) => path.relative(paths.appSrc, info.absoluteResourcePath).replace(/\\/g, '/')
         : isEnvDevelopment && ((info) => path.resolve(info.absoluteResourcePath).replace(/\\/g, '/')),
     },
-    cache: {
-      type: 'filesystem',
-      version: createEnvironmentHash(env.raw),
-      cacheDirectory: paths.appWebpackCache,
-      store: 'pack',
-      buildDependencies: {
-        defaultWebpack: ['webpack/lib/'],
-        config: [__filename],
-        tsconfig: [paths.appTsConfig, paths.appJsConfig].filter((f) => fs.existsSync(f)),
-      },
-    },
+    cache: isEnvDevelopment
+      ? {
+          type: 'filesystem',
+          version: createEnvironmentHash(env.raw),
+          cacheDirectory: paths.appWebpackCache,
+          store: 'pack',
+          buildDependencies: {
+            defaultWebpack: ['webpack/lib/'],
+            config: [__filename],
+            tsconfig: [paths.appTsConfig, paths.appJsConfig].filter((f) => fs.existsSync(f)),
+          },
+        }
+      : false,
     infrastructureLogging: {
       level: 'none',
     },
@@ -399,7 +401,7 @@ module.exports = function (webpackEnv) {
                 // This is a feature of `babel-loader` for webpack (not Babel itself).
                 // It enables caching results in ./node_modules/.cache/babel-loader/
                 // directory for faster rebuilds.
-                cacheDirectory: true,
+                cacheDirectory: isEnvDevelopment,
                 // See #6846 for context on why cacheCompression is disabled
                 cacheCompression: false,
                 compact: isEnvProduction,
@@ -416,7 +418,7 @@ module.exports = function (webpackEnv) {
                 configFile: false,
                 compact: false,
                 presets: [[require.resolve('babel-preset-react-app/dependencies'), { helpers: true }]],
-                cacheDirectory: true,
+                cacheDirectory: isEnvDevelopment,
                 // See #6846 for context on why cacheCompression is disabled
                 cacheCompression: false,
 
@@ -653,7 +655,7 @@ module.exports = function (webpackEnv) {
           eslintPath: require.resolve('eslint'),
           failOnError: !(isEnvDevelopment && emitErrorsAsWarnings),
           context: paths.appSrc,
-          cache: true,
+          cache: isEnvDevelopment,
           cacheLocation: path.resolve(paths.appNodeModules, '.cache/.eslintcache'),
           // ESLint class options
           cwd: paths.appPath,
