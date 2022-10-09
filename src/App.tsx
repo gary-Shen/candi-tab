@@ -4,25 +4,29 @@ import classNames from 'classnames';
 import _ from 'lodash';
 import set from 'lodash/fp/set';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { Button, Toast, ToastContainer } from 'react-bootstrap';
+import { Toast, ToastContainer } from 'react-bootstrap';
 import type { Layout } from 'react-grid-layout';
 import GridLayout from 'react-grid-layout';
 import BarLoader from 'react-spinners/BarLoader';
 import styled from 'styled-components';
 
+import Button from './components/Button';
 import type { SettingsContextType } from './context/settings.context';
 import SettingsContext from './context/settings.context';
-import GlobalStyle from './GlobalStyle';
 import useSettings from './hooks/useSettings';
 import useStorage from './hooks/useStorage';
 import Block from './partials/Block';
 import EditModal from './partials/Block/EditModal';
 import Header from './partials/Header';
 import * as gistService from './service/gist';
+import GlobalCSSVariables from './style/GlobalCSSVariables';
+import GlobalStyle from './style/GlobalStyle';
 import StyledApp from './styled';
+import themes from './themes';
 import type { Block as IBlock, Setting } from './types/setting.type';
 import { gid } from './utils/gid';
 import parseGistContent from './utils/parseGistContent';
+
 const queryClient = new QueryClient();
 
 const Grid = styled(GridLayout)`
@@ -145,11 +149,12 @@ function App() {
         editable,
       })}
     >
+      <GlobalStyle editable={editable} />
       <Header onEdit={handleToggleEditable} editable={editable} />
       {links.length ? (
         <Grid
           layout={layouts}
-          draggableHandle=".card-header"
+          draggableHandle=".block-header"
           isResizable={editable}
           isDraggable={editable}
           isDroppable={editable}
@@ -172,9 +177,7 @@ function App() {
             height: '80vh',
           }}
         >
-          <Button size="lg" onClick={handleCreateFirstBlock}>
-            Create first block
-          </Button>
+          <Button onClick={handleCreateFirstBlock}>Create first block</Button>
           <EditModal
             data={firstBlock}
             onChange={handleBlockChange}
@@ -296,9 +299,13 @@ function withOauth<WrapComponentProps>(Comp: any) {
       width: 'auto',
     };
 
+    const themeSolution = _.get(settings, 'theme.solution');
+    const themeVariables = _.get(themes, themeSolution);
+
     return (
       <SettingsContext.Provider value={value as NonNullable<SettingsContextType>}>
         <Comp {...props} />
+        <GlobalCSSVariables theme={themeVariables} />
         <ToastContainer
           // @ts-ignore
           position="bottom-end-2"
@@ -342,7 +349,6 @@ function withQuery<WrapComponentProps>(Component: any) {
   return function QueryWrapped(props: WrapComponentProps) {
     return (
       <QueryClientProvider client={queryClient}>
-        <GlobalStyle />
         <Component {...props} />
       </QueryClientProvider>
     );

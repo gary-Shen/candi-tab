@@ -5,9 +5,11 @@ const StyledBlock = styled.div`
 
   .card {
     height: 100%;
+    background-color: var(--card-body-bg);
+    border-color: var(--border-color);
   }
 
-  .card-header {
+  .block-header {
     display: flex;
     justify-content: space-between;
     user-select: none;
@@ -19,6 +21,7 @@ const StyledBlock = styled.div`
   .block-content {
     display: flex;
     flex-direction: column;
+    padding: var(--card-padding-x);
   }
 
   .link-btn {

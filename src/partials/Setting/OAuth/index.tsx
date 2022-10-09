@@ -6,7 +6,6 @@ import {
   Badge,
   Button,
   ButtonGroup,
-  Card,
   Col,
   Dropdown,
   DropdownButton,
@@ -15,16 +14,19 @@ import {
   ListGroup,
   Row,
 } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 import BarLoader from 'react-spinners/BarLoader';
 import styled from 'styled-components';
 
+import Card from '@/components/Card';
+import Modal from '@/components/Modal';
+import SettingsContext from '@/context/settings.context';
+import * as gistService from '@/service/gist';
 import type { IGist } from '@/types/gist.type';
+import { calcLayout } from '@/utils/calcLayout';
 import { gid } from '@/utils/gid';
+import parseGistContent from '@/utils/parseGistContent';
 
-import SettingsContext from '../../context/settings.context';
-import * as gistService from '../../service/gist';
-import parseGistContent from '../../utils/parseGistContent';
-import Modal from '../Modal';
 import StyledOauth from './styled';
 
 const SpinnerStyle = styled.div`
@@ -44,15 +46,11 @@ const spinner = (
 const uuid = gid();
 const OAUTH_URL = `https://github.com/login/oauth/authorize?scope=gist&client_id=9f776027a79806fc1363&redirect_uri=https://candi-tab.vercel.app/api/github?uuid=${uuid}`;
 
-export interface OAuthProps {
-  visible?: boolean;
-  onClose?: () => void;
-}
-
-export default function OAuth({ visible, onClose }: OAuthProps) {
+export default function OAuth() {
   const { settings, updateSettings, accessToken, updateAccessToken } = useContext(SettingsContext);
   const [tokenValue, setTokenValue] = useState(accessToken);
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   useEffect(() => {
     setTokenValue(accessToken);
@@ -65,13 +63,6 @@ export default function OAuth({ visible, onClose }: OAuthProps) {
   const handleSave = useCallback(() => {
     updateAccessToken(tokenValue);
   }, [tokenValue, updateAccessToken]);
-
-  const createTokenNode = accessToken ? null : (
-    <Button variant="link" style={{ width: '100%' }} href={OAUTH_URL} target="_blank">
-      Create Access Token with github OAuth
-    </Button>
-  );
-
   /** ========================== 选中gist ========================== */
 
   const gistId = _.get(settings, `gistId`);
@@ -81,12 +72,6 @@ export default function OAuth({ visible, onClose }: OAuthProps) {
     enabled: !!(selectedGist?.id || gistId) && !!accessToken,
     initialData: null,
   });
-
-  const handleClose = useCallback(() => {
-    if (typeof onClose === 'function') {
-      onClose();
-    }
-  }, [onClose]);
 
   const filename = _.chain(queryOne.data).get(`data.files`).keys().head().value();
   const [gistsModalVisible, toggleGistsModalVisible] = useState(false);
@@ -109,11 +94,17 @@ export default function OAuth({ visible, onClose }: OAuthProps) {
       return;
     }
     if (queryOne.data?.data) {
-      updateSettings({
+      const newSettings = {
         ...settings,
         // @ts-ignore
         ...parseGistContent(queryOne.data.data!),
         gistId: selectedGist.id,
+      };
+
+      updateSettings(newSettings);
+
+      setTimeout(() => {
+        updateSettings(calcLayout(newSettings));
       });
     }
 
@@ -173,13 +164,14 @@ export default function OAuth({ visible, onClose }: OAuthProps) {
       {queryOne.isFetching
         ? spinner
         : !_.isEmpty(queryOne.data) && (
-            <Card border="primary">
+            <Card>
               <Card.Header>{filename}</Card.Header>
               <Card.Body>
                 {_.get(queryOne.data, 'data.description')}
                 <br />
-                <Badge bg="light" text="dark">
-                  @{dayjs(_.get(queryOne.data, 'data.created_at')).format('YYYY-MM-DD HH:mm:ss')}
+                <Badge bg="primary">
+                  {t('createdAt')}
+                  {dayjs(_.get(queryOne.data, 'data.created_at')).format(t('dateFormat'))}
                 </Badge>
               </Card.Body>
             </Card>
@@ -188,63 +180,65 @@ export default function OAuth({ visible, onClose }: OAuthProps) {
   );
 
   return (
-    <StyledOauth>
-      <Modal visible={visible} onClose={handleClose}>
-        <Modal.Header>Syncing with github gist</Modal.Header>
-        <Modal.Body className="oauth-modal-content">
-          <Form
-            className="oauth-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              return;
-            }}
-          >
-            <Form.Group className="mb-3">{createTokenNode}</Form.Group>
+    <StyledOauth className="oauth-modal-content">
+      <Form
+        className="oauth-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          return;
+        }}
+      >
+        {accessToken ? null : (
+          <Form.Group className="mb-3">
+            <Button variant="link" style={{ width: '100%' }} href={OAUTH_URL} target="_blank">
+              {t('createAccessToken')}
+            </Button>
+          </Form.Group>
+        )}
 
-            <Form.Group className="mb-3">
-              <Form.Control
-                type="input"
-                placeholder="Paste Access Token here."
-                autoFocus
-                onBlur={handleSave}
-                onKeyDown={(e) => {
-                  if (e.which === 13) {
-                    e.preventDefault();
-                    handleSave();
-                  }
-                }}
-                onChange={handleOnChange}
-                value={tokenValue}
-              />
-            </Form.Group>
-            {accessToken && gistNode}
-            {accessToken && !queryOne.isFetching && (
-              <Form.Group className="mb-3" controlId="url">
-                <Row>
-                  <Col>
-                    <Button
-                      style={{ width: '100%' }}
-                      // @ts-ignore
-                      disabled={createMutation.isFetching}
-                      variant="primary"
-                      onClick={handleCreateGist}
-                    >
-                      Create a new gist
-                    </Button>
-                  </Col>
-                  <Col>
-                    <Button style={{ width: '100%' }} variant="secondary" onClick={handleOpenGists}>
-                      Select an existing gist.
-                    </Button>
-                  </Col>
-                </Row>
-              </Form.Group>
-            )}
-          </Form>
-        </Modal.Body>
-      </Modal>
+        <Form.Group className="mb-3">
+          <Form.Control
+            type="input"
+            placeholder={t('pasteToken')}
+            autoFocus
+            onBlur={handleSave}
+            onKeyDown={(e) => {
+              if (e.which === 13) {
+                e.preventDefault();
+                handleSave();
+              }
+            }}
+            onChange={handleOnChange}
+            value={tokenValue}
+          />
+        </Form.Group>
+        {accessToken && gistNode}
+        {accessToken && !queryOne.isFetching && (
+          <Form.Group className="mb-3" controlId="url">
+            <Row>
+              <Col>
+                <Button
+                  style={{ width: '100%' }}
+                  // @ts-ignore
+                  disabled={createMutation.isFetching}
+                  variant="primary"
+                  onClick={handleCreateGist}
+                >
+                  {t('createGist')}
+                </Button>
+              </Col>
+              <Col>
+                <Button style={{ width: '100%' }} variant="secondary" onClick={handleOpenGists}>
+                  {t('selectGist')}
+                </Button>
+              </Col>
+            </Row>
+          </Form.Group>
+        )}
+      </Form>
+      {/* 選擇已有gist */}
       <Modal visible={gistsModalVisible} onClose={() => toggleGistsModalVisible(false)}>
-        <Modal.Header>Select a gist from existing gists</Modal.Header>
+        <Modal.Header>{t('selectGist')}</Modal.Header>
         <Modal.Body>
           {queryList.isFetching && spinner}
           {!queryList.isFetching && (
@@ -260,7 +254,7 @@ export default function OAuth({ visible, onClose }: OAuthProps) {
                       selectedGist && selectedGist.id === item.id
                         ? 'primary'
                         : settings.gistId === item.id
-                        ? 'info'
+                        ? 'secondary'
                         : undefined
                     }
                     onClick={() => handleSelectGist(item)}
@@ -279,7 +273,7 @@ export default function OAuth({ visible, onClose }: OAuthProps) {
                         <DropdownButton
                           size="sm"
                           as={ButtonGroup}
-                          variant="light"
+                          variant="secondary"
                           title="files"
                           onClick={(e) => {
                             e.preventDefault();
@@ -297,11 +291,13 @@ export default function OAuth({ visible, onClose }: OAuthProps) {
                         </DropdownButton>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <Badge bg="light" text="dark" style={{ marginBottom: 8 }}>
-                          created@{dayjs(item.created_at).format('YYYY-MM-DD HH:mm:ss')}
+                        <Badge bg="link" style={{ marginBottom: 8 }}>
+                          {t('createdAt')}
+                          {dayjs(item.created_at).format(t('dateFormat'))}
                         </Badge>
-                        <Badge bg="light" text="dark">
-                          updated@{dayjs(item.updated_at).format('YYYY-MM-DD HH:mm:ss')}
+                        <Badge bg="link">
+                          {t('updatedAt')}
+                          {dayjs(item.updated_at).format(t('dateFormat'))}
                         </Badge>
                       </div>
                     </div>
@@ -313,14 +309,15 @@ export default function OAuth({ visible, onClose }: OAuthProps) {
         </Modal.Body>
         <Modal.Footer>
           {!queryList.isFetching && (
-            <Button variant="primary" onClick={handleSaveGist}>
-              Yes
+            <Button variant="primary" onClick={handleSaveGist} disabled={queryOne.isFetching}>
+              {queryOne.isFetching ? t('processing') : t('done')}
             </Button>
           )}
         </Modal.Footer>
       </Modal>
+      {/* 創建gist */}
       <Modal visible={createGistModalVisible} onClose={handleCloseCreateModal}>
-        <Modal.Header>Create a gist</Modal.Header>
+        <Modal.Header>{t('createGist')}</Modal.Header>
         <Modal.Body>
           <Form
             className="gist-form"
@@ -330,7 +327,7 @@ export default function OAuth({ visible, onClose }: OAuthProps) {
             }}
           >
             <Form.Group className="mb-3" controlId="description">
-              <Form.Label>File name</Form.Label>
+              <Form.Label>{t('fileName')}</Form.Label>
               <InputGroup className="mb-3">
                 <Form.Control
                   autoFocus
@@ -345,7 +342,7 @@ export default function OAuth({ visible, onClose }: OAuthProps) {
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="description">
-              <Form.Label>Description</Form.Label>
+              <Form.Label>{t('description')}</Form.Label>
               <Form.Control
                 value={gistForm.description}
                 onChange={handleGistChange('description')}
@@ -357,10 +354,10 @@ export default function OAuth({ visible, onClose }: OAuthProps) {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCloseCreateModal}>
-            Close
+            {t('close')}
           </Button>
           <Button disabled={createMutation.isLoading} onClick={handleSaveCreateGist}>
-            {createMutation.isLoading ? 'Processing' : 'Save'}
+            {createMutation.isLoading ? t('processing') : t('done')}
           </Button>
         </Modal.Footer>
       </Modal>

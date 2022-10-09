@@ -47,10 +47,6 @@ export const MovableContainer = React.forwardRef(function MovableContainerWithRe
       const itemNode = movableItems[i];
       const boundingRect = itemNode.getBoundingClientRect();
 
-      // if (activeTarget === itemNode) {
-      //   continue;
-      // }
-
       positions.current.push({
         mid: boundingRect.top + window.scrollY + boundingRect.height / 2,
         elem: itemNode,
@@ -90,13 +86,14 @@ export const MovableContainer = React.forwardRef(function MovableContainerWithRe
           if ((i !== mids.length - 1 && y >= mid && y <= mids[i + 1].mid) || (i === mids.length - 1 && y >= mid)) {
             order = i + 1;
 
+            // 元素在自己周围松开，并未发生变化
             shouldCorrect.current = indexOfActiveTarget > -1 && order > indexOfActiveTarget;
             break;
           }
         }
 
         if (insertOrder !== order) {
-          // correctOrder用于在settings中更新，inserOrder用于在交互时显示
+          // correctOrder用于在settings中更新，insertOrder用于在交互时显示
           setInsertOrder(order);
         }
       },
@@ -126,7 +123,7 @@ export const MovableContainer = React.forwardRef(function MovableContainerWithRe
       if (!e.detail.elem) {
         // 只向位于上方的container触发回调
         const elements = document.elementsFromPoint(e.detail.evt.clientX, e.detail.evt.clientY);
-        if (elements.includes(containerRef.current!)) {
+        if (elements.includes(containerRef.current!) && typeof insertOrder !== 'undefined') {
           onMouseUp(shouldCorrect.current ? insertOrder! - 1 : insertOrder!);
           shouldCorrect.current = false;
         }

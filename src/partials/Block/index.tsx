@@ -1,23 +1,27 @@
+import { BiEditAlt } from '@react-icons/all-files/bi/BiEditAlt';
+import { BiListPlus } from '@react-icons/all-files/bi/BiListPlus';
+import { BiPlusCircle } from '@react-icons/all-files/bi/BiPlusCircle';
+import { BiTrash } from '@react-icons/all-files/bi/BiTrash';
+import type { MenuData } from 'lina-context-menu';
 import ContextMenu from 'lina-context-menu';
 import _ from 'lodash';
 import concat from 'lodash/fp/concat';
 import set from 'lodash/fp/set';
 import update from 'lodash/fp/update';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Card, Dropdown, OverlayTrigger, Tooltip } from 'react-bootstrap';
-// import { BiEditAlt, BiListPlus, BiPlusCircle, BiTrash } from 'react-icons/bi';
-import { BiEditAlt } from '@react-icons/all-files/bi/BiEditAlt';
-import { BiListPlus } from '@react-icons/all-files/bi/BiListPlus';
-import { BiPlusCircle } from '@react-icons/all-files/bi/BiPlusCircle';
-import { BiTrash } from '@react-icons/all-files/bi/BiTrash';
+import { Button, Dropdown, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 
+import MyButton from '@/components/Button';
+import Card from '@/components/Card';
+import Modal from '@/components/Modal';
+import { MovableContainer, MovableTarget } from '@/components/Movable';
 import { TYPES } from '@/constant';
 import type { Block, Link, Setting } from '@/types/setting.type';
+import { calcLayout } from '@/utils/calcLayout';
 import { gid } from '@/utils/gid';
 import { isDark } from '@/utils/hsp';
 
-import Modal from '../Modal';
-import { MovableContainer, MovableTarget } from '../Movable';
 import type { EditType } from './EditModal';
 import EditModal from './EditModal';
 import StyledBlock from './styled';
@@ -36,28 +40,23 @@ export interface ConfirmProps {
   onClose: () => void;
 }
 const Confirm = ({ title, visible, onConfirm, onClose }: ConfirmProps) => {
+  const { t } = useTranslation();
   return (
     <Modal visible={visible} onClose={onClose}>
-      <Modal.Header>Confirm</Modal.Header>
+      <Modal.Header>{t('confirm')}</Modal.Header>
       <Modal.Body>
-        Are you sure to delete <strong>{title}</strong>?
+        {t('Are you sure to delete')} <strong>{title}</strong>?
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={onClose}>
-          Cancel
+          {t('cancel')}
         </Button>
         <Button variant="danger" autoFocus onClick={onConfirm}>
-          Confirm
+          {t('yes')}
         </Button>
       </Modal.Footer>
     </Modal>
   );
-};
-
-const blockStyle = {
-  blockPadding: 16,
-  linkMargin: 8,
-  blockMargin: 8,
 };
 
 export interface BlockProps {
@@ -70,6 +69,7 @@ export interface BlockProps {
 }
 export default function BlockContainer({ block, onMenuClick, settings, updateSettings, index, editable }: BlockProps) {
   const { buttons: links, title } = block;
+  const { t } = useTranslation();
   const [editVisible, toggleEditVisible] = useState<boolean>(false);
   const [editType, setEditType] = useState<EditType>('block');
   const [editData, setEditData] = useState<Block | Link>(block);
@@ -92,38 +92,7 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
 
       // 更新全部Block布局
       setTimeout(() => {
-        const headerHeight = blockHeaderRef.current?.offsetHeight;
-        const blockElements = document.querySelectorAll(`.${blockBodyRef.current!.classList[0]}`);
-        let newSettings = inputSettings;
-        _.forEach(blockElements, (blockElem, blockIndex) => {
-          const linkSize = blockElem.children!.length;
-          const linkHeight = _.chain(blockElem.children)
-            .map((item) => {
-              return (item as HTMLElement).offsetHeight;
-            })
-            .reduce((memo, cur) => {
-              return memo + cur;
-            }, 0)
-            .value();
-
-          newSettings = update(`links[${blockIndex}]`)((blockItem) => {
-            return {
-              ...blockItem,
-              layout: {
-                ...blockItem.layout,
-                h:
-                  (linkHeight +
-                    (linkSize! - 1) * blockStyle.linkMargin +
-                    blockStyle.blockPadding * 2 +
-                    blockStyle.blockMargin * 2 +
-                    headerHeight!) /
-                  4,
-              },
-            };
-          })(newSettings);
-        });
-
-        updateSettings(newSettings);
+        updateSettings(calcLayout(inputSettings));
       });
     },
     [updateSettings],
@@ -137,16 +106,6 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
     toggleEditVisible(true);
     setEditData(block);
   }, [block]);
-
-  /**
-   * 编辑Link
-   */
-  const handleEditLink = useCallback((e: React.MouseEvent, unused: any, link: Link) => {
-    setEditType('link');
-    toggleEditVisible(true);
-    setEditData(link);
-  }, []);
-
   /**
    * 编辑表单
    */
@@ -272,7 +231,7 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
   // link排序
   const handleContainerMouseUp = useCallback(
     (insertOrder: number) => {
-      if (!movingLink || _.isNil(movingLinkFromWhichBlock)) {
+      if (!movingLink || _.isNil(movingLinkFromWhichBlock) || _.isNil(insertOrder)) {
         return;
       }
 
@@ -302,25 +261,19 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
     () => [
       [
         {
-          key: 1,
-          className: 'menu-item',
-          title: 'Edit',
+          title: t('edit'),
           icon: <BiEditAlt style={iconStyle} />,
           onClick: handleEditBlock,
         },
         {
-          key: 2,
-          className: 'menu-item',
-          title: 'Add block',
+          title: t('addBlock'),
           icon: <BiPlusCircle style={iconStyle} />,
           onClick: handleAddBlock,
         },
       ],
       [
         {
-          key: 4,
-          className: 'menu-item',
-          title: 'Delete',
+          title: t('delete'),
           icon: <BiTrash style={iconStyle} />,
           onClick: () => {
             setDataToDelete(block);
@@ -329,60 +282,26 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
         },
       ],
     ],
-    [block, handleAddBlock, handleEditBlock],
-  );
-
-  const linkMenu = useMemo(
-    () => [
-      [
-        {
-          key: 2,
-          className: 'menu-item',
-          title: 'Edit',
-          icon: <BiEditAlt style={iconStyle} />,
-          onClick: handleEditLink,
-        },
-        {
-          key: 1,
-          className: 'menu-item',
-          title: 'Insert link after',
-          icon: <BiListPlus style={iconStyle} />,
-          onClick: handleAddLink,
-        },
-      ],
-      [
-        {
-          key: 3,
-          className: 'menu-item',
-          title: 'Delete',
-          icon: <BiTrash style={iconStyle} />,
-          onClick: (e: React.MouseEvent, unused: unknown, link: Link) => {
-            setDataToDelete(link);
-            toggleConfirmVisible(true);
-          },
-        },
-      ],
-    ],
-    [handleAddLink, handleEditLink],
+    [block, handleAddBlock, handleEditBlock, t],
   );
 
   const card = (
     <StyledBlock>
       <Card>
-        <Card.Header className="card-header" ref={blockHeaderRef}>
+        <Card.Header className="block-header" ref={blockHeaderRef}>
           {title}
         </Card.Header>
         {/* @ts-ignore */}
         <MovableContainer
-          className="block-content card-body"
+          className="block-content"
           ref={blockBodyRef}
           disabled={!editable}
           onMouseUp={handleContainerMouseUp}
         >
           {links?.length === 0 && editable && (
-            <Button size="sm" className="link-btn" onClick={handleAddLink} variant="light">
+            <MyButton className="link-btn" onClick={handleAddLink}>
               Add link
-            </Button>
+            </MyButton>
           )}
           {links?.map((link, linkIndex) => {
             const { title: buttonTitle, style, url, menu, id, description } = link;
@@ -392,6 +311,35 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
                   backgroundColor: style,
                   color: isDark(style) ? '#fff' : '#000',
                 };
+
+            const linkMenu = [
+              [
+                {
+                  title: t('edit'),
+                  icon: <BiEditAlt style={iconStyle} />,
+                  onClick: () => {
+                    setEditType('link');
+                    toggleEditVisible(true);
+                    setEditData(link);
+                  },
+                },
+                {
+                  title: t('addLinkAfter'),
+                  icon: <BiListPlus style={iconStyle} />,
+                  onClick: handleAddLink,
+                },
+              ],
+              [
+                {
+                  title: t('delete'),
+                  icon: <BiTrash style={iconStyle} />,
+                  onClick: () => {
+                    setDataToDelete(link);
+                    toggleConfirmVisible(true);
+                  },
+                },
+              ],
+            ] as MenuData;
 
             if (menu) {
               const linkItem = (
@@ -403,7 +351,7 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
                   }}
                 >
                   <Dropdown align="start" className="link-btn" onClick={() => onMenuClick(index)}>
-                    <Dropdown.Toggle size="sm" className="link-group" variant={style}>
+                    <Dropdown.Toggle as={MyButton} size="sm" className="link-group" variant={style}>
                       {buttonTitle}
                     </Dropdown.Toggle>
 
@@ -421,8 +369,7 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
               );
 
               return editable ? (
-                <ContextMenu key={id} data={link} menu={linkMenu} onOpen={() => handleLinkContextOpen(linkIndex)}>
-                  {/*@ts-ignore*/}
+                <ContextMenu key={id} menu={linkMenu} onOpen={() => handleLinkContextOpen(linkIndex)}>
                   <span className="under-context-menu link-btn">{linkItem!}</span>
                 </ContextMenu>
               ) : (
@@ -439,8 +386,9 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
                   movingLinkFromWhichBlock = index;
                 }}
               >
-                <Button
+                <MyButton
                   as={editable ? 'button' : 'a'}
+                  // @ts-ignore
                   href={url}
                   size="sm"
                   date-url={url}
@@ -449,15 +397,14 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
                   style={buttonStyle}
                 >
                   {buttonTitle}
-                </Button>
+                </MyButton>
               </MovableTarget>
             );
 
             if (editable) {
               return (
-                <ContextMenu key={id} data={link} menu={linkMenu} onOpen={() => handleLinkContextOpen(linkIndex)}>
-                  {/* @ts-ignore */}
-                  <div className="link-btn under-context-menu">{button! as React.ReactNode}</div>
+                <ContextMenu key={id} menu={linkMenu} onOpen={() => handleLinkContextOpen(linkIndex)}>
+                  <div className="link-btn under-context-menu">{button}</div>
                 </ContextMenu>
               );
             }
@@ -481,7 +428,6 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
   if (editable) {
     return (
       <>
-        {/* @ts-ignore */}
         <ContextMenu menu={blockMenu}>{card}</ContextMenu>
         <EditModal
           visible={editVisible}

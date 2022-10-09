@@ -1,10 +1,17 @@
-import { createGlobalStyle } from 'styled-components';
+import { createGlobalStyle, css } from 'styled-components';
 
-import bg from './assets/bg.png';
+interface GlobalStyleProps {
+  editable?: boolean;
+}
 
-const GlobalStyle = createGlobalStyle`
+const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
   body {
-    background-image: url(${bg});
+    background: var(--background-color);
+    ${({ editable }: GlobalStyleProps) =>
+      editable &&
+      css`
+        background-image: var(--background-image);
+      `}
     background-repeat: repeat;
     background-attachment: fixed;
     background-position: initial;
@@ -84,10 +91,86 @@ const GlobalStyle = createGlobalStyle`
     box-sizing: border-box;
   }
 
+  [data-reach-menu-popover] {
+    z-index: 999;
+  }
+
   /* context-menu */
-  .menu-item {
+  .LCM {
+    border-radius: var(--border-radius);
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--box-shadow);
+  }
+
+  .LCM__group {
+    border-color: var(--border-color);
+  }
+
+  .LCM__item {
+    transition: none;
     font-size: 14px;
     min-height: 32px;
+
+    &:hover {
+      background-color: var(--primary-color);
+      color: #fff;
+    }
+  }
+
+  .form-control, .form-select {
+    background-color: var(--background-color);
+    color: var(--font-color);
+    border-color: var(--border-color);
+
+    &:focus {
+      color: var(--font-color);
+      border-color: var(--border-color);
+      background-color: var(--background-color);
+    }
+  }
+
+  .form-label {
+    color: var(--font-color);
+  }
+
+  .form-control, .form-select {
+    background-color: var(--form-inset-bg);
+  }
+
+  .list-group-item {
+    background-color: var(--background-color);
+    color: var(--font-color);
+    border-color: var(--border-color);
+
+    &.list-group-item-primary {
+      background-color: var(--primary-color);
+      color: #fff;
+    }
+
+    &.list-group-item-secondary {
+      background-color: var(--secondary-color);
+      color: #fff;
+    }
+  }
+
+  .dropdown-menu {
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+  }
+
+  .dropdown-item {
+    color: var(--font-color);
+    &:hover {
+      background-color: var(--primary-color);
+      color: #fff;
+    }
+  }
+
+  .input-group-text {
+    background-color: var(--background-color);
+    color: var(--font-color);
+    border-color: var(--border-color);
   }
 `;
 

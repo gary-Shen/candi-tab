@@ -6,11 +6,14 @@ const StyledOauth = styled.div`
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 16px;
   }
 
   .oauth-form {
     width: 100%;
+
+    .mb-3:last-child {
+      margin-bottom: 0 !important;
+    }
   }
 `;
 
