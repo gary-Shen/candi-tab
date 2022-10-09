@@ -1,4 +1,4 @@
-import i18next from 'i18next';
+import { changeLanguage } from 'i18next';
 import { set } from 'lodash/fp';
 import get from 'lodash/get';
 import { useCallback, useContext } from 'react';
@@ -30,7 +30,7 @@ export default function SettingModal({ visible, onClose }: OAuthProps) {
   const handleLangChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       updateSettings(set('general.language')(e.target.value)(settings));
-      i18next.changeLanguage(e.target.value);
+      changeLanguage(e.target.value);
 
       setTimeout(() => {
         document.dispatchEvent(new CustomEvent('sync-upload'));

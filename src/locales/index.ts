@@ -1,4 +1,4 @@
-import i18n from 'i18next';
+import { use } from 'i18next';
 import { get } from 'lodash';
 import { initReactI18next } from 'react-i18next';
 
@@ -22,7 +22,7 @@ const resources = {
 (async () => {
   const settings = await loadSettings();
 
-  i18n.use(initReactI18next).init({
+  use(initReactI18next).init({
     resources: resources,
     lng: get(settings, 'general.language') || 'en-US',
     fallbackLng: 'en-US',

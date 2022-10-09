@@ -17,7 +17,8 @@ export default function About({ visible, onClose }: AboutProps) {
     try {
       return chrome.runtime.getManifest();
     } catch (err) {
-      console.log(err);
+      // eslint-disable-next-line no-console
+      console.warn(err);
       return {};
     }
   }, []);
