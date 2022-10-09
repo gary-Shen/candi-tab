@@ -18,6 +18,7 @@ import Menu, { MenuItem, MenuList } from '@/components/Menu';
 import Modal from '@/components/Modal';
 import SettingsContext from '@/context/settings.context';
 import type { Setting } from '@/types/setting.type';
+import { calcLayout } from '@/utils/calcLayout';
 import download from '@/utils/download';
 
 import About from '../About';
@@ -85,11 +86,18 @@ export default function Header({ onEdit, editable }: HeaderProps) {
       return;
     }
 
-    updateSettings({
+    const newSettings = {
       ...(omit(['gistId'])(toImport) as Setting),
       gistId: settings.gistId,
       createdAt: Date.now(),
-    });
+    };
+
+    updateSettings(newSettings);
+
+    setTimeout(() => {
+      // 重新計算佈局
+      updateSettings(calcLayout(newSettings));
+    }, 1000);
     setImportVisible(false);
   }, [updateSettings, toImport, settings]);
 

@@ -23,6 +23,7 @@ import Modal from '@/components/Modal';
 import SettingsContext from '@/context/settings.context';
 import * as gistService from '@/service/gist';
 import type { IGist } from '@/types/gist.type';
+import { calcLayout } from '@/utils/calcLayout';
 import { gid } from '@/utils/gid';
 import parseGistContent from '@/utils/parseGistContent';
 
@@ -93,11 +94,17 @@ export default function OAuth() {
       return;
     }
     if (queryOne.data?.data) {
-      updateSettings({
+      const newSettings = {
         ...settings,
         // @ts-ignore
         ...parseGistContent(queryOne.data.data!),
         gistId: selectedGist.id,
+      };
+
+      updateSettings(newSettings);
+
+      setTimeout(() => {
+        updateSettings(calcLayout(newSettings));
       });
     }
 

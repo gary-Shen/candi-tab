@@ -18,6 +18,7 @@ import Modal from '@/components/Modal';
 import { MovableContainer, MovableTarget } from '@/components/Movable';
 import { TYPES } from '@/constant';
 import type { Block, Link, Setting } from '@/types/setting.type';
+import { calcLayout } from '@/utils/calcLayout';
 import { gid } from '@/utils/gid';
 import { isDark } from '@/utils/hsp';
 
@@ -58,12 +59,6 @@ const Confirm = ({ title, visible, onConfirm, onClose }: ConfirmProps) => {
   );
 };
 
-const blockStyle = {
-  blockPadding: 16,
-  linkMargin: 8,
-  blockMargin: 8,
-};
-
 export interface BlockProps {
   block: Block;
   onMenuClick: (index: number) => void;
@@ -97,38 +92,7 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
 
       // 更新全部Block布局
       setTimeout(() => {
-        const headerHeight = blockHeaderRef.current?.offsetHeight;
-        const blockElements = document.querySelectorAll(`.${blockBodyRef.current!.classList[0]}`);
-        let newSettings = inputSettings;
-        _.forEach(blockElements, (blockElem, blockIndex) => {
-          const linkSize = blockElem.children!.length;
-          const linkHeight = _.chain(blockElem.children)
-            .map((item) => {
-              return (item as HTMLElement).offsetHeight;
-            })
-            .reduce((memo, cur) => {
-              return memo + cur;
-            }, 0)
-            .value();
-
-          newSettings = update(`links[${blockIndex}]`)((blockItem) => {
-            return {
-              ...blockItem,
-              layout: {
-                ...blockItem.layout,
-                h:
-                  (linkHeight +
-                    (linkSize! - 1) * blockStyle.linkMargin +
-                    blockStyle.blockPadding * 2 +
-                    blockStyle.blockMargin * 2 +
-                    headerHeight!) /
-                  4,
-              },
-            };
-          })(newSettings);
-        });
-
-        updateSettings(newSettings);
+        updateSettings(calcLayout(inputSettings));
       });
     },
     [updateSettings],
