@@ -229,6 +229,7 @@ export default function OAuth() {
           </Form.Group>
         )}
       </Form>
+      {/* 選擇已有gist */}
       <Modal visible={gistsModalVisible} onClose={() => toggleGistsModalVisible(false)}>
         <Modal.Header>{t('selectGist')}</Modal.Header>
         <Modal.Body>
@@ -301,12 +302,13 @@ export default function OAuth() {
         </Modal.Body>
         <Modal.Footer>
           {!queryList.isFetching && (
-            <Button variant="primary" onClick={handleSaveGist}>
-              {t('done')}
+            <Button variant="primary" onClick={handleSaveGist} disabled={queryOne.isFetching}>
+              {queryOne.isFetching ? t('processing') : t('done')}
             </Button>
           )}
         </Modal.Footer>
       </Modal>
+      {/* 創建gist */}
       <Modal visible={createGistModalVisible} onClose={handleCloseCreateModal}>
         <Modal.Header>{t('createGist')}</Modal.Header>
         <Modal.Body>
