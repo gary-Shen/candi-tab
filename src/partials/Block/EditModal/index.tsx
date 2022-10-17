@@ -14,7 +14,6 @@ import { TYPES } from '@/constant';
 import type { Block, Link, MenuLink } from '@/types/setting.type';
 import { gid } from '@/utils/gid';
 
-import MyButton from '../../../components/Button';
 import Modal from '../../../components/Modal';
 import StyledBody from './styled';
 
@@ -187,9 +186,9 @@ const LinkForm = ({ data, onChange, onSave }: LinkFormProps) => {
               </InputGroup>
             ))}
           <div className="d-grid gap-2">
-            <MyButton type="primary" onClick={handleAddMenu}>
+            <Button variant="primary" onClick={handleAddMenu}>
               {t('addLink')}
-            </MyButton>
+            </Button>
           </div>
         </Form.Group>
       )}
