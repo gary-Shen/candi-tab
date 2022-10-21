@@ -138,11 +138,12 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
     newSettings.createdAt = new Date().getTime();
     toggleEditVisible(false);
     toggleAddition(false);
+    updateSettings(newSettings);
     setTimeout(() => {
       document.dispatchEvent(new CustomEvent('sync-upload'));
     }, 1000);
     updateLayout(newSettings);
-  }, [activeLinkIndex, editData, editType, index, isAddition, settings, updateLayout]);
+  }, [activeLinkIndex, editData, editType, index, isAddition, settings, updateLayout, updateSettings]);
 
   /**
    * 添加block
