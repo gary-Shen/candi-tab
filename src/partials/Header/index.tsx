@@ -1,12 +1,14 @@
 import type { MenuButtonProps } from '@reach/menu-button';
 import { MenuButton } from '@reach/menu-button';
 import { BiCheck } from '@react-icons/all-files/bi/BiCheck';
+import { BiClipboard } from '@react-icons/all-files/bi/BiClipboard';
 import { BiCog } from '@react-icons/all-files/bi/BiCog';
 import { BiEditAlt } from '@react-icons/all-files/bi/BiEditAlt';
 import { BiExport } from '@react-icons/all-files/bi/BiExport';
 import { BiImport } from '@react-icons/all-files/bi/BiImport';
 import { BiInfoCircle } from '@react-icons/all-files/bi/BiInfoCircle';
 import { BiMenu } from '@react-icons/all-files/bi/BiMenu';
+import { set } from 'lodash/fp';
 import omit from 'lodash/fp/omit';
 import React, { useCallback, useContext, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
@@ -107,9 +109,34 @@ export default function Header({ onEdit, editable }: HeaderProps) {
     toggleAboutVisible(true);
   }, []);
 
+  // clipboard
+  const [clipboardVisible, toggleClipboardVisible] = useState(false);
+  const [clipContent, setClipContent] = useState(settings.clipboard);
+  const handleOpenClipboard = useCallback(() => {
+    toggleClipboardVisible(true);
+  }, []);
+  const handleClipContentChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setClipContent(e.target.value);
+  }, []);
+  const handleSaveClipboard = useCallback(() => {
+    const newSettings = set('clipboard')(clipContent)(settings);
+
+    updateSettings(newSettings);
+    toggleClipboardVisible(false);
+
+    setTimeout(() => {
+      document.dispatchEvent(new CustomEvent('sync-upload'));
+    }, 1000);
+  }, [clipContent, settings, updateSettings]);
+
   return (
     <>
       <StyledHeader>
+        <Menu>
+          <StyledMenuButton onClick={handleOpenClipboard}>
+            <BiClipboard />
+          </StyledMenuButton>
+        </Menu>
         <Menu>
           <StyledMenuButton onClick={onEdit}>{editable ? <BiCheck /> : <BiEditAlt />}</StyledMenuButton>
         </Menu>
@@ -154,6 +181,24 @@ export default function Header({ onEdit, editable }: HeaderProps) {
           <Modal.Footer>
             <Form.Group>
               <Button variant="primary" onClick={handleSaveImport}>
+                {t('done')}
+              </Button>
+            </Form.Group>
+          </Modal.Footer>
+        </Form>
+      </Modal>
+
+      <Modal visible={clipboardVisible} onClose={() => toggleClipboardVisible(false)}>
+        <Form>
+          <Modal.Header>{t('clipboard content')}</Modal.Header>
+          <Modal.Body>
+            <Form.Group className="mb-3">
+              <Form.Control as="textarea" rows={12} value={clipContent} onChange={handleClipContentChange} />
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Form.Group>
+              <Button variant="primary" onClick={handleSaveClipboard}>
                 {t('done')}
               </Button>
             </Form.Group>
