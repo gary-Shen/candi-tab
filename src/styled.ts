@@ -5,10 +5,10 @@ const StyledApp = styled.section`
   margin-top: 1rem;
 
   .spinner {
-    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    min-height: 100vh;
   }
 
   .editBtn {
