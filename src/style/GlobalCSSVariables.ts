@@ -86,6 +86,7 @@ const GlobalCSSVariables = createGlobalStyle<ThemeProps>`
 
       /* form */
       --form-inset-bg: ${theme.form.insetColor};
+      --default-color: ${defaultDark};
     `}
   }
 `;

@@ -43,10 +43,7 @@ function App() {
   const { settings, updateSettings } = useContext(SettingsContext);
   const [editable, toggleEditable] = useState(false);
   const [activeBlockIndex, setActiveBlockIndex] = useState<number | undefined>();
-  const layouts = _.chain(settings)
-    .get('links')
-    .map((item) => item.layout)
-    .value();
+  const layouts = (settings || {}).links?.map((item) => item.layout) || [];
   const [firstBlock, setFirstBlockData] = useState<IBlock>({} as IBlock);
   const [fistBlockVisible, toggleFirstBlockVisible] = useState(false);
 
@@ -196,7 +193,7 @@ function withOauth<WrapComponentProps>(Comp: any) {
   return function OauthWrapper(props: WrapComponentProps) {
     const [accessToken, setAccessToken] = useStorage('accessToken');
     const [settings, updateSettings] = useSettings();
-    const gistId = _.get(settings, `gistId`);
+    const gistId = settings?.gistId;
 
     useEffect(() => {
       window.initialTime = new Date().getTime();

@@ -111,9 +111,9 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
    */
   const handleOnChange = useCallback(
     (field: string) => (value: string | number | undefined | any[]) => {
-      setEditData(set(field)(value)(editData));
+      setEditData((pre) => set(field)(value)(pre));
     },
-    [editData],
+    [],
   );
 
   /**
