@@ -120,7 +120,7 @@ export default function Header({ onEdit, editable }: HeaderProps) {
   }, []);
   const handleSaveClipboard = useCallback(() => {
     const newSettings = set('clipboard')(clipContent)(settings);
-
+    newSettings.createdAt = Date.now();
     updateSettings(newSettings);
     toggleClipboardVisible(false);
 
