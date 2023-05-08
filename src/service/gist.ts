@@ -20,16 +20,14 @@ export function fetchAll() {
   return octokit.rest.gists.list();
 }
 
-export interface OneGistParams {
-  queryKey: string[];
-}
+export type GistsGetParams = {
+  gist_id: string;
+};
 
-export function fetchOne({ queryKey }: OneGistParams) {
+export function fetchOne({ gist_id }: GistsGetParams) {
   if (!octokit) {
     return;
   }
-
-  const [, gist_id] = queryKey;
 
   return octokit.rest.gists.get({
     gist_id,
@@ -72,8 +70,8 @@ export function create({ gist, settings }: GistCreation) {
 
 export function updateGist(payload: any) {
   if (!octokit) {
-    return;
+    return Promise.reject();
   }
 
-  return octokit.rest.gists.update(payload as any);
+  return octokit.rest.gists.update(payload);
 }

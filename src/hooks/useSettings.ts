@@ -5,8 +5,8 @@ import type { Block, Link, Setting } from '@/types/setting.type';
 import { gid } from '@/utils/gid';
 
 import { load, save } from './settings';
-
-const defaultSettings = require('../default-settings.json');
+import { useGistUpdate } from './useGistMutation';
+import defaultSettings from '../default-settings.json';
 
 const setIds = update('links')((blocks: Block[]) =>
   blocks.map((block) => {
@@ -43,8 +43,9 @@ const setIds = update('links')((blocks: Block[]) =>
   }),
 );
 
-export default function useSettings(): [Setting | null, (settings: Setting) => void] {
+export default function useSettings(): [Setting | null, (settings: Setting) => void, boolean] {
   const [settings, setSettings] = useState<Setting | null>(null);
+  const mutation = useGistUpdate(settings?.gistId);
 
   useEffect(() => {
     load().then((result) => {
@@ -53,7 +54,7 @@ export default function useSettings(): [Setting | null, (settings: Setting) => v
     });
   }, []);
 
-  const updateSettings = useCallback((newSettings: Setting) => {
+  const updateSettings = useCallback(async (newSettings: Setting) => {
     const _value = {
       ...newSettings,
     };
@@ -62,7 +63,8 @@ export default function useSettings(): [Setting | null, (settings: Setting) => v
       return _value;
     });
     save(_value);
+    mutation.mutate(_value);
   }, []);
 
-  return [settings, updateSettings];
+  return [settings, updateSettings, mutation.isLoading];
 }

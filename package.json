@@ -3,11 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "node scripts/build.js",
+    "build": "vite build",
     "lint": "eslint ./src --ext .js,.jsx,.ts,.tsx",
     "release": "semantic-release",
-    "start": "node scripts/start.js --trace-deprecation --max_old_space_size=8128",
-    "test": "node scripts/test.js"
+    "start": "vite"
   },
   "babel": {
     "presets": [
@@ -84,8 +83,8 @@
     ]
   },
   "dependencies": {
-    "@headlessui/react": "^1.6.1",
-    "@octokit/rest": "^18.12.0",
+    "@headlessui/react": "^1.7.14",
+    "@octokit/rest": "^19.0.7",
     "@reach/dialog": "^0.17.0",
     "@reach/menu-button": "^0.17.0",
     "@reach/tabs": "^0.17.0",
@@ -105,6 +104,7 @@
     "react-bootstrap": "^2.2.3",
     "react-dom": "^18.2.0",
     "react-grid-layout": "^1.3.4",
+    "react-hot-toast": "^2.4.1",
     "react-i18next": "^11.18.6",
     "react-icons": "^4.4.0",
     "react-spinners": "^0.13.3",
@@ -113,6 +113,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.16.0",
+    "@octokit/types": "^9.2.1",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
     "@semantic-release/commit-analyzer": "^9.0.2",
     "@semantic-release/git": "^10.0.1",
@@ -132,6 +133,7 @@
     "@types/react-dom": "^18.0.6",
     "@types/react-grid-layout": "^1.3.2",
     "@types/styled-components": "^5.1.26",
+    "@vitejs/plugin-react": "^4.0.0",
     "babel-jest": "^27.4.2",
     "babel-loader": "^8.2.3",
     "babel-plugin-named-asset-import": "^0.3.8",
@@ -177,8 +179,12 @@
     "semver": "^7.3.5",
     "source-map-loader": "^3.0.0",
     "style-loader": "^3.3.1",
+    "tailwindcss": "^3.3.2",
     "terser-webpack-plugin": "^5.2.5",
     "typescript": "^4.8.2",
+    "vite": "^4.3.5",
+    "vite-plugin-ejs": "^1.6.4",
+    "vite-plugin-svgr": "^3.2.0",
     "web-vitals": "^2.1.4",
     "webpack": "^5.64.4",
     "webpack-bundle-analyzer": "^4.6.1",

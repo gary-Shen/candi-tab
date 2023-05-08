@@ -57,7 +57,6 @@ export default function SettingModal({ visible, onClose }: OAuthProps) {
           <TabList>
             <Tab>{t('general')}</Tab>
             <Tab>{t('syncing')}</Tab>
-            {/* <Tab>{t('theme')}</Tab> */}
           </TabList>
         </Modal.Header>
         <Modal.Body>
@@ -93,21 +92,6 @@ export default function SettingModal({ visible, onClose }: OAuthProps) {
             <TabPanel>
               <OAuth />
             </TabPanel>
-            {/* <TabPanel>
-            <Form>
-              <Form.Group className="mb-3" controlId="title">
-                <Form.Label>{t('themeSolution')}</Form.Label>
-                <Form.Select
-                  aria-label="Languages"
-                  value={get(settings, 'theme.solution')}
-                  onChange={handleThemeSolutionChange}
-                >
-                  <option value="github-light">Github Light</option>
-                  <option value="github-dark">Github Dark</option>
-                </Form.Select>
-              </Form.Group>
-            </Form>
-          </TabPanel> */}
           </TabPanels>
         </Modal.Body>
       </Tabs>

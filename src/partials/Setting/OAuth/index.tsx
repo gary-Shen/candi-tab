@@ -28,6 +28,7 @@ import { gid } from '@/utils/gid';
 import parseGistContent from '@/utils/parseGistContent';
 
 import StyledOauth from './styled';
+import { useGistOne } from '@/hooks/useGistQuery';
 
 const SpinnerStyle = styled.div`
   width: 100%;
@@ -68,12 +69,8 @@ export default function OAuth() {
   const gistId = _.get(settings, `gistId`);
 
   const [selectedGist, setGist] = useState<IGist | null>(null);
-  const queryOne = useQuery(['gist', selectedGist?.id || gistId!], gistService.fetchOne, {
-    enabled: !!(selectedGist?.id || gistId) && !!accessToken,
-    initialData: null,
-  });
-
-  const filename = _.chain(queryOne.data).get(`data.files`).keys().head().value();
+  const oneGist = useGistOne(gistId);
+  const filename = _.chain(oneGist.data).get(`files`).keys().head().value();
   const [gistsModalVisible, toggleGistsModalVisible] = useState(false);
 
   const handleOpenGists = useCallback(() => {
@@ -93,11 +90,11 @@ export default function OAuth() {
       toggleGistsModalVisible(false);
       return;
     }
-    if (queryOne.data?.data) {
+    if (queryOne?.data) {
       const newSettings = {
         ...settings,
         // @ts-ignore
-        ...parseGistContent(queryOne.data.data!),
+        ...parseGistContent(queryOne.data!),
         gistId: selectedGist.id,
       };
 
@@ -109,7 +106,7 @@ export default function OAuth() {
     }
 
     toggleGistsModalVisible(false);
-  }, [queryOne.data?.data, selectedGist, settings, updateSettings]);
+  }, [queryOne?.data, selectedGist, settings, updateSettings]);
 
   /** ========================== 选中gist ========================== */
 
