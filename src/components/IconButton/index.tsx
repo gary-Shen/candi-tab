@@ -4,7 +4,6 @@ export const buttonStyle = css`
   box-sizing: content-box;
   border: 0;
   display: flex;
-  margin: 4px;
   padding: 6px;
   align-items: center;
   justify-content: center;

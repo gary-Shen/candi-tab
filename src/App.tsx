@@ -1,20 +1,20 @@
 import classNames from 'classnames';
 import _ from 'lodash';
 import set from 'lodash/fp/set';
-import { useCallback, useContext, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import type { Layout } from 'react-grid-layout';
 import GridLayout from 'react-grid-layout';
 import BarLoader from 'react-spinners/BarLoader';
 import styled from 'styled-components';
 
-import Button from './components/Button';
+import Button from './components/LinkButton';
 import SettingsContext from './context/settings.context';
 import Block from './partials/Block';
 import EditModal from './partials/Block/EditModal';
 import Header from './partials/Header';
 import GlobalStyle from './style/GlobalStyle';
 import StyledApp from './styled';
-import type { Block as IBlock, Setting } from './types/setting.type';
+import type { Block as IBlock } from './types/setting.type';
 import { gid } from './utils/gid';
 
 const Grid = styled(GridLayout)`
@@ -34,6 +34,10 @@ function App() {
   const layouts = (settings || {}).links?.map((item) => item.layout) || [];
   const [firstBlock, setFirstBlockData] = useState<IBlock>({} as IBlock);
   const [fistBlockVisible, toggleFirstBlockVisible] = useState(false);
+
+  useEffect(() => {
+    window.initialTime = new Date().getTime();
+  }, []);
 
   const handleLayoutChange = useCallback(
     (layout: Layout[]) => {

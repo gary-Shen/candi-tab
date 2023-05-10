@@ -12,7 +12,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button, Dropdown, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
-import MyButton from '@/components/Button';
+import MyButton from '@/components/LinkButton';
 import Card from '@/components/Card';
 import Modal from '@/components/Modal';
 import { MovableContainer, MovableTarget } from '@/components/Movable';

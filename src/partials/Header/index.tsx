@@ -1,5 +1,5 @@
 import type { MenuButtonProps } from '@reach/menu-button';
-import { MenuButton } from '@reach/menu-button';
+import { Menu, MenuButton } from '@reach/menu-button';
 import { BiCheck } from '@react-icons/all-files/bi/BiCheck';
 import { BiClipboard } from '@react-icons/all-files/bi/BiClipboard';
 import { BiCog } from '@react-icons/all-files/bi/BiCog';
@@ -11,17 +11,20 @@ import { BiMenu } from '@react-icons/all-files/bi/BiMenu';
 import { set } from 'lodash/fp';
 import omit from 'lodash/fp/omit';
 import React, { useCallback, useContext, useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
+import { Form } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
-import { buttonStyle } from '@/components/IconButton';
+import IconButton, { buttonStyle } from '@/components/IconButton';
+import Button from '@/components/Button';
 import IconText from '@/components/IconText';
-import Menu, { MenuItem, MenuList } from '@/components/Menu';
+// import Menu, { MenuItem, MenuList } from '@/components/Menu';
 import Modal from '@/components/Modal';
 import SettingsContext from '@/context/settings.context';
 import type { Setting } from '@/types/setting.type';
 import { calcLayout } from '@/utils/calcLayout';
 import download from '@/utils/download';
+import MyModal from '@/components/Dialog';
+import TextArea from '@/components/TextArea';
 
 import About from '../About';
 import SettingModal from '../Setting';
@@ -38,6 +41,7 @@ export interface HeaderProps {
 }
 
 export default function Header({ onEdit, editable }: HeaderProps) {
+  const textRef = React.useRef<HTMLTextAreaElement>(null);
   const { t } = useTranslation();
   const { settings, updateSettings } = useContext(SettingsContext);
   const [oauthVisible, setOauthVisible] = useState(false);
@@ -119,28 +123,20 @@ export default function Header({ onEdit, editable }: HeaderProps) {
     setClipContent(e.target.value);
   }, []);
   const handleSaveClipboard = useCallback(() => {
-    const newSettings = set('clipboard')(clipContent)(settings);
-    newSettings.createdAt = Date.now();
-    updateSettings(newSettings);
+    updateSettings(set('clipboard')(clipContent)(settings));
     toggleClipboardVisible(false);
-
-    setTimeout(() => {
-      document.dispatchEvent(new CustomEvent('sync-upload'));
-    }, 1000);
   }, [clipContent, settings, updateSettings]);
 
   return (
     <>
       <StyledHeader>
-        <Menu>
-          <StyledMenuButton onClick={handleOpenClipboard}>
-            <BiClipboard />
-          </StyledMenuButton>
-        </Menu>
-        <Menu>
-          <StyledMenuButton onClick={onEdit}>{editable ? <BiCheck /> : <BiEditAlt />}</StyledMenuButton>
-        </Menu>
-        <Menu>
+        <IconButton onClick={handleOpenClipboard} className="">
+          <BiClipboard />
+        </IconButton>
+        <IconButton onClick={onEdit} className="">
+          {editable ? <BiCheck /> : <BiEditAlt />}
+        </IconButton>
+        {/* <Menu>
           <StyledMenuButton>
             <BiMenu />
           </StyledMenuButton>
@@ -166,7 +162,7 @@ export default function Header({ onEdit, editable }: HeaderProps) {
               </IconText>
             </MenuItem>
           </MenuList>
-        </Menu>
+        </Menu> */}
       </StyledHeader>
       {oauthVisible && <SettingModal visible={oauthVisible} onClose={handleCloseSyncing} />}
       <About visible={aboutVisible} onClose={() => toggleAboutVisible(false)} />
@@ -180,31 +176,28 @@ export default function Header({ onEdit, editable }: HeaderProps) {
           </Modal.Body>
           <Modal.Footer>
             <Form.Group>
-              <Button variant="primary" onClick={handleSaveImport}>
-                {t('done')}
-              </Button>
+              <Button onClick={handleSaveImport}>{t('done')}</Button>
             </Form.Group>
           </Modal.Footer>
         </Form>
       </Modal>
 
-      <Modal visible={clipboardVisible} onClose={() => toggleClipboardVisible(false)}>
-        <Form>
-          <Modal.Header>{t('clipboard content')}</Modal.Header>
-          <Modal.Body>
-            <Form.Group className="mb-3">
-              <Form.Control as="textarea" rows={12} value={clipContent} onChange={handleClipContentChange} />
-            </Form.Group>
-          </Modal.Body>
-          <Modal.Footer>
-            <Form.Group>
-              <Button variant="primary" onClick={handleSaveClipboard}>
-                {t('done')}
-              </Button>
-            </Form.Group>
-          </Modal.Footer>
+      <MyModal
+        visible={clipboardVisible}
+        width={640}
+        title={t('clipboard content')}
+        initialFocus={textRef}
+        onClose={() => toggleClipboardVisible(false)}
+      >
+        <Form onSubmit={(e) => e.preventDefault()}>
+          <Form.Group className="mb-3">
+            <TextArea rows={12} ref={textRef} value={clipContent} onChange={handleClipContentChange} />
+          </Form.Group>
+          <Form.Group>
+            <Button onClick={handleSaveClipboard}>{t('done')}</Button>
+          </Form.Group>
         </Form>
-      </Modal>
+      </MyModal>
     </>
   );
 }

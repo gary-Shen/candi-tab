@@ -113,7 +113,7 @@ const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
     min-height: 32px;
 
     &:hover {
-      background-color: var(--primary-color);
+      background-color: var(--color-primary);
       color: #fff;
     }
   }
@@ -144,12 +144,12 @@ const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
     border-color: var(--border-color);
 
     &.list-group-item-primary {
-      background-color: var(--primary-color);
+      background-color: var(--color-primary);
       color: #fff;
     }
 
     &.list-group-item-secondary {
-      background-color: var(--secondary-color);
+      background-color: var(--color-secondary);
       color: #fff;
     }
   }
@@ -162,7 +162,7 @@ const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
   .dropdown-item {
     color: var(--font-color);
     &:hover {
-      background-color: var(--primary-color);
+      background-color: var(--color-primary);
       color: #fff;
     }
   }

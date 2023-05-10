@@ -1,6 +1,6 @@
-import useSettings from '@/hooks/useSettings';
 import _ from 'lodash';
 
+import useSettings from '@/hooks/useSettings';
 import GlobalCSSVariables from '@/style/GlobalCSSVariables';
 
 import themes from '../themes';

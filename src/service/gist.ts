@@ -20,9 +20,9 @@ export function fetchAll() {
   return octokit.rest.gists.list();
 }
 
-export type GistsGetParams = {
+export interface GistsGetParams {
   gist_id: string;
-};
+}
 
 export function fetchOne({ gist_id }: GistsGetParams) {
   if (!octokit) {
@@ -34,7 +34,7 @@ export function fetchOne({ gist_id }: GistsGetParams) {
   });
 }
 
-interface GistPayload {
+export interface GistPayload {
   gist_id?: string;
   public: boolean;
   description: string;

@@ -26,9 +26,9 @@ import type { IGist } from '@/types/gist.type';
 import { calcLayout } from '@/utils/calcLayout';
 import { gid } from '@/utils/gid';
 import parseGistContent from '@/utils/parseGistContent';
+import { useGistOne } from '@/hooks/useGistQuery';
 
 import StyledOauth from './styled';
-import { useGistOne } from '@/hooks/useGistQuery';
 
 const SpinnerStyle = styled.div`
   width: 100%;
