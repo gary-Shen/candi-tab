@@ -27,6 +27,7 @@ export interface ThemeTypes {
   modal: {
     headerBackground: string;
     bodyBackground: string;
+    footerBackground: string;
   };
 
   menu: {

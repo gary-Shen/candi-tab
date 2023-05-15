@@ -4,7 +4,7 @@ export const buttonStyle = css`
   box-sizing: content-box;
   border: 0;
   display: flex;
-  padding: 6px;
+  padding: 4px;
   align-items: center;
   justify-content: center;
   font-size: 24px;
@@ -18,6 +18,10 @@ export const buttonStyle = css`
   &:hover {
     color: var(--gray-color-hover);
     background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  & + & {
+    margin-left: 0.5rem;
   }
 `;
 

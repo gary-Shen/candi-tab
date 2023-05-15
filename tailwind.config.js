@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+
 module.exports = {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
@@ -33,8 +34,9 @@ module.exports = {
         body: 'var(--body-bg)',
         base: 'var(--background-color)',
         'menu-active': 'var(--menu-active-bg)',
-        'modal-body': 'var(--modal-body-bg)',
         'modal-header': 'var(--modal-header-bg)',
+        'modal-body': 'var(--modal-body-bg)',
+        'modal-footer': 'var(--modal-footer-bg)',
         'form-inset': 'var(--form-inset-bg)',
         'card-body': 'var(--card-body-bg)',
         'card-header': 'var(--card-header-bg)',
@@ -53,11 +55,11 @@ module.exports = {
         'card-y': 'var(--card-padding-y)',
       },
       fontSize: {
-        DEFAULT: 'var(--body-font-size)',
+        default: 'var(--body-font-size)',
       },
 
       boxShadow: {
-        DEFAULT: 'var(--box-shadow)',
+        default: 'var(--box-shadow)',
       },
 
       backgroundImage: {
@@ -72,18 +74,11 @@ module.exports = {
         body: 'var(--body-line-height)',
       },
 
-      borderWidth: {
-        DEFAULT: 'var(--border-width)',
-      },
-
       borderColor: {
         translucent: 'var(--border-color-translucent)',
-        DEFAULT: 'var(--border-color)',
+        default: 'var(--border-color)',
       },
     },
   },
   plugins: [require('@headlessui/tailwindcss')],
-  corePlugins: {
-    preflight: false,
-  },
 };

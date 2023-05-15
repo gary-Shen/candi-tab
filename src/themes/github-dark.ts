@@ -3,7 +3,7 @@ import bg from '@/assets/bg-dark.png';
 import type { ThemeTypes } from './types';
 
 const theme: ThemeTypes = {
-  primaryColor: '#0d6efd',
+  primaryColor: '#5765F2',
   infoColor: '',
   warningColor: '',
   dangerColor: '',
@@ -14,7 +14,7 @@ const theme: ThemeTypes = {
   bodyBackgroundImage: `url(${bg})`,
   borderColor: '#30363d',
   fontSize: '1rem',
-  secondaryColor: '',
+  secondaryColor: '#4E5058',
   borderRadius: '6px',
   boxShadow: '0 8px 24px #010409',
   // ======
@@ -31,10 +31,11 @@ const theme: ThemeTypes = {
   modal: {
     headerBackground: '#161b22',
     bodyBackground: '#0d1117',
+    footerBackground: '#161b22',
   },
 
   menu: {
-    activeBackgroundColor: '#0d6efd',
+    activeBackgroundColor: '#5765F2',
     activeColor: '#fff',
   },
 

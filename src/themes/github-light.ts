@@ -3,7 +3,7 @@ import bg from '@/assets/bg-light.png';
 import type { ThemeTypes } from './types';
 
 const theme: ThemeTypes = {
-  primaryColor: '#0969da',
+  primaryColor: '#895DF5',
   infoColor: '',
   warningColor: '',
   dangerColor: '',
@@ -14,7 +14,7 @@ const theme: ThemeTypes = {
   bodyBackgroundImage: `url(${bg})`,
   fontSize: '1rem',
   borderColor: '#d0d7de',
-  secondaryColor: '',
+  secondaryColor: '#4E5058',
   borderRadius: '5px',
   boxShadow: '0 8px 24px rgba(140,149,159,0.2)',
   // ======
@@ -29,12 +29,13 @@ const theme: ThemeTypes = {
   },
 
   modal: {
-    bodyBackground: '#fff',
     headerBackground: '#f6f8fa',
+    bodyBackground: '#fff',
+    footerBackground: '#f6f8fa',
   },
 
   menu: {
-    activeBackgroundColor: '#0969da',
+    activeBackgroundColor: '#895DF5',
     activeColor: '#fff',
   },
 
@@ -43,8 +44,8 @@ const theme: ThemeTypes = {
   },
 
   button: {
-    paddingX: '.5rem',
-    paddingY: '.25rem',
+    paddingX: '1.5rem',
+    paddingY: '.5rem',
   },
 };
 

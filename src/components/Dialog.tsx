@@ -8,7 +8,8 @@ import IconButton from './IconButton';
 export interface ModalProps {
   children: React.ReactNode;
   visible?: boolean;
-  title?: string;
+  title?: React.ReactNode;
+  footer?: React.ReactNode;
   onClose?: () => void;
   showCloseButton?: boolean;
   width?: number | string;
@@ -18,6 +19,7 @@ export interface ModalProps {
 export default function MyModal({
   children,
   title,
+  footer,
   visible,
   onClose,
   showCloseButton = true,
@@ -50,7 +52,7 @@ export default function MyModal({
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4 text-center">
+          <div className="flex min-h-full items-center justify-center text-center">
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-200"
@@ -61,20 +63,23 @@ export default function MyModal({
               leaveTo="opacity-0 scale-95"
             >
               <Dialog.Panel
-                className="w-full transform overflow-hidden rounded bg-white p-6 text-left align-middle shadow-xl transition-all"
+                className="w-full transform overflow-hidden rounded bg-white text-left align-middle shadow-xl transition-all"
                 style={{ width }}
               >
-                <div className="flex justify-between items-center">
-                  <Dialog.Title as="span" className="text-lg font-medium leading-6 text-gray-900">
-                    {title}
-                  </Dialog.Title>
-                  {showCloseButton && (
-                    <IconButton onClick={onClose} className="">
-                      <BiX />
-                    </IconButton>
-                  )}
-                </div>
-                <div className="pt-6">{children}</div>
+                {title && (
+                  <div className="pl-4 pr-2 py-2 bg-modal-header flex justify-between items-center border-b border-default">
+                    <Dialog.Title as="span" className="font-medium leading-6 text-font-color">
+                      {title}
+                    </Dialog.Title>
+                    {showCloseButton && (
+                      <IconButton onClick={onClose} className="">
+                        <BiX />
+                      </IconButton>
+                    )}
+                  </div>
+                )}
+                <div className="p-4 bg-modal-body">{children}</div>
+                {footer && <div className="p-4 flex justify-end bg-modal-footer border-t border-default">{footer}</div>}
               </Dialog.Panel>
             </Transition.Child>
           </div>

@@ -1,5 +1,4 @@
 import classNames from 'classnames';
-import _ from 'lodash';
 import set from 'lodash/fp/set';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import type { Layout } from 'react-grid-layout';

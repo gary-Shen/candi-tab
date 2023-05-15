@@ -4,30 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5c7eec68-b441-40a3-a221-8a3bb7071886" name="变更" comment="变更">
-      <change afterPath="$PROJECT_DIR$/src/components/TextArea.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/Button/index.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/Button/styled.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/GlobalCss.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/GlobalCss.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/IconButton/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/IconButton/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/Movable/styled.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Movable/styled.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/SettingProvider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/SettingProvider.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/Tabs/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Tabs/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hooks/useSettings.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/hooks/useSettings.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/partials/Block/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/partials/Block/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/partials/Header/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/partials/Header/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/partials/Setting/OAuth/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/partials/Setting/OAuth/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/gist.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/gist.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/style/GlobalCSSVariables.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/style/GlobalCSSVariables.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/style/GlobalStyle.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/style/GlobalStyle.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/style/index.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tailwind.config.ts" beforeDir="false" />
-    </list>
+    <list default="true" id="5c7eec68-b441-40a3-a221-8a3bb7071886" name="变更" comment="变更" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -89,27 +66,27 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "js.linters.configure.manually.selectedeslint": "true",
-    "last_opened_file_path": "/Users/gary/Development/side-projects/candi-tab",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.standard": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.standard": "",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "yarn",
-    "settings.editor.selected.configurable": "preferences.sourceCode",
-    "ts.external.directory.path": "/Users/gary/Development/side-projects/candi-tab/node_modules/typescript/lib",
-    "two.files.diff.last.used.folder": "D:/Development/demo/my-app/config",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;js.linters.configure.manually.selectedeslint&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/gary/Development/side-projects/candi-tab&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.standard&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.standard&quot;: &quot;&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;yarn&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.sourceCode&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/Users/gary/Development/side-projects/candi-tab/node_modules/typescript/lib&quot;,
+    &quot;two.files.diff.last.used.folder&quot;: &quot;D:/Development/demo/my-app/config&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src" />
@@ -136,6 +113,7 @@
       <workItem from="1683622957180" duration="1251000" />
       <workItem from="1683633178192" duration="1940000" />
       <workItem from="1683710443815" duration="1532000" />
+      <workItem from="1683718005966" duration="1294000" />
     </task>
     <servers />
   </component>

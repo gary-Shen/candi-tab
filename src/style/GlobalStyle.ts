@@ -15,6 +15,7 @@ const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
     background-repeat: repeat;
     background-attachment: fixed;
     background-position: initial;
+    color: var(--font-color);
   }
 
   #root {

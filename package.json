@@ -6,7 +6,7 @@
     "build": "vite build",
     "lint": "eslint ./src --ext .js,.jsx,.ts,.tsx --fix",
     "release": "semantic-release",
-    "start": "vite"
+    "start": "vite --port 55558"
   },
   "babel": {
     "presets": [

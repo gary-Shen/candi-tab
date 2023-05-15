@@ -2,24 +2,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import _ from 'lodash';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import {
-  Badge,
-  Button,
-  ButtonGroup,
-  Col,
-  Dropdown,
-  DropdownButton,
-  Form,
-  InputGroup,
-  ListGroup,
-  Row,
-} from 'react-bootstrap';
+import { Badge, Col, Dropdown, DropdownButton, Form, InputGroup, ListGroup, Row } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import BarLoader from 'react-spinners/BarLoader';
 import styled from 'styled-components';
 
 import Card from '@/components/Card';
-import Modal from '@/components/Modal';
+import Button from '@/components/LinkButton';
+import Modal from '@/components/Dialog';
 import SettingsContext from '@/context/settings.context';
 import * as gistService from '@/service/gist';
 import type { IGist } from '@/types/gist.type';
@@ -27,6 +17,7 @@ import { calcLayout } from '@/utils/calcLayout';
 import { gid } from '@/utils/gid';
 import parseGistContent from '@/utils/parseGistContent';
 import { useGistOne } from '@/hooks/useGistQuery';
+import Input from '@/components/Input';
 
 import StyledOauth from './styled';
 
@@ -90,11 +81,11 @@ export default function OAuth() {
       toggleGistsModalVisible(false);
       return;
     }
-    if (queryOne?.data) {
+    if (oneGist?.data) {
       const newSettings = {
         ...settings,
         // @ts-ignore
-        ...parseGistContent(queryOne.data!),
+        ...parseGistContent(oneGist.data!),
         gistId: selectedGist.id,
       };
 
@@ -106,7 +97,7 @@ export default function OAuth() {
     }
 
     toggleGistsModalVisible(false);
-  }, [queryOne?.data, selectedGist, settings, updateSettings]);
+  }, [oneGist?.data, selectedGist, settings, updateSettings]);
 
   /** ========================== 选中gist ========================== */
 
@@ -157,23 +148,23 @@ export default function OAuth() {
   /** ========================== 创建gist ========================== */
 
   const gistNode = (
-    <Form.Group className="mb-3">
-      {queryOne.isFetching
+    <>
+      {oneGist.isFetching
         ? spinner
-        : !_.isEmpty(queryOne.data) && (
+        : !_.isEmpty(oneGist.data) && (
             <Card>
               <Card.Header>{filename}</Card.Header>
               <Card.Body>
-                {_.get(queryOne.data, 'data.description')}
+                {_.get(oneGist.data, 'data.description')}
                 <br />
                 <Badge bg="primary">
                   {t('createdAt')}
-                  {dayjs(_.get(queryOne.data, 'data.created_at')).format(t('dateFormat'))}
+                  {dayjs(_.get(oneGist.data, 'data.created_at')).format(t('dateFormat'))}
                 </Badge>
               </Card.Body>
             </Card>
           )}
-    </Form.Group>
+    </>
   );
 
   return (
@@ -186,57 +177,55 @@ export default function OAuth() {
         }}
       >
         {accessToken ? null : (
-          <Form.Group className="mb-3">
-            <Button variant="link" style={{ width: '100%' }} href={OAUTH_URL} target="_blank">
-              {t('createAccessToken')}
-            </Button>
-          </Form.Group>
+          <Button type="link" className="w-full mb-3" as="a" href={OAUTH_URL} target="_blank">
+            {t('createAccessToken')}
+          </Button>
         )}
 
-        <Form.Group className="mb-3">
-          <Form.Control
-            type="input"
-            placeholder={t('pasteToken')}
-            autoFocus
-            onBlur={handleSave}
-            onKeyDown={(e) => {
-              if (e.which === 13) {
-                e.preventDefault();
-                handleSave();
-              }
-            }}
-            onChange={handleOnChange}
-            value={tokenValue}
-          />
-        </Form.Group>
+        <Input
+          className="my-3"
+          placeholder={t('pasteToken')}
+          autoFocus
+          onBlur={handleSave}
+          onKeyDown={(e) => {
+            if (e.which === 13) {
+              e.preventDefault();
+              handleSave();
+            }
+          }}
+          onChange={handleOnChange}
+          value={tokenValue}
+        />
         {accessToken && gistNode}
-        {accessToken && !queryOne.isFetching && (
-          <Form.Group className="mb-3" controlId="url">
-            <Row>
-              <Col>
-                <Button
-                  style={{ width: '100%' }}
-                  // @ts-ignore
-                  disabled={createMutation.isFetching}
-                  variant="primary"
-                  onClick={handleCreateGist}
-                >
-                  {t('createGist')}
-                </Button>
-              </Col>
-              <Col>
-                <Button style={{ width: '100%' }} variant="secondary" onClick={handleOpenGists}>
-                  {t('selectGist')}
-                </Button>
-              </Col>
-            </Row>
-          </Form.Group>
+        {accessToken && !oneGist.isFetching && (
+          <div className="mb-3">
+            <Button
+              className="mb-2 w-full"
+              // @ts-ignore
+              disabled={createMutation.isFetching}
+              type="secondary"
+              onClick={handleCreateGist}
+            >
+              {t('createGist')}
+            </Button>
+            <Button className="w-full" type="primary" onClick={handleOpenGists}>
+              {t('selectGist')}
+            </Button>
+          </div>
         )}
       </Form>
       {/* 選擇已有gist */}
-      <Modal visible={gistsModalVisible} onClose={() => toggleGistsModalVisible(false)}>
-        <Modal.Header>{t('selectGist')}</Modal.Header>
-        <Modal.Body>
+      <Modal
+        title={t('selectGist')}
+        visible={gistsModalVisible}
+        onClose={() => toggleGistsModalVisible(false)}
+        footer={
+          <Button type="primary" onClick={handleSaveGist}>
+            {false ? t('processing') : t('done')}
+          </Button>
+        }
+      >
+        <div>
           {queryList.isFetching && spinner}
           {!queryList.isFetching && (
             <ListGroup style={{ margin: '16px 0' }}>
@@ -247,7 +236,7 @@ export default function OAuth() {
                   <ListGroup.Item
                     style={{ cursor: 'pointer' }}
                     key={item.id}
-                    variant={
+                    type={
                       selectedGist && selectedGist.id === item.id
                         ? 'primary'
                         : settings.gistId === item.id
@@ -270,7 +259,7 @@ export default function OAuth() {
                         <DropdownButton
                           size="sm"
                           as={ButtonGroup}
-                          variant="secondary"
+                          type="secondary"
                           title="files"
                           onClick={(e) => {
                             e.preventDefault();
@@ -303,17 +292,10 @@ export default function OAuth() {
                 .value()}
             </ListGroup>
           )}
-        </Modal.Body>
-        <Modal.Footer>
-          {!queryList.isFetching && (
-            <Button variant="primary" onClick={handleSaveGist} disabled={queryOne.isFetching}>
-              {queryOne.isFetching ? t('processing') : t('done')}
-            </Button>
-          )}
-        </Modal.Footer>
+        </div>
       </Modal>
       {/* 創建gist */}
-      <Modal visible={createGistModalVisible} onClose={handleCloseCreateModal}>
+      {/* <Modal visible={createGistModalVisible} onClose={handleCloseCreateModal}>
         <Modal.Header>{t('createGist')}</Modal.Header>
         <Modal.Body>
           <Form
@@ -350,14 +332,14 @@ export default function OAuth() {
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseCreateModal}>
+          <Button type="secondary" onClick={handleCloseCreateModal}>
             {t('close')}
           </Button>
           <Button disabled={createMutation.isLoading} onClick={handleSaveCreateGist}>
             {createMutation.isLoading ? t('processing') : t('done')}
           </Button>
         </Modal.Footer>
-      </Modal>
+      </Modal> */}
     </StyledOauth>
   );
 }

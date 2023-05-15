@@ -21,7 +21,7 @@ export const StyledMenuItem = styled(MenuItem)`
 export const StyledHeader = styled.div`
   position: absolute;
   display: flex;
-  top: 16px;
-  right: 16px;
+  top: 1rem;
+  right: 1rem;
   z-index: 2;
 `;

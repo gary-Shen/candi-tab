@@ -1,6 +1,6 @@
 import 'lina-context-menu/dist/style.css';
 import '@reach/dialog/styles.css';
-import 'bootstrap/dist/css/bootstrap.css';
+// import 'bootstrap/dist/css/bootstrap.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -9,7 +9,7 @@ import { QueryProvider } from './components/QueryProvider';
 import './locales';
 import SettingProvider from './components/SettingProvider';
 import GlobalCss from './components/GlobalCss';
-import './index.css';
+import './style/index.css';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(

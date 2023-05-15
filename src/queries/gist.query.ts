@@ -10,7 +10,7 @@ interface GistQueryParams {
 
 export const useGistQuery = (state: GistQueryParams, options?: any) => {
   const { gistId } = state;
-  const query = useQuery(['gist', gistId], () => fetchOne(gistId!), {
+  const query = useQuery(['gist', gistId], () => fetchOne({ gist_id: gistId! }), {
     enabled: !!gistId,
     placeholderData: {} as any,
     select: (data) => data?.data,

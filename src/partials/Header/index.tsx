@@ -1,5 +1,3 @@
-import type { MenuButtonProps } from '@reach/menu-button';
-import { Menu, MenuButton } from '@reach/menu-button';
 import { BiCheck } from '@react-icons/all-files/bi/BiCheck';
 import { BiClipboard } from '@react-icons/all-files/bi/BiClipboard';
 import { BiCog } from '@react-icons/all-files/bi/BiCog';
@@ -10,30 +8,24 @@ import { BiInfoCircle } from '@react-icons/all-files/bi/BiInfoCircle';
 import { BiMenu } from '@react-icons/all-files/bi/BiMenu';
 import { set } from 'lodash/fp';
 import omit from 'lodash/fp/omit';
-import React, { useCallback, useContext, useState } from 'react';
+import React, { Fragment, useCallback, useContext, useMemo, useState } from 'react';
 import { Form } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
-import IconButton, { buttonStyle } from '@/components/IconButton';
-import Button from '@/components/Button';
+import IconButton from '@/components/IconButton';
+import Button from '@/components/LinkButton';
 import IconText from '@/components/IconText';
-// import Menu, { MenuItem, MenuList } from '@/components/Menu';
-import Modal from '@/components/Modal';
 import SettingsContext from '@/context/settings.context';
 import type { Setting } from '@/types/setting.type';
 import { calcLayout } from '@/utils/calcLayout';
 import download from '@/utils/download';
 import MyModal from '@/components/Dialog';
 import TextArea from '@/components/TextArea';
+import MyMenu from '@/components/Menu';
 
 import About from '../About';
 import SettingModal from '../Setting';
 import { StyledHeader } from './styled';
-
-// @ts-ignore
-const StyledMenuButton = (props: Polymorphic.ForwardRefComponent<'button', MenuButtonProps>) => (
-  <MenuButton {...props} css={buttonStyle} />
-);
 
 export interface HeaderProps {
   onEdit: (e: React.MouseEvent) => void;
@@ -127,6 +119,47 @@ export default function Header({ onEdit, editable }: HeaderProps) {
     toggleClipboardVisible(false);
   }, [clipContent, settings, updateSettings]);
 
+  const menuOptions = useMemo(() => {
+    return [
+      {
+        key: 'setting',
+        title: (
+          <IconText text={t('setting')}>
+            <BiCog />
+          </IconText>
+        ),
+        onClick: handleOpenSyncing,
+      },
+      {
+        key: 'import',
+        title: (
+          <IconText text={t('import')}>
+            <BiImport />
+          </IconText>
+        ),
+        onClick: handleOpenImport,
+      },
+      {
+        key: 'export',
+        title: (
+          <IconText text={t('export')}>
+            <BiExport />
+          </IconText>
+        ),
+        onClick: handleExport,
+      },
+      {
+        key: 'about',
+        title: (
+          <IconText text={t('about')}>
+            <BiInfoCircle />
+          </IconText>
+        ),
+        onClick: handleShowAbout,
+      },
+    ];
+  }, [handleExport, handleOpenImport, handleOpenSyncing, handleShowAbout, t]);
+
   return (
     <>
       <StyledHeader>
@@ -136,66 +169,40 @@ export default function Header({ onEdit, editable }: HeaderProps) {
         <IconButton onClick={onEdit} className="">
           {editable ? <BiCheck /> : <BiEditAlt />}
         </IconButton>
-        {/* <Menu>
-          <StyledMenuButton>
+
+        <MyMenu options={menuOptions}>
+          <IconButton>
             <BiMenu />
-          </StyledMenuButton>
-          <MenuList>
-            <MenuItem onSelect={handleOpenSyncing}>
-              <IconText text={t('setting')}>
-                <BiCog />
-              </IconText>
-            </MenuItem>
-            <MenuItem onSelect={handleOpenImport}>
-              <IconText text={t('import')}>
-                <BiImport />
-              </IconText>
-            </MenuItem>
-            <MenuItem onSelect={handleExport}>
-              <IconText text={t('export')}>
-                <BiExport />
-              </IconText>
-            </MenuItem>
-            <MenuItem onSelect={handleShowAbout}>
-              <IconText text={t('about')}>
-                <BiInfoCircle />
-              </IconText>
-            </MenuItem>
-          </MenuList>
-        </Menu> */}
+          </IconButton>
+        </MyMenu>
       </StyledHeader>
-      {oauthVisible && <SettingModal visible={oauthVisible} onClose={handleCloseSyncing} />}
+      <SettingModal visible={oauthVisible} onClose={handleCloseSyncing} />
       <About visible={aboutVisible} onClose={() => toggleAboutVisible(false)} />
-      <Modal visible={importVisible} onClose={() => setImportVisible(false)}>
+      <MyModal
+        title={t('import')}
+        visible={importVisible}
+        onClose={() => setImportVisible(false)}
+        footer={<Button onClick={handleSaveImport}>{t('done')}</Button>}
+      >
         <Form>
-          <Modal.Header>{t('import')}</Modal.Header>
-          <Modal.Body>
-            <Form.Group className="mb-3">
-              <Form.Control type="file" onChange={handleFileOnload} />
-            </Form.Group>
-          </Modal.Body>
-          <Modal.Footer>
-            <Form.Group>
-              <Button onClick={handleSaveImport}>{t('done')}</Button>
-            </Form.Group>
-          </Modal.Footer>
+          <Form.Control type="file" onChange={handleFileOnload} />
         </Form>
-      </Modal>
+      </MyModal>
 
       <MyModal
         visible={clipboardVisible}
         width={640}
         title={t('clipboard content')}
+        footer={
+          <Button type="primary" onClick={handleSaveClipboard}>
+            {t('done')}
+          </Button>
+        }
         initialFocus={textRef}
         onClose={() => toggleClipboardVisible(false)}
       >
         <Form onSubmit={(e) => e.preventDefault()}>
-          <Form.Group className="mb-3">
-            <TextArea rows={12} ref={textRef} value={clipContent} onChange={handleClipContentChange} />
-          </Form.Group>
-          <Form.Group>
-            <Button onClick={handleSaveClipboard}>{t('done')}</Button>
-          </Form.Group>
+          <TextArea rows={12} ref={textRef} value={clipContent} onChange={handleClipContentChange} />
         </Form>
       </MyModal>
     </>

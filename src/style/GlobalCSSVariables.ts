@@ -67,6 +67,7 @@ const GlobalCSSVariables = createGlobalStyle<ThemeProps>`
       /* modal */
       --modal-body-bg: ${theme.modal.bodyBackground};
       --modal-header-bg: ${theme.modal.headerBackground};
+      --modal-footer-bg: ${theme.modal.footerBackground};
 
       /* menu */
       --menu-active-bg: ${theme.menu.activeBackgroundColor};
