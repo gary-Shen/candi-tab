@@ -17,8 +17,12 @@ export default defineConfig({
   plugins: [react(), svgr(), ViteEjsPlugin()],
   resolve: {
     alias: {
+      'node-fetch': 'isomorphic-fetch',
       '@': resolve(__dirname, 'src/'),
     },
+  },
+  define: {
+    global: 'window',
   },
   build: {
     terserOptions: {

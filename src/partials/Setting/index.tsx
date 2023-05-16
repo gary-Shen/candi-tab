@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 import { changeLanguage } from 'i18next';
 import { set } from 'lodash/fp';
 import get from 'lodash/get';
@@ -6,7 +6,9 @@ import { Form } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
 import Modal from '@/components/Dialog';
-import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@/components/Tabs';
+import MyTabs from '@/components/Tabs';
+import Select from '@/components/Select';
+import Spin from '@/components/Spin';
 
 import SettingsContext from '../../context/settings.context';
 import OAuth from './OAuth';
@@ -15,6 +17,32 @@ export interface OAuthProps {
   visible?: boolean;
   onClose?: () => void;
 }
+
+const themes = [
+  {
+    label: 'Github Light',
+    value: 'github-light',
+  },
+  {
+    label: 'Github Dark',
+    value: 'github-dark',
+  },
+];
+
+const langOptions = [
+  {
+    label: 'English',
+    value: 'en-US',
+  },
+  {
+    label: '中文-简体',
+    value: 'zh-CN',
+  },
+  {
+    label: '中文-繁体',
+    value: 'zh-TR',
+  },
+];
 
 export default function SettingModal({ visible, onClose }: OAuthProps) {
   const { settings, updateSettings } = useContext(SettingsContext);
@@ -27,9 +55,9 @@ export default function SettingModal({ visible, onClose }: OAuthProps) {
   }, [onClose]);
 
   const handleLangChange = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
-      updateSettings(set('general.language')(e.target.value)(settings));
-      changeLanguage(e.target.value);
+    (value: string) => {
+      updateSettings(set('general.language')(value)(settings));
+      changeLanguage(value);
 
       setTimeout(() => {
         document.dispatchEvent(new CustomEvent('sync-upload'));
@@ -39,8 +67,8 @@ export default function SettingModal({ visible, onClose }: OAuthProps) {
   );
 
   const handleThemeSolutionChange = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
-      updateSettings(set('theme.solution')(e.target.value)(settings));
+    (value: string) => {
+      updateSettings(set('theme.solution')(value)(settings));
 
       setTimeout(() => {
         document.dispatchEvent(new CustomEvent('sync-upload'));
@@ -49,47 +77,35 @@ export default function SettingModal({ visible, onClose }: OAuthProps) {
     [settings, updateSettings],
   );
 
+  const tabItems = useMemo(() => {
+    return [
+      {
+        title: t('general'),
+        key: 'general',
+        content: (
+          <Form>
+            <Form.Group className="mb-3" controlId="title">
+              <Form.Label>{t('language')}</Form.Label>
+              <Select options={langOptions} value={get(settings, 'general.language')} onChange={handleLangChange} />
+            </Form.Group>
+            <Form.Group controlId="title">
+              <Form.Label>{t('themeSolution')}</Form.Label>
+              <Select options={themes} value={get(settings, 'theme.solution')} onChange={handleThemeSolutionChange} />
+            </Form.Group>
+          </Form>
+        ),
+      },
+      {
+        title: t('syncing'),
+        key: 'syncing',
+        content: <OAuth />,
+      },
+    ];
+  }, [handleLangChange, handleThemeSolutionChange, settings, t]);
+
   return (
-    <Modal title="设置" visible={visible} onClose={handleClose} width={560}>
-      <Tabs>
-        <TabList>
-          <Tab>{t('general')}</Tab>
-          <Tab>{t('syncing')}</Tab>
-        </TabList>
-        <TabPanels>
-          <TabPanel>
-            <Form>
-              <Form.Group className="mb-3" controlId="title">
-                <Form.Label>{t('language')}</Form.Label>
-                <Form.Select
-                  autoFocus
-                  aria-label="Languages"
-                  value={get(settings, 'general.language')}
-                  onChange={handleLangChange}
-                >
-                  <option value="en-US">English</option>
-                  <option value="zh-CN">中文-简体</option>
-                  <option value="zh-TR">中文-繁体</option>
-                </Form.Select>
-              </Form.Group>
-              <Form.Group className="mb-3" controlId="title">
-                <Form.Label>{t('themeSolution')}</Form.Label>
-                <Form.Select
-                  aria-label="Languages"
-                  value={get(settings, 'theme.solution')}
-                  onChange={handleThemeSolutionChange}
-                >
-                  <option value="github-light">Github Light</option>
-                  <option value="github-dark">Github Dark</option>
-                </Form.Select>
-              </Form.Group>
-            </Form>
-          </TabPanel>
-          <TabPanel>
-            <OAuth />
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
+    <Modal title={t('setting')} visible={visible} onClose={handleClose} width={436}>
+      <MyTabs items={tabItems} />
     </Modal>
   );
 }

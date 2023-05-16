@@ -1,13 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import _ from 'lodash';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Badge, Col, Dropdown, DropdownButton, Form, InputGroup, ListGroup, Row } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
-import BarLoader from 'react-spinners/BarLoader';
-import styled from 'styled-components';
 
-import Card from '@/components/Card';
+// import Card from '@/components/Card';
 import Button from '@/components/LinkButton';
 import Modal from '@/components/Dialog';
 import SettingsContext from '@/context/settings.context';
@@ -16,27 +14,59 @@ import type { IGist } from '@/types/gist.type';
 import { calcLayout } from '@/utils/calcLayout';
 import { gid } from '@/utils/gid';
 import parseGistContent from '@/utils/parseGistContent';
-import { useGistOne } from '@/hooks/useGistQuery';
+import { useGistAll, useGistOne } from '@/hooks/useGistQuery';
 import Input from '@/components/Input';
+import Spin from '@/components/Spin';
+import MyRadioGroup from '@/components/RadioGroup';
 
 import StyledOauth from './styled';
 
-const SpinnerStyle = styled.div`
-  width: 100%;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const spinner = (
-  <SpinnerStyle>
-    <BarLoader />
-  </SpinnerStyle>
-);
+const spinner = <Spin />;
 
 const uuid = gid();
 const OAUTH_URL = `https://github.com/login/oauth/authorize?scope=gist&client_id=9f776027a79806fc1363&redirect_uri=https://candi-tab.vercel.app/api/github?uuid=${uuid}`;
+
+function GistList() {
+  const allGist = useGistAll();
+
+  const gistOptions = useMemo(() => {
+    return (allGist.data ?? []).map((gist) => {
+      return {
+        label: gist.description,
+        content: (
+          <div>
+            <ul className="list-disc list-inside">
+              {Object.keys(gist.files || {})
+                .slice(0, 2)
+                .map((fileName) => {
+                  return (
+                    <li key={fileName} className="my-2">
+                      {fileName}
+                    </li>
+                  );
+                })}
+            </ul>
+            {Object.keys(gist.files || {}).length > 2 && <div className="mb-2">...</div>}
+            <div className="flex flex-col items-start">
+              <div className="mb-2">updated@{dayjs(gist.updated_at).format('YYYY-MM-DD HH:mm:ss')}</div>
+              <div>created@{dayjs(gist.created_at).format('YYYY-MM-DD HH:mm:ss')}</div>
+            </div>
+          </div>
+        ),
+        value: gist.id,
+      };
+    });
+  }, [allGist.data]);
+
+  return (
+    <div>
+      <div className="mb-2 text-lg text-center">我的 gist 列表</div>
+      <div className="overflow-y-auto max-h-[60vh] mx-[-0.8rem] px-[0.8rem] my-[-3px] py-[3px]">
+        <MyRadioGroup options={gistOptions} />
+      </div>
+    </div>
+  );
+}
 
 export default function OAuth() {
   const { settings, updateSettings, accessToken, updateAccessToken } = useContext(SettingsContext);
@@ -61,6 +91,7 @@ export default function OAuth() {
 
   const [selectedGist, setGist] = useState<IGist | null>(null);
   const oneGist = useGistOne(gistId);
+  const allGist = useGistAll();
   const filename = _.chain(oneGist.data).get(`files`).keys().head().value();
   const [gistsModalVisible, toggleGistsModalVisible] = useState(false);
 
@@ -177,13 +208,13 @@ export default function OAuth() {
         }}
       >
         {accessToken ? null : (
-          <Button type="link" className="w-full mb-3" as="a" href={OAUTH_URL} target="_blank">
+          <Button type="link" className="w-full mb-2 block" as="a" href={OAUTH_URL} target="_blank">
             {t('createAccessToken')}
           </Button>
         )}
 
         <Input
-          className="my-3"
+          className="mb-2"
           placeholder={t('pasteToken')}
           autoFocus
           onBlur={handleSave}
@@ -197,8 +228,11 @@ export default function OAuth() {
           value={tokenValue}
         />
         {accessToken && gistNode}
-        {accessToken && !oneGist.isFetching && (
-          <div className="mb-3">
+        <Spin spinning={allGist.isLoading} className="mb-2">
+          <GistList />
+        </Spin>
+        {accessToken && !allGist.isLoading && (
+          <div className="mb-2">
             <Button
               className="mb-2 w-full"
               // @ts-ignore
@@ -207,9 +241,6 @@ export default function OAuth() {
               onClick={handleCreateGist}
             >
               {t('createGist')}
-            </Button>
-            <Button className="w-full" type="primary" onClick={handleOpenGists}>
-              {t('selectGist')}
             </Button>
           </div>
         )}
@@ -226,7 +257,7 @@ export default function OAuth() {
         }
       >
         <div>
-          {queryList.isFetching && spinner}
+          <Spin spinning />
           {!queryList.isFetching && (
             <ListGroup style={{ margin: '16px 0' }}>
               {_.chain(queryList)
@@ -305,9 +336,9 @@ export default function OAuth() {
               return;
             }}
           >
-            <Form.Group className="mb-3" controlId="description">
+            <Form.Group className="mb-2" controlId="description">
               <Form.Label>{t('fileName')}</Form.Label>
-              <InputGroup className="mb-3">
+              <InputGroup className="mb-2">
                 <Form.Control
                   autoFocus
                   placeholder="file name"
@@ -320,7 +351,7 @@ export default function OAuth() {
               </InputGroup>
             </Form.Group>
 
-            <Form.Group className="mb-3" controlId="description">
+            <Form.Group className="mb-2" controlId="description">
               <Form.Label>{t('description')}</Form.Label>
               <Form.Control
                 value={gistForm.description}

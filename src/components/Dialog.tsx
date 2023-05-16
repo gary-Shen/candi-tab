@@ -2,6 +2,7 @@ import type { DialogProps } from '@headlessui/react';
 import { Dialog, Transition } from '@headlessui/react';
 import { BiX } from '@react-icons/all-files/bi/BiX';
 import React, { Fragment, useEffect, useState } from 'react';
+import classNames from 'classnames';
 
 import IconButton from './IconButton';
 
@@ -63,11 +64,11 @@ export default function MyModal({
               leaveTo="opacity-0 scale-95"
             >
               <Dialog.Panel
-                className="w-full transform overflow-hidden rounded bg-white text-left align-middle shadow-xl transition-all"
+                className="w-full transform rounded bg-white text-left align-middle shadow-xl transition-all"
                 style={{ width }}
               >
                 {title && (
-                  <div className="pl-4 pr-2 py-2 bg-modal-header flex justify-between items-center border-b border-default">
+                  <div className="pl-4 pr-2 rounded-t-lg py-2 bg-modal-header flex justify-between items-center border-b border-default">
                     <Dialog.Title as="span" className="font-medium leading-6 text-font-color">
                       {title}
                     </Dialog.Title>
@@ -78,8 +79,19 @@ export default function MyModal({
                     )}
                   </div>
                 )}
-                <div className="p-4 bg-modal-body">{children}</div>
-                {footer && <div className="p-4 flex justify-end bg-modal-footer border-t border-default">{footer}</div>}
+                <div
+                  className={classNames('p-4 bg-modal-body', {
+                    'rounded-b-lg': !footer,
+                    'rounded-t-lg': !title,
+                  })}
+                >
+                  {children}
+                </div>
+                {footer && (
+                  <div className="p-4 flex justify-end bg-modal-footer border-t rounded-b-lg border-default">
+                    {footer}
+                  </div>
+                )}
               </Dialog.Panel>
             </Transition.Child>
           </div>
