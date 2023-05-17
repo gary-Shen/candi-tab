@@ -1,4 +1,4 @@
-import { lighten } from 'polished';
+import { lighten, rgba } from 'polished';
 import { createGlobalStyle, css } from 'styled-components';
 
 import themes from '@/themes';
@@ -20,6 +20,11 @@ const GlobalCSSVariables = createGlobalStyle<ThemeProps>`
   body {
     ${({ theme }: ThemeProps) => css`
       --color-primary: ${theme.primaryColor || defaultPrimary};
+      --color-primary-100: ${rgba(theme.primaryColor || defaultPrimary, 0.1)};
+      --color-primary-200: ${rgba(theme.primaryColor || defaultPrimary, 0.2)};
+      --color-primary-300: ${rgba(theme.primaryColor || defaultPrimary, 0.3)};
+      --color-primary-400: ${rgba(theme.primaryColor || defaultPrimary, 0.4)};
+      --color-primary-500: ${rgba(theme.primaryColor || defaultPrimary, 0.5)};
       --color-secondary: ${theme.secondaryColor || defaultSecondary};
       --color-success: ${theme.successColor || defaultSuccess};
       --color-info: ${theme.infoColor || defaultInfo};
@@ -64,14 +69,27 @@ const GlobalCSSVariables = createGlobalStyle<ThemeProps>`
       --card-body-bg: ${theme.card.bodyBackground};
       --card-header-bg: ${theme.card.headerBackground};
 
+      /* select */
+      --select-bg: ${theme.select.backgroundColor};
+      --select-overlay-bg: ${theme.select.overlayBackgroundColor};
+
+      /* tabs */
+      --tab-bg: ${theme.tabs.backgroundColor};
+      --tab-active: ${theme.tabs.activeColor};
+      --tab-hover: ${theme.tabs.hoverColor};
+      --tab-text-color: ${theme.tabs.textColor};
+      --tab-text-active-color: ${theme.tabs.textActiveColor};
+
       /* modal */
       --modal-body-bg: ${theme.modal.bodyBackground};
       --modal-header-bg: ${theme.modal.headerBackground};
       --modal-footer-bg: ${theme.modal.footerBackground};
 
       /* menu */
+      --menu-overlay-bg: ${theme.menu.overlayBackgroundColor};
       --menu-active-bg: ${theme.menu.activeBackgroundColor};
-      --menu-active-color: ${theme.menu.activeColor};
+      --menu-text-active-color: ${theme.menu.activeColor};
+      --menu-text-color: ${theme.menu.color};
 
       /* button */
       --button-padding-y: ${theme.button.paddingY};

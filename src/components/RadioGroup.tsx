@@ -32,9 +32,9 @@ export default function MyRadioGroup({ value, options, onChange, className }: Ra
             key={option.value}
             value={option.value}
             className={({ active, checked }) =>
-              `${active ? 'ring-2 ring-white ring-opacity-60 ring-offset-2 ring-offset-sky-300' : ''}
-                  ${checked ? 'bg-color-primary bg-opacity-75 text-white' : 'bg-white'}
-                    relative flex cursor-pointer rounded-lg px-4 py-3 border focus:outline-none`
+              `${active ? 'ring-2 ring-[var(--color-primary)]' : ''}
+                  ${checked ? 'bg-color-primary text-white' : 'bg-[var(--card-body-bg)]'}
+                    relative flex cursor-pointer rounded-lg px-4 py-3 border border-[var(--border-color)] focus:outline-none`
             }
           >
             {({ checked }) => (
@@ -42,7 +42,7 @@ export default function MyRadioGroup({ value, options, onChange, className }: Ra
                 <div className="flex w-full items-center justify-between">
                   <div className="flex items-center">
                     <div className="text-sm">
-                      <RadioGroup.Label as="p" className={`font-medium  ${checked ? 'text-white' : 'text-gray-900'}`}>
+                      <RadioGroup.Label as="p" className={`font-medium  ${checked ? 'text-white' : ''}`}>
                         {option.label}
                       </RadioGroup.Label>
                       <RadioGroup.Description as="span" className={`inline ${checked ? 'text-white/90' : ''}`}>

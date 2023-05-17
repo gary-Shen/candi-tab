@@ -30,7 +30,21 @@ export interface ThemeTypes {
     footerBackground: string;
   };
 
+  tabs: {
+    hoverColor: string;
+    activeColor: string;
+    textColor: string;
+    activeTextColor: string;
+    backgroundColor: string;
+  };
+
+  select: {
+    backgroundColor: string;
+    overlayBackgroundColor: string;
+  };
+
   menu: {
+    overlayBackgroundColor: string;
     activeBackgroundColor: string;
     activeColor: string;
   };

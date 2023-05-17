@@ -15,15 +15,17 @@ export interface MyTabsProps {
 export default function MyTabs({ items = [] }: MyTabsProps) {
   return (
     <Tab.Group>
-      <Tab.List className="flex space-x-1 rounded-lg bg-blue-900/20 p-1">
+      <Tab.List className="flex space-x-1 rounded-lg bg-[var(--tab-bg)] p-1">
         {items.map((item) => (
           <Tab
             key={item.key}
             className={({ selected }) =>
               classNames(
-                'w-full rounded-lg py-2 text-sm font-medium leading-5',
-                'ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none',
-                selected ? 'bg-white shadow' : 'hover:bg-white/[0.12]',
+                'w-full rounded-lg py-2 text-sm font-medium leading-5 text-[var(--tab-text-color)]',
+                'ring-opacity-60 ring-offset-2 ring-color-primary-400 focus:outline-none',
+                selected
+                  ? 'bg-[var(--tab-active)] shadow text-[var(--tab-text-active-color)]'
+                  : 'hover:bg-[var(--tab-hover)]',
               )
             }
           >
@@ -31,14 +33,11 @@ export default function MyTabs({ items = [] }: MyTabsProps) {
           </Tab>
         ))}
       </Tab.List>
-      <Tab.Panels className="mt-2">
+      <Tab.Panels className="mt-4">
         {items.map((item, idx) => (
           <Tab.Panel
             key={idx}
-            className={classNames(
-              'rounded-xl bg-white',
-              'ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none',
-            )}
+            className={classNames('ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none')}
           >
             {item.content}
           </Tab.Panel>

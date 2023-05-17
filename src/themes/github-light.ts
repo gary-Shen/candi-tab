@@ -1,3 +1,5 @@
+import { rgba } from 'polished';
+
 import bg from '@/assets/bg-light.png';
 
 import type { ThemeTypes } from './types';
@@ -20,7 +22,7 @@ const theme: ThemeTypes = {
   // ======
   grayColor: '#6A737D',
   grayColorHover: '',
-  fontColor: '#586069',
+  fontColor: '#333',
   card: {
     paddingX: '1rem',
     paddingY: '0.375rem',
@@ -34,7 +36,21 @@ const theme: ThemeTypes = {
     footerBackground: '#f6f8fa',
   },
 
+  tabs: {
+    hoverColor: rgba('#fff', 0.1),
+    activeColor: '#fff',
+    textColor: '#586069',
+    activeTextColor: '#333',
+    backgroundColor: rgba('#895DF5', 0.1),
+  },
+
+  select: {
+    backgroundColor: '#fff',
+    overlayBackgroundColor: '#fff',
+  },
+
   menu: {
+    overlayBackgroundColor: '#fff',
     activeBackgroundColor: '#895DF5',
     activeColor: '#fff',
   },

@@ -1,3 +1,5 @@
+import { rgba } from 'polished';
+
 import bg from '@/assets/bg-dark.png';
 
 import type { ThemeTypes } from './types';
@@ -34,7 +36,21 @@ const theme: ThemeTypes = {
     footerBackground: '#161b22',
   },
 
+  tabs: {
+    hoverColor: '#161b22',
+    activeColor: '#5765F2',
+    textColor: '#c9d1d9',
+    activeTextColor: '#fff',
+    backgroundColor: rgba('#895DF5', 0.1),
+  },
+
+  select: {
+    backgroundColor: 'transparent',
+    overlayBackgroundColor: '#0d1117',
+  },
+
   menu: {
+    overlayBackgroundColor: '#0d1117',
     activeBackgroundColor: '#5765F2',
     activeColor: '#fff',
   },

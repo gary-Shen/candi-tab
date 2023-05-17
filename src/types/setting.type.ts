@@ -32,5 +32,6 @@ export interface Setting {
   theme: Theme;
   // 可能导出gistId
   gistId?: string;
+  fileName?: string;
   clipboard: string;
 }

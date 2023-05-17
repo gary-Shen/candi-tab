@@ -23,6 +23,15 @@ const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
     justify-content: center;
   }
 
+  a {
+    color: var(--color-primary);
+    border-bottom: 1px solid var(--color-primary);
+
+    &:hover {
+      border-bottom: 0;
+    }
+  }
+
   .editable {
     .react-grid-item > .react-resizable-handle {
       display: block;

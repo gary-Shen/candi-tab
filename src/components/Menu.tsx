@@ -25,14 +25,14 @@ export default function MyMenu({ children, options }: MyMenuProps) {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+        <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right divide-y divide-gray-100 rounded-md bg-[var(--menu-overlay-bg)] shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
           <div className="px-1 py-1 ">
             {options.map(({ key, title, onClick }) => (
               <Menu.Item key={key}>
                 {({ active }) => (
                   <button
                     className={`${
-                      active ? 'text-white bg-menu-active' : 'text-gray-900'
+                      active ? 'bg-[var(--menu-active-bg)] text-[var(--menu-text-active-color)]' : ''
                     } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
                     onClick={onClick}
                   >

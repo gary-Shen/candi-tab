@@ -2,13 +2,11 @@ import React, { useCallback, useContext, useMemo } from 'react';
 import { changeLanguage } from 'i18next';
 import { set } from 'lodash/fp';
 import get from 'lodash/get';
-import { Form } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
 import Modal from '@/components/Dialog';
 import MyTabs from '@/components/Tabs';
 import Select from '@/components/Select';
-import Spin from '@/components/Spin';
 
 import SettingsContext from '../../context/settings.context';
 import OAuth from './OAuth';
@@ -83,16 +81,16 @@ export default function SettingModal({ visible, onClose }: OAuthProps) {
         title: t('general'),
         key: 'general',
         content: (
-          <Form>
-            <Form.Group className="mb-3" controlId="title">
-              <Form.Label>{t('language')}</Form.Label>
+          <div>
+            <div className="mb-2">
+              <div>{t('language')}</div>
               <Select options={langOptions} value={get(settings, 'general.language')} onChange={handleLangChange} />
-            </Form.Group>
-            <Form.Group controlId="title">
-              <Form.Label>{t('themeSolution')}</Form.Label>
+            </div>
+            <div>
+              <div>{t('themeSolution')}</div>
               <Select options={themes} value={get(settings, 'theme.solution')} onChange={handleThemeSolutionChange} />
-            </Form.Group>
-          </Form>
+            </div>
+          </div>
         ),
       },
       {

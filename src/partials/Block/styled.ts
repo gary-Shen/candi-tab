@@ -27,6 +27,7 @@ const StyledBlock = styled.div`
   .link-btn {
     width: 100%;
     margin: 0.25rem 0;
+    border: 0;
 
     &:last-child {
       margin-bottom: 0;
@@ -43,6 +44,9 @@ const StyledBlock = styled.div`
 
   .link-group {
     width: 100%;
+    border: 0;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
   }
 
   .block-edit {

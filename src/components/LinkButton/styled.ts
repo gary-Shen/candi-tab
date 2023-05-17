@@ -8,7 +8,7 @@ export interface ButtonProps {
 export const StyledButton = styled.button<ButtonProps>`
   text-align: center;
   vertical-align: middle;
-  border: 0;
+  border: 1px solid var(--${({ variant }: ButtonProps) => `color-${variant}`});
   background-color: var(--${({ variant }: ButtonProps) => `color-${variant}`});
   color: ${({ variant }: ButtonProps) => (variant === 'light' ? '#000' : '#fff')};
   border-radius: var(--border-radius);
@@ -21,11 +21,17 @@ export const StyledButton = styled.button<ButtonProps>`
   &:hover {
     color: ${({ variant }: ButtonProps) => (variant === 'light' ? '#000' : '#fff')};
     filter: brightness(0.9);
+    /* border-bottom: 1px ; */
   }
 
   &:focus,
   &:active {
     filter: brightness(0.7);
+  }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
   }
 
   &.link {

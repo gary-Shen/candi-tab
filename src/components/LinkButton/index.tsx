@@ -10,6 +10,7 @@ export interface ButtonProps {
   autoFocus?: boolean;
   type?: 'primary' | 'success' | 'info' | 'secondary' | 'warning' | 'danger' | 'link' | 'light';
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  disabled?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -29,8 +30,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         as={as}
         ref={ref}
         variant={type}
-        {...rest}
         onClick={onClick}
+        {...rest}
       >
         {children}
       </StyledButton>

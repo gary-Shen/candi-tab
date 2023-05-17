@@ -7,6 +7,9 @@ export const useGistAll = (options?: any) => {
   const query = useQuery(gistKeys.lists(), fetchAll, {
     placeholderData: {} as any,
     select: (data) => data?.data,
+    onError(err) {
+      console.log(err);
+    },
     ...options,
   });
 
