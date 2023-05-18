@@ -30,7 +30,7 @@ import parseGistContent from './utils/parseGistContent';
 const queryClient = new QueryClient();
 
 const Grid = styled(GridLayout)`
-  margin: 48px 0;
+  margin-bottom: 48px;
 `;
 
 declare global {

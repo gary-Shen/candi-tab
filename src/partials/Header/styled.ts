@@ -19,7 +19,7 @@ export const StyledMenuItem = styled(MenuItem)`
 `;
 
 export const StyledHeader = styled.div`
-  position: absolute;
+  position: fixed;
   display: flex;
   top: 16px;
   right: 16px;
