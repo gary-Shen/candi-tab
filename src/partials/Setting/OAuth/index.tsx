@@ -3,10 +3,11 @@ import dayjs from 'dayjs';
 import _ from 'lodash';
 import { BiLinkExternal } from '@react-icons/all-files/bi/BiLinkExternal';
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { Badge, Col, Dropdown, DropdownButton, Form, ListGroup, Row } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
 // import Card from '@/components/Card';
+import { Transition } from '@headlessui/react';
+
 import Button from '@/components/LinkButton';
 import Modal from '@/components/Dialog';
 import SettingsContext from '@/context/settings.context';
@@ -16,7 +17,8 @@ import { calcLayout } from '@/utils/calcLayout';
 import { gid } from '@/utils/gid';
 import parseGistContent from '@/utils/parseGistContent';
 import { useGistAll, useGistOne } from '@/hooks/useGistQuery';
-import Input, { InputGroup } from '@/components/Input';
+import Input from '@/components/Input';
+import TextArea from '@/components/TextArea';
 import Spin from '@/components/Spin';
 import MyRadioGroup from '@/components/RadioGroup';
 import IconText from '@/components/IconText';
@@ -222,54 +224,106 @@ export default function OAuth() {
 
   return (
     <StyledOauth className="oauth-modal-content">
-      <Form
-        className="oauth-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          return;
+      <Input
+        className="mb-2"
+        placeholder={t('pasteToken')}
+        autoFocus
+        onBlur={handleSave}
+        onKeyDown={(e) => {
+          if (e.which === 13) {
+            e.preventDefault();
+            handleSave();
+          }
         }}
-      >
-        <Input
-          className="mb-2"
-          placeholder={t('pasteToken')}
-          autoFocus
-          onBlur={handleSave}
-          onKeyDown={(e) => {
-            if (e.which === 13) {
-              e.preventDefault();
-              handleSave();
-            }
-          }}
-          onChange={handleOnChange}
-          value={tokenValue}
-        />
-        <div className="flex justify-end mb-4">
-          <IconText
-            position="right"
-            text={
-              <a href={OAUTH_URL} target="_blank" rel="noreferrer">
-                {t('createAccessToken')}
-              </a>
-            }
+        onChange={handleOnChange}
+        value={tokenValue}
+      />
+      <div className="flex justify-end mb-4">
+        <IconText
+          position="right"
+          text={
+            <a href={OAUTH_URL} target="_blank" rel="noreferrer">
+              {t('createAccessToken')}
+            </a>
+          }
+        >
+          <BiLinkExternal />
+        </IconText>
+      </div>
+      <div className="overflow-x-hidden">
+        <div className="w-[200%] relative h-[250px]">
+          <Transition
+            className="w-[50%] absolute"
+            show={!createGistModalVisible}
+            enter="transition ease-in-out duration-200"
+            enterFrom="-translate-x-full opacity-0"
+            enterTo="translate-x-0 opacity-100"
+            leave="transition ease-in-out duration-200"
+            leaveFrom="translate-x-0 opacity-100"
+            leaveTo="-translate-x-full opacity-0"
           >
-            <BiLinkExternal />
-          </IconText>
+            <form
+              className="oauth-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                return;
+              }}
+            >
+              <Spin spinning={allGist.isLoading} className="mb-4">
+                <GistList />
+              </Spin>
+              {accessToken && allGist.data && (
+                <Button
+                  className="w-full"
+                  // @ts-ignore
+                  disabled={createMutation.isFetching}
+                  type="primary"
+                  onClick={handleCreateGist}
+                >
+                  {t('createGist')}
+                </Button>
+              )}
+            </form>
+          </Transition>
+          <Transition
+            className="w-[50%] absolute"
+            show={createGistModalVisible}
+            enter="transition ease-in-out duration-200"
+            enterFrom="translate-x-full opacity-0"
+            enterTo="translate-x-0 opacity-100"
+            leave="transition ease-in-out duration-200"
+            leaveFrom="translate-x-0 opacity-100"
+            leaveTo="translate-x-full opacity-0"
+          >
+            <div>{t('fileName')}</div>
+            <Input
+              className="mb-2"
+              placeholder={t('pasteToken')}
+              onBlur={handleSave}
+              onKeyDown={(e) => {
+                if (e.which === 13) {
+                  e.preventDefault();
+                  handleSave();
+                }
+              }}
+              onChange={handleOnChange}
+              value={gistForm.fileName}
+            />
+            <div>{t('description')}</div>
+            <TextArea className="mb-2" rows={3} value={gistForm.description} />
+            <Button
+              className="w-full"
+              type="primary"
+              onClick={() => {
+                toggleCreateGistModalVisible(false);
+              }}
+            >
+              Save
+            </Button>
+          </Transition>
         </div>
-        <Spin spinning={allGist.isLoading} className="mb-4">
-          <GistList />
-        </Spin>
-        {accessToken && allGist.data && (
-          <Button
-            className="w-full"
-            // @ts-ignore
-            disabled={createMutation.isFetching}
-            type="primary"
-            onClick={handleCreateGist}
-          >
-            {t('createGist')}
-          </Button>
-        )}
-      </Form>
+      </div>
+
       {/* 創建gist */}
       {/* <Modal visible={createGistModalVisible} onClose={handleCloseCreateModal}>
         <Modal.Header>{t('createGist')}</Modal.Header>
