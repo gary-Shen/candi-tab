@@ -34,4 +34,9 @@ export interface Setting {
   gistId?: string;
   fileName?: string;
   clipboard: string;
+  gist?: {
+    id: string;
+    fileName: string;
+    description: string;
+  };
 }

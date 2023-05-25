@@ -67,10 +67,6 @@ export default function SettingModal({ visible, onClose }: OAuthProps) {
   const handleThemeSolutionChange = useCallback(
     (value: string) => {
       updateSettings(set('theme.solution')(value)(settings));
-
-      setTimeout(() => {
-        document.dispatchEvent(new CustomEvent('sync-upload'));
-      }, 1000);
     },
     [settings, updateSettings],
   );

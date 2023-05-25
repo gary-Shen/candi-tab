@@ -16,8 +16,9 @@ root.render(
   <React.StrictMode>
     <QueryProvider>
       <SettingProvider>
-        <GlobalCss />
-        <App />
+        <GlobalCss>
+          <App />
+        </GlobalCss>
       </SettingProvider>
     </QueryProvider>
   </React.StrictMode>,

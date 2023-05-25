@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 // import Card from '@/components/Card';
 import { Transition } from '@headlessui/react';
+import classNames from 'classnames';
 
 import Button from '@/components/LinkButton';
 import Modal from '@/components/Dialog';
@@ -23,6 +24,7 @@ import Spin from '@/components/Spin';
 import MyRadioGroup from '@/components/RadioGroup';
 import IconText from '@/components/IconText';
 import Select from '@/components/Select';
+import { useGistCreation } from '@/hooks/useGistMutation';
 
 import StyledOauth from './styled';
 
@@ -52,7 +54,12 @@ function GistList() {
     });
   }, [oneGist]);
 
-  const fileName = settings.fileName || files?.[0]?.value;
+  useEffect(() => {
+    if (oneGist.isSuccess) {
+      setSelectedFile(files?.[0]?.value);
+      setSelectedGist(oneGist.data);
+    }
+  }, [files, oneGist]);
 
   const gistOptions = useMemo(() => {
     return (allGist.data ?? []).map((gist) => {
@@ -79,9 +86,14 @@ function GistList() {
     if (oneGist?.data && selectedGist?.id) {
       const newSettings = {
         ...settings,
+        gistId: selectedGist.id,
         // @ts-ignore
         ...parseGistContent(oneGist.data!),
-        gistId: selectedGist.id,
+      };
+
+      newSettings.gist = {
+        ..._.pick(oneGist.data, ['description', 'id']),
+        fileName: selectedFile,
       };
 
       updateSettings(newSettings);
@@ -90,11 +102,11 @@ function GistList() {
         updateSettings(calcLayout(newSettings));
       });
     }
-  }, [oneGist.data, selectedGist?.id, settings, updateSettings]);
+  }, [oneGist.data, selectedFile, selectedGist?.id, settings, updateSettings]);
 
   const disabled = useMemo(() => {
-    return !oneGist.data || oneGist.isLoading || !(fileName in oneGist.data.files!);
-  }, [fileName, oneGist.data, oneGist.isLoading]);
+    return !oneGist.data || oneGist.isLoading || !(selectedFile in oneGist.data.files!);
+  }, [selectedFile, oneGist.data, oneGist.isLoading]);
 
   if (gistOptions.length === 0) {
     return null;
@@ -108,7 +120,7 @@ function GistList() {
       </div>
       <div className="mb-2">
         <div>file</div>
-        <Select options={files} value={fileName} onChange={handleSelectFile} />
+        <Select options={files} value={selectedFile} onChange={handleSelectFile} />
       </div>
       <Button disabled={disabled} type="secondary" className="w-full" onClick={handleSave}>
         使用此文件
@@ -141,6 +153,7 @@ export default function OAuth() {
   const [selectedGist, setGist] = useState<IGist | null>(null);
   const oneGist = useGistOne(gistId);
   const allGist = useGistAll();
+  const gistCreation = useGistCreation();
   const filename = _.chain(oneGist.data).get(`files`).keys().head().value();
   const [gistsModalVisible, toggleGistsModalVisible] = useState(false);
 
@@ -250,126 +263,69 @@ export default function OAuth() {
           <BiLinkExternal />
         </IconText>
       </div>
-      <div className="overflow-x-hidden">
-        <div className="w-[200%] relative h-[250px]">
-          <Transition
-            className="w-[50%] absolute"
-            show={!createGistModalVisible}
-            enter="transition ease-in-out duration-200"
-            enterFrom="-translate-x-full opacity-0"
-            enterTo="translate-x-0 opacity-100"
-            leave="transition ease-in-out duration-200"
-            leaveFrom="translate-x-0 opacity-100"
-            leaveTo="-translate-x-full opacity-0"
-          >
-            <form
-              className="oauth-form"
-              onSubmit={(e) => {
-                e.preventDefault();
-                return;
-              }}
-            >
-              <Spin spinning={allGist.isLoading} className="mb-4">
-                <GistList />
-              </Spin>
-              {accessToken && allGist.data && (
-                <Button
-                  className="w-full"
-                  // @ts-ignore
-                  disabled={createMutation.isFetching}
-                  type="primary"
-                  onClick={handleCreateGist}
-                >
-                  {t('createGist')}
-                </Button>
-              )}
-            </form>
-          </Transition>
-          <Transition
-            className="w-[50%] absolute"
-            show={createGistModalVisible}
-            enter="transition ease-in-out duration-200"
-            enterFrom="translate-x-full opacity-0"
-            enterTo="translate-x-0 opacity-100"
-            leave="transition ease-in-out duration-200"
-            leaveFrom="translate-x-0 opacity-100"
-            leaveTo="translate-x-full opacity-0"
-          >
-            <div>{t('fileName')}</div>
-            <Input
-              className="mb-2"
-              placeholder={t('pasteToken')}
-              onBlur={handleSave}
-              onKeyDown={(e) => {
-                if (e.which === 13) {
-                  e.preventDefault();
-                  handleSave();
-                }
-              }}
-              onChange={handleOnChange}
-              value={gistForm.fileName}
-            />
-            <div>{t('description')}</div>
-            <TextArea className="mb-2" rows={3} value={gistForm.description} />
-            <Button
-              className="w-full"
-              type="primary"
-              onClick={() => {
-                toggleCreateGistModalVisible(false);
-              }}
-            >
-              Save
-            </Button>
-          </Transition>
-        </div>
-      </div>
-
-      {/* 創建gist */}
-      {/* <Modal visible={createGistModalVisible} onClose={handleCloseCreateModal}>
-        <Modal.Header>{t('createGist')}</Modal.Header>
-        <Modal.Body>
-          <Form
-            className="gist-form"
+      <div>
+        <div
+          className={classNames({
+            block: !createGistModalVisible,
+            hidden: createGistModalVisible,
+          })}
+        >
+          <form
+            className="oauth-form"
             onSubmit={(e) => {
               e.preventDefault();
               return;
             }}
           >
-            <Form.Group className="mb-2" controlId="description">
-              <Form.Label>{t('fileName')}</Form.Label>
-              <InputGroup className="mb-2">
-                <Form.Control
-                  autoFocus
-                  placeholder="file name"
-                  aria-label="file name"
-                  aria-describedby="fileName"
-                  onChange={handleGistChange('fileName')}
-                  value={gistForm.fileName}
-                />
-                <InputGroup.Text id="fileName">.json</InputGroup.Text>
-              </InputGroup>
-            </Form.Group>
-
-            <Form.Group className="mb-2" controlId="description">
-              <Form.Label>{t('description')}</Form.Label>
-              <Form.Control
-                value={gistForm.description}
-                onChange={handleGistChange('description')}
-                as="textarea"
-                rows={3}
-              />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button type="secondary" onClick={handleCloseCreateModal}>
-            {t('close')}
+            <Spin spinning={allGist.isLoading} className="mb-4">
+              <GistList />
+            </Spin>
+            {accessToken && allGist.data && (
+              <Button
+                className="w-full"
+                // @ts-ignore
+                disabled={createMutation.isFetching}
+                type="primary"
+                onClick={handleCreateGist}
+              >
+                {t('createGist')}
+              </Button>
+            )}
+          </form>
+        </div>
+        <div
+          className={classNames({
+            block: createGistModalVisible,
+            hidden: !createGistModalVisible,
+          })}
+        >
+          <div>{t('fileName')}</div>
+          <Input
+            className="mb-2"
+            placeholder={t('pasteToken')}
+            onBlur={handleSave}
+            onKeyDown={(e) => {
+              if (e.which === 13) {
+                e.preventDefault();
+                handleSave();
+              }
+            }}
+            onChange={handleOnChange}
+            value={gistForm.fileName}
+          />
+          <div>{t('description')}</div>
+          <TextArea className="mb-2" rows={3} value={gistForm.description} />
+          <Button
+            className="w-full"
+            type="primary"
+            onClick={() => {
+              toggleCreateGistModalVisible(false);
+            }}
+          >
+            Save
           </Button>
-          <Button disabled={createMutation.isLoading} onClick={handleSaveCreateGist}>
-            {createMutation.isLoading ? t('processing') : t('done')}
-          </Button>
-        </Modal.Footer>
-      </Modal> */}
+        </div>
+      </div>
     </StyledOauth>
   );
 }

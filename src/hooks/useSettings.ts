@@ -1,5 +1,5 @@
 import update from 'lodash/fp/update';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { UseMutationResult } from '@tanstack/react-query';
 import type { OctokitResponse } from '@octokit/types';
 import toast from 'react-hot-toast';
@@ -10,6 +10,12 @@ import { gid } from '@/utils/gid';
 import { load, save } from './settings';
 import { useGistUpdate } from './useGistMutation';
 import defaultSettings from '../default-settings.json';
+
+async function sleep(timeout: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, timeout);
+  });
+}
 
 const setIds = update('links')((blocks: Block[]) =>
   blocks.map((block) => {
@@ -52,7 +58,17 @@ export default function useSettings(): [
   UseMutationResult<OctokitResponse<any>>,
 ] {
   const [settings, setSettings] = useState<Setting | null>(null);
-  const mutation = useGistUpdate(settings?.gistId);
+  const gist = settings?.gist || ({} as any);
+  const mutation = useGistUpdate({
+    gist_id: gist.id || settings?.gistId,
+    public: false,
+    description: gist.description,
+    files: {
+      [gist.fileName!]: {
+        content: JSON.stringify(settings),
+      },
+    },
+  });
 
   useEffect(() => {
     load().then((result) => {
@@ -61,32 +77,39 @@ export default function useSettings(): [
     });
   }, []);
 
-  const updateSettings = useCallback(
+  const updateSettings = useCallback(async (newSettings: Setting) => {
+    setSettings(() => {
+      return newSettings;
+    });
+    save(newSettings);
+  }, []);
+
+  const timer = useRef<any>(null);
+  const updateWithToast = useCallback(
     async (newSettings: Setting) => {
       const _value = {
         ...newSettings,
-        createdAt: Date.now(),
+        updatedAt: Date.now(),
       };
 
-      setSettings(() => {
-        return _value;
-      });
-      save(_value);
-      await mutation.mutateAsync(_value);
+      updateSettings(_value);
+      await sleep(1000);
+
+      clearTimeout(timer.current);
+      timer.current = setTimeout(() => {
+        clearTimeout(timer.current);
+        timer.current = null;
+        // @ts-ignore
+        toast.promise(mutation.mutateAsync(_value), {
+          loading: 'Syncing...',
+          success: 'Saved!',
+          error: 'Error saving',
+        });
+      }, 1000);
     },
-    [mutation],
+    [mutation, updateSettings],
   );
 
-  const updateWithToast = useCallback(
-    (newSettings: Setting) => {
-      toast.promise(updateSettings(newSettings), {
-        loading: 'Syncing...',
-        success: 'Saved!',
-        error: 'Error saving',
-      });
-    },
-    [updateSettings],
-  );
-
+  // @ts-ignore
   return [settings, updateWithToast, mutation];
 }
