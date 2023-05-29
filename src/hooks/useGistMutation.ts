@@ -17,8 +17,9 @@ export const useGistUpdate = (payload: any) => {
 export const useGistCreation = (options?: any) => {
   const [accessToken] = useStorage('accessToken');
   const mutation = useMutation(create, {
-    ...options,
     enabled: !!accessToken,
+    select: (data: any) => data?.data,
+    ...options,
   });
 
   return mutation;

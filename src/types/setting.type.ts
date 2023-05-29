@@ -28,7 +28,11 @@ export interface Block {
 
 export interface Setting {
   links: Block[];
+  updatedAt: number;
   createdAt: number;
+  general: {
+    language: string;
+  };
   theme: Theme;
   // 可能导出gistId
   gistId?: string;

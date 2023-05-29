@@ -11,8 +11,6 @@ export default function GlobalCss({ children }: React.PropsWithChildren) {
   const themeSolution = _.get(settings, 'theme.solution');
   const themeVariables = _.get(themes, themeSolution!);
 
-  console.log('theme', themeSolution, themeVariables);
-
   return (
     <>
       <GlobalCSSVariables theme={themeVariables} />

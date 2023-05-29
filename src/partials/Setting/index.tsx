@@ -98,7 +98,7 @@ export default function SettingModal({ visible, onClose }: OAuthProps) {
   }, [handleLangChange, handleThemeSolutionChange, settings, t]);
 
   return (
-    <Modal title={t('setting')} visible={visible} onClose={handleClose} width={436}>
+    <Modal title={t('setting')} visible={visible} onClose={handleClose} width={442}>
       <MyTabs items={tabItems} />
     </Modal>
   );

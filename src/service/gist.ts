@@ -5,6 +5,10 @@ import type { Setting } from '@/types/setting.type';
 let octokit: Octokit | null;
 
 export function setOctokit(instance: Octokit) {
+  if (octokit) {
+    octokit = null;
+  }
+
   octokit = instance;
 }
 
@@ -14,7 +18,7 @@ export function destroyOctokit() {
 
 export function fetchAll() {
   if (!octokit) {
-    return;
+    return Promise.reject('None octokit found!');
   }
 
   return octokit.rest.gists.list();
@@ -61,7 +65,7 @@ export function create({ gist, settings }: GistCreation) {
     public: false,
     description: gist.description,
     files: {
-      [`${gist.fileName}.json`]: {
+      [`${gist.fileName}`]: {
         content: JSON.stringify(settings),
       },
     },

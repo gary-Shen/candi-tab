@@ -10,7 +10,7 @@ export interface SpinProps {
 }
 
 const SpinWrapper = styled.div`
-  .spinner + .spin-content {
+  & + .spin-content {
     display: none;
   }
 `;
@@ -28,17 +28,17 @@ const LoadingSvg = ({ className, ...rest }: SVGAttributes<HTMLOrSVGElement>) => 
 
 export default function Spin({ spinning, className, children }: SpinProps) {
   const spinner = (
-    <div className={classNames('w-full spinner flex justify-center py-4', className)}>
+    <SpinWrapper className={classNames('w-full spinner flex justify-center py-4', className)}>
       <div className="h-5 w-5">
         <LoadingSvg className="animate-spin" />
       </div>
-    </div>
+    </SpinWrapper>
   );
 
   return (
-    <SpinWrapper as={Fragment}>
+    <>
       {spinning && spinner}
       <div className={classNames('spin-content', className)}>{children}</div>
-    </SpinWrapper>
+    </>
   );
 }

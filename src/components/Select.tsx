@@ -1,4 +1,4 @@
-import React, { Fragment, useMemo, useState } from 'react';
+import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
 import { BiCheck } from '@react-icons/all-files/bi/BiCheck';
 import { BiChevronDown } from '@react-icons/all-files/bi/BiChevronDown';
@@ -16,6 +16,10 @@ export interface SelectProps {
 
 export default function Select({ options, value, onChange }: SelectProps) {
   const [selectedValue, setSelected] = useState(value);
+
+  useEffect(() => {
+    setSelected(value);
+  }, [value]);
 
   const handleChange = (changedValue: string) => {
     setSelected(changedValue);

@@ -8,7 +8,7 @@ import { BiInfoCircle } from '@react-icons/all-files/bi/BiInfoCircle';
 import { BiMenu } from '@react-icons/all-files/bi/BiMenu';
 import { set } from 'lodash/fp';
 import omit from 'lodash/fp/omit';
-import React, { Fragment, useCallback, useContext, useMemo, useState } from 'react';
+import React, { Fragment, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Form } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
@@ -108,6 +108,11 @@ export default function Header({ onEdit, editable }: HeaderProps) {
   // clipboard
   const [clipboardVisible, toggleClipboardVisible] = useState(false);
   const [clipContent, setClipContent] = useState(settings.clipboard);
+
+  useEffect(() => {
+    setClipContent(settings.clipboard);
+  }, [settings.clipboard]);
+
   const handleOpenClipboard = useCallback(() => {
     toggleClipboardVisible(true);
   }, []);

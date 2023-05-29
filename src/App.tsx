@@ -54,11 +54,6 @@ function App() {
         links: newLinks,
       };
 
-      newSettings.createdAt = new Date().getTime();
-      setTimeout(() => {
-        document.dispatchEvent(new CustomEvent('sync-upload'));
-      }, 1000);
-
       updateSettings(newSettings);
     },
     [settings, updateSettings],

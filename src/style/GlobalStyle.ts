@@ -28,7 +28,7 @@ const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
     border-bottom: 1px solid var(--color-primary);
 
     &:hover {
-      border-bottom: 0;
+      border-bottom: 1px solid transparent;
     }
   }
 

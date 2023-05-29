@@ -14,6 +14,10 @@ export default defineConfig({
     include: ['react/jsx-runtime'],
   },
 
+  server: {
+    host: '0.0.0.0',
+  },
+
   plugins: [react(), svgr(), ViteEjsPlugin()],
   resolve: {
     alias: {

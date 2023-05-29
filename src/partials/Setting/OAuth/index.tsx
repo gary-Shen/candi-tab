@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 // import Card from '@/components/Card';
 import { Transition } from '@headlessui/react';
 import classNames from 'classnames';
+import { Octokit } from '@octokit/rest';
 
 import Button from '@/components/LinkButton';
 import Modal from '@/components/Dialog';
@@ -25,6 +26,7 @@ import MyRadioGroup from '@/components/RadioGroup';
 import IconText from '@/components/IconText';
 import Select from '@/components/Select';
 import { useGistCreation } from '@/hooks/useGistMutation';
+import { setOctokit } from '@/service/gist';
 
 import StyledOauth from './styled';
 
@@ -34,8 +36,8 @@ const uuid = gid();
 const OAUTH_URL = `https://github.com/login/oauth/authorize?scope=gist&client_id=9f776027a79806fc1363&redirect_uri=https://candi-tab.vercel.app/api/github?uuid=${uuid}`;
 
 function GistList() {
-  const { settings, updateSettings } = useContext(SettingsContext);
-  const allGist = useGistAll();
+  const { settings, updateSettings, accessToken } = useContext(SettingsContext);
+  const allGist = useGistAll(accessToken);
   const [selectedGist, setSelectedGist] = useState<IGist | undefined>();
   const [selectedFile, setSelectedFile] = useState<string>('');
   const oneGist = useGistOne(selectedGist?.id || settings.gistId);
@@ -55,11 +57,11 @@ function GistList() {
   }, [oneGist]);
 
   useEffect(() => {
-    if (oneGist.isSuccess) {
-      setSelectedFile(files?.[0]?.value);
+    if (oneGist.isSuccess && !selectedFile) {
+      setSelectedFile(settings.gist?.fileName || files?.[0]?.value);
       setSelectedGist(oneGist.data);
     }
-  }, [files, oneGist]);
+  }, [files, oneGist, selectedFile, settings.gist?.fileName]);
 
   const gistOptions = useMemo(() => {
     return (allGist.data ?? []).map((gist) => {
@@ -85,10 +87,9 @@ function GistList() {
   const handleSave = useCallback(() => {
     if (oneGist?.data && selectedGist?.id) {
       const newSettings = {
-        ...settings,
         gistId: selectedGist.id,
         // @ts-ignore
-        ...parseGistContent(oneGist.data!),
+        ...parseGistContent(oneGist.data!, selectedFile),
       };
 
       newSettings.gist = {
@@ -97,12 +98,8 @@ function GistList() {
       };
 
       updateSettings(newSettings);
-
-      setTimeout(() => {
-        updateSettings(calcLayout(newSettings));
-      });
     }
-  }, [oneGist.data, selectedFile, selectedGist?.id, settings, updateSettings]);
+  }, [oneGist.data, selectedFile, selectedGist?.id, updateSettings]);
 
   const disabled = useMemo(() => {
     return !oneGist.data || oneGist.isLoading || !(selectedFile in oneGist.data.files!);
@@ -115,15 +112,25 @@ function GistList() {
   return (
     <div className="max-h-[60vh] mx-[-0.8rem] px-[0.8rem] my-[-3px] py-[3px]">
       <div className="mb-2">
-        <div>gist</div>
+        <div>{t('gist')}</div>
         <Select options={gistOptions} value={settings.gistId} onChange={handleSelectGist} />
       </div>
+      <div className="flex justify-end mb-4">
+        <a href={OAUTH_URL} target="_blank" rel="noreferrer">
+          {t('createGist')}
+        </a>
+      </div>
       <div className="mb-2">
-        <div>file</div>
+        <div>{t('file')}</div>
         <Select options={files} value={selectedFile} onChange={handleSelectFile} />
       </div>
-      <Button disabled={disabled} type="secondary" className="w-full" onClick={handleSave}>
-        使用此文件
+      <div className="flex justify-end mb-4">
+        <a href={OAUTH_URL} target="_blank" rel="noreferrer">
+          {t('createFile')}
+        </a>
+      </div>
+      <Button disabled={disabled} type="primary" loading={oneGist.isLoading} className="w-full" onClick={handleSave}>
+        {t('useThisFile')}
       </Button>
     </div>
   );
@@ -132,7 +139,6 @@ function GistList() {
 export default function OAuth() {
   const { settings, updateSettings, accessToken, updateAccessToken } = useContext(SettingsContext);
   const [tokenValue, setTokenValue] = useState(accessToken);
-  const queryClient = useQueryClient();
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -143,83 +149,57 @@ export default function OAuth() {
     setTokenValue(e.target.value);
   };
 
-  const handleSave = useCallback(() => {
-    updateAccessToken(tokenValue);
-  }, [tokenValue, updateAccessToken]);
   /** ========================== 选中gist ========================== */
 
   const gistId = _.get(settings, `gistId`);
-
-  const [selectedGist, setGist] = useState<IGist | null>(null);
   const oneGist = useGistOne(gistId);
-  const allGist = useGistAll();
-  const gistCreation = useGistCreation();
-  const filename = _.chain(oneGist.data).get(`files`).keys().head().value();
-  const [gistsModalVisible, toggleGistsModalVisible] = useState(false);
+  const allGist = useGistAll(accessToken);
 
-  const handleOpenGists = useCallback(() => {
-    toggleGistsModalVisible(true);
-  }, [toggleGistsModalVisible]);
+  console.log('accessToken', accessToken, oneGist, allGist.isLoading);
 
-  const handleSelectGist = useCallback((gist: IGist) => {
-    setGist(gist);
-  }, []);
-  const handleSaveGist = useCallback(() => {
-    if (!selectedGist) {
-      toggleGistsModalVisible(false);
-      return;
-    }
-    if (oneGist?.data) {
-      const newSettings = {
-        ...settings,
-        // @ts-ignore
-        ...parseGistContent(oneGist.data!),
-        gistId: selectedGist.id,
-      };
-
-      updateSettings(newSettings);
-
-      setTimeout(() => {
-        updateSettings(calcLayout(newSettings));
-      });
-    }
-
-    toggleGistsModalVisible(false);
-  }, [oneGist?.data, selectedGist, settings, updateSettings]);
+  const handleSave = useCallback(() => {
+    setOctokit(
+      new Octokit({
+        auth: tokenValue,
+      }),
+    );
+    updateAccessToken(tokenValue);
+    oneGist.refetch();
+  }, [oneGist, tokenValue, updateAccessToken]);
 
   /** ========================== 选中gist ========================== */
 
   /** ========================== 创建gist ========================== */
   const [createGistModalVisible, toggleCreateGistModalVisible] = useState(false);
-  const createMutation = useMutation(gistService.create, {
-    onSuccess: (response: { data: IGist }) => {
-      toggleCreateGistModalVisible(false);
-      setGist(response.data);
-      updateSettings({
-        ...settings,
-        gistId: response.data.id,
-      });
-      setTimeout(() => {
-        queryClient.invalidateQueries('gist' as any);
-      });
-    },
-    enabled: !!accessToken,
-  } as any);
 
   const [gistForm, setGistForm] = useState({
     files: {},
     public: false,
-    description: 'A gist for settings syncing of candi-tab chrome extension',
-    fileName: 'candi_tab_settings',
+    description: 'Gist created by Candi Tab',
+    fileName: 'candi-tab-settings.json',
   });
-  const handleCloseCreateModal = useCallback(() => {
-    toggleCreateGistModalVisible(false);
-  }, []);
+  const gistCreation = useGistCreation({
+    onSuccess: (data) => {
+      allGist.refetch();
+      const newSettings = {
+        gistId: data.data.id,
+        // @ts-ignore
+        ...parseGistContent(data.data, gistForm.fileName),
+      };
+
+      newSettings.gist = {
+        ..._.pick(data.data, ['description', 'id']),
+        fileName: gistForm.fileName,
+      };
+      updateSettings(newSettings);
+      toggleCreateGistModalVisible(false);
+    },
+  });
   const handleCreateGist = useCallback(() => {
     toggleCreateGistModalVisible(true);
   }, []);
   const handleGistChange = useCallback(
-    (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    (field: string) => (e: React.ChangeEvent<any>) => {
       setGistForm({
         ...gistForm,
         [field]: e.target.value,
@@ -228,11 +208,11 @@ export default function OAuth() {
     [gistForm],
   );
   const handleSaveCreateGist = useCallback(() => {
-    createMutation.mutate({
+    gistCreation.mutate({
       gist: gistForm,
       settings,
     });
-  }, [createMutation, gistForm, settings]);
+  }, [gistCreation, gistForm, settings]);
   /** ========================== 创建gist ========================== */
 
   return (
@@ -277,20 +257,9 @@ export default function OAuth() {
               return;
             }}
           >
-            <Spin spinning={allGist.isLoading} className="mb-4">
+            <Spin spinning={allGist.isFetching}>
               <GistList />
             </Spin>
-            {accessToken && allGist.data && (
-              <Button
-                className="w-full"
-                // @ts-ignore
-                disabled={createMutation.isFetching}
-                type="primary"
-                onClick={handleCreateGist}
-              >
-                {t('createGist')}
-              </Button>
-            )}
           </form>
         </div>
         <div
@@ -302,27 +271,14 @@ export default function OAuth() {
           <div>{t('fileName')}</div>
           <Input
             className="mb-2"
-            placeholder={t('pasteToken')}
-            onBlur={handleSave}
-            onKeyDown={(e) => {
-              if (e.which === 13) {
-                e.preventDefault();
-                handleSave();
-              }
-            }}
-            onChange={handleOnChange}
+            placeholder={t('fileName')}
+            onChange={handleGistChange('fileName')}
             value={gistForm.fileName}
           />
           <div>{t('description')}</div>
-          <TextArea className="mb-2" rows={3} value={gistForm.description} />
-          <Button
-            className="w-full"
-            type="primary"
-            onClick={() => {
-              toggleCreateGistModalVisible(false);
-            }}
-          >
-            Save
+          <TextArea className="mb-2" rows={3} value={gistForm.description} onChange={handleGistChange('description')} />
+          <Button className="w-full" type="primary" loading={gistCreation.isLoading} onClick={handleSaveCreateGist}>
+            {t('save')}
           </Button>
         </div>
       </div>

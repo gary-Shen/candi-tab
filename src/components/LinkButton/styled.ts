@@ -18,14 +18,14 @@ export const StyledButton = styled.button<ButtonProps>`
   text-decoration: none;
   cursor: pointer;
 
-  &:hover {
+  &:not(:disabled):hover {
     color: ${({ variant }: ButtonProps) => (variant === 'light' ? '#000' : '#fff')};
     filter: brightness(0.9);
     /* border-bottom: 1px ; */
   }
 
-  &:focus,
-  &:active {
+  &:not(:disabled):focus,
+  &:not(:disabled):active {
     filter: brightness(0.7);
   }
 
