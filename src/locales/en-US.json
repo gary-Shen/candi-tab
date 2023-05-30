@@ -13,6 +13,7 @@
   "createAccessToken": "Create Github Access Token",
   "pasteToken": "Paste Access Token here",
   "createGist": "Create a new gist",
+  "File name ends with json": "File name ends with .json",
   "createFile": "Create a new file",
   "selectGist": "Select an existing gist",
   "createdAt": "Created@",

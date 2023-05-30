@@ -12,7 +12,13 @@ const blockStyle = {
 export function calcLayout(inputSettings: Setting) {
   const blockElements = document.querySelectorAll(`.block-content`);
   let newSettings = inputSettings;
-  _.forEach(blockElements, (blockElem, blockIndex) => {
+
+  for (let i = 0; i < blockElements.length; i++) {
+    if (i >= newSettings.links.length) {
+      break;
+    }
+
+    const blockElem = blockElements[i] as HTMLDivElement;
     const headerElem = blockElem.previousSibling as HTMLDivElement;
     const headerHeight = headerElem?.offsetHeight || 0;
     const linkSize = blockElem.children!.length;
@@ -25,7 +31,7 @@ export function calcLayout(inputSettings: Setting) {
       }, 0)
       .value();
 
-    newSettings = update(`links[${blockIndex}]`)((blockItem) => {
+    newSettings = update(`links[${i}]`)((blockItem) => {
       return {
         ...blockItem,
         layout: {
@@ -40,7 +46,7 @@ export function calcLayout(inputSettings: Setting) {
         },
       };
     })(newSettings);
-  });
+  }
 
   return newSettings;
 }

@@ -4,13 +4,6 @@ const StyledApp = styled.section`
   width: 1200px;
   margin-top: 1rem;
 
-  .spinner {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-  }
-
   .editBtn {
     line-height: 100%;
 

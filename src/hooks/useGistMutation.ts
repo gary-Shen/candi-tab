@@ -4,11 +4,11 @@ import { create, updateGist } from '@/service/gist';
 
 import useStorage from './useStorage';
 
-export const useGistUpdate = (payload: any) => {
+export const useGistUpdate = (gistId?: string) => {
   const [accessToken] = useStorage('accessToken');
   // @ts-ignore
-  const mutation = useMutation(() => updateGist(payload), {
-    enabled: !!payload.gist_id && !!accessToken,
+  const mutation = useMutation(updateGist, {
+    enabled: !!gistId && !!accessToken,
   });
 
   return mutation;

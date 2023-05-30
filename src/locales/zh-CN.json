@@ -13,6 +13,7 @@
   "createAccessToken": "创建 Github 访问令牌",
   "pasteToken": "粘贴令牌",
   "createGist": "创建 Gist",
+  "File name ends with json": "文件名以 json 结尾",
   "createFile": "创建文件",
   "selectGist": "选择现有 Gist",
   "createdAt": "创建于",

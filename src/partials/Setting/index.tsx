@@ -45,7 +45,6 @@ const langOptions = [
 export default function SettingModal({ visible, onClose }: OAuthProps) {
   const { settings, updateSettings } = useContext(SettingsContext);
   const { t } = useTranslation();
-
   const handleClose = useCallback(() => {
     if (typeof onClose === 'function') {
       onClose();
@@ -92,10 +91,10 @@ export default function SettingModal({ visible, onClose }: OAuthProps) {
       {
         title: t('syncing'),
         key: 'syncing',
-        content: <OAuth />,
+        content: <OAuth onClose={handleClose} />,
       },
     ];
-  }, [handleLangChange, handleThemeSolutionChange, settings, t]);
+  }, [handleClose, handleLangChange, handleThemeSolutionChange, settings, t]);
 
   return (
     <Modal title={t('setting')} visible={visible} onClose={handleClose} width={442}>

@@ -3,7 +3,6 @@ import set from 'lodash/fp/set';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import type { Layout } from 'react-grid-layout';
 import GridLayout from 'react-grid-layout';
-import BarLoader from 'react-spinners/BarLoader';
 import styled from 'styled-components';
 
 import Button from './components/LinkButton';
@@ -15,6 +14,7 @@ import GlobalStyle from './style/GlobalStyle';
 import StyledApp from './styled';
 import type { Block as IBlock } from './types/setting.type';
 import { gid } from './utils/gid';
+import Spin from './components/Spin';
 
 const Grid = styled(GridLayout)`
   margin: 48px 0;
@@ -98,8 +98,8 @@ function App() {
 
   if (!settings) {
     return (
-      <div className="spinner">
-        <BarLoader />
+      <div className="flex items-center justify-center min-h-screen">
+        <Spin spinning />
       </div>
     );
   }
@@ -152,14 +152,7 @@ function App() {
           {links}
         </Grid>
       ) : (
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '80vh',
-          }}
-        >
+        <div className="flex items-center justify-center h-[80vh]">
           <Button onClick={handleCreateFirstBlock}>Create first block</Button>
           <EditModal
             data={firstBlock}

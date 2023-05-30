@@ -1,6 +1,5 @@
 import 'lina-context-menu/dist/style.css';
 import '@reach/dialog/styles.css';
-// import 'bootstrap/dist/css/bootstrap.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 

@@ -13,6 +13,7 @@
   "createAccessToken": "新建 Github 訪問憑證",
   "pasteToken": "粘貼憑證訊息",
   "createGist": "新建 Gist",
+  "File name ends with json": "檔案名以 json 結尾",
   "createFile": "新建檔案",
   "selectGist": "選擇現有 Gist",
   "createdAt": "新建於",
