@@ -1,5 +1,4 @@
 import { BiTrash } from '@react-icons/all-files/bi/BiTrash';
-import classNames from 'classnames';
 import compose from 'lodash/fp/compose';
 import fpGet from 'lodash/fp/get';
 import update from 'lodash/fp/update';
@@ -7,8 +6,6 @@ import get from 'lodash/get';
 import pick from 'lodash/pick';
 import upperFirst from 'lodash/upperFirst';
 import React, { useCallback, useMemo, useState } from 'react';
-import { Switch } from '@headlessui/react';
-import { ButtonGroup, Form, OverlayTrigger, Tab, Tabs } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 
