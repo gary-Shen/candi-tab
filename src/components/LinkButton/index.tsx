@@ -2,17 +2,19 @@ import classNames from 'classnames';
 import type { SVGAttributes } from 'react';
 import React from 'react';
 
+import type { ButtonType } from './styled';
 import { StyledButton } from './styled';
 
 export interface ButtonProps {
   className?: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   as?: 'a' | 'button';
   autoFocus?: boolean;
-  type?: 'primary' | 'success' | 'info' | 'secondary' | 'warning' | 'danger' | 'link' | 'light';
+  type?: ButtonType;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
   disabled?: boolean;
   loading?: boolean;
+  style?: React.CSSProperties;
 }
 
 const LoadingSvg = ({ className, ...rest }: SVGAttributes<HTMLOrSVGElement>) => (

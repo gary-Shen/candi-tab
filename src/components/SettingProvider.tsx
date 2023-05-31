@@ -75,7 +75,7 @@ export default function SettingProvider({ children }: PropsWithChildren) {
       <>
         {children}
         <Toaster position="bottom-right" reverseOrder={false} />
-        <Modal title="缺失Gist信息" visible={!settings?.gist}>
+        <Modal title={t('gist information is missing')} visible={!settings?.gist}>
           <div className="mb-2">{t('fileName')}</div>
           <Input
             className="mb-2"
@@ -89,7 +89,7 @@ export default function SettingProvider({ children }: PropsWithChildren) {
           <Button
             className="w-full"
             type="primary"
-            disabled={!gistInfo.fileName || !gistInfo.fileName.endsWith('.json')}
+            disabled={!gistInfo.fileName || !gistInfo.fileName.endsWith('.json') || !gistInfo.description}
             onClick={handleSave}
           >
             {t('save')}

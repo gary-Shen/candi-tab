@@ -6,26 +6,64 @@ import update from 'lodash/fp/update';
 import get from 'lodash/get';
 import pick from 'lodash/pick';
 import upperFirst from 'lodash/upperFirst';
-import React, { useCallback, useState } from 'react';
-import { Button, ButtonGroup, Form, InputGroup, OverlayTrigger, Popover, Tab, Tabs } from 'react-bootstrap';
+import React, { useCallback, useMemo, useState } from 'react';
+import { Switch } from '@headlessui/react';
+import { ButtonGroup, Form, OverlayTrigger, Tab, Tabs } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
+import styled from 'styled-components';
 
 import { TYPES } from '@/constant';
 import type { Block, Link, MenuLink } from '@/types/setting.type';
 import { gid } from '@/utils/gid';
+import Input, { InputGroup } from '@/components/Input';
+import TextArea from '@/components/TextArea';
+import Button from '@/components/LinkButton';
+import MyModal from '@/components/Dialog';
+import MyPopover from '@/components/Popover';
+import MyTabs from '@/components/Tabs';
+import type { ButtonType } from '@/components/LinkButton/styled';
 
-import Modal from '../../../components/Modal';
 import StyledBody from './styled';
 
 export interface LinkColorPickerProps {
-  value: string;
+  value: ButtonType | string;
   onChange: (value: string) => void;
   className?: string;
 }
 
-const StylePicker = ({ value, onChange, className, ...props }: LinkColorPickerProps) => {
+const StyledPopover = styled(MyPopover)`
+  & > button {
+    height: 100%;
+    border: 0;
+
+    & > button {
+      height: 100%;
+
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+      border: 0;
+    }
+  }
+`;
+
+const StyledColorWrapper = styled.div`
+  button {
+    &:not(:last-child) {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+
+    &:not(:first-child) {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+  }
+`;
+
+const StylePicker = ({ value, onChange }: LinkColorPickerProps) => {
+  const { t } = useTranslation();
   const handleChangeStyle = useCallback(
-    (type: React.ChangeEvent<HTMLInputElement>) => {
+    (type: React.ChangeEvent<HTMLInputElement> | ButtonType) => {
       if (onChange) {
         onChange(typeof type === 'object' ? type.target.value : type);
       }
@@ -33,33 +71,43 @@ const StylePicker = ({ value, onChange, className, ...props }: LinkColorPickerPr
     [onChange],
   );
 
-  return (
-    <div>
-      <Tabs
-        className={classNames('color-tab', className)}
-        defaultActiveKey="preset"
-        id="uncontrolled-tab-example"
-        {...props}
-      >
-        <Tab eventKey="preset" title="Built-in">
-          <ButtonGroup className="me-2" aria-label="Second group">
-            {TYPES.map((type) => (
-              <Button key={type} variant={type} onClick={() => handleChangeStyle(type as any)} />
-            ))}
-          </ButtonGroup>
-        </Tab>
-        <Tab eventKey="custom" title="Color">
-          <Form.Control
-            type="color"
-            defaultValue="#563d7c"
-            title="Choose your color"
-            value={value}
-            onChange={handleChangeStyle}
-          />
-        </Tab>
-      </Tabs>
-    </div>
+  const handleOnClick = useCallback(
+    (type: ButtonType) => (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      handleChangeStyle(type);
+    },
+    [handleChangeStyle],
   );
+
+  const tabItems = useMemo(() => {
+    return [
+      {
+        title: t('built in color'),
+        key: 'built-in',
+        content: (
+          <StyledColorWrapper className="flex">
+            {TYPES.map((type) => (
+              <Button
+                key={type}
+                type={type as ButtonType}
+                className="!p-0 w-8 h-8"
+                onClick={handleOnClick(type as ButtonType)}
+              />
+            ))}
+          </StyledColorWrapper>
+        ),
+      },
+      {
+        title: t('custom color'),
+        key: 'custom',
+        content: (
+          <input type="color" className="w-full cursor-pointer border-0" value={value} onChange={handleChangeStyle} />
+        ),
+      },
+    ];
+  }, [handleChangeStyle, handleOnClick, t, value]);
+
+  return <MyTabs defaultIndex={TYPES.includes(value) ? 0 : 1} items={tabItems} />;
 };
 
 export type FormOnChange = (field: string) => (value: string | number | undefined | any[]) => void;
@@ -93,7 +141,8 @@ const LinkForm = ({ data, onChange, onSave }: LinkFormProps) => {
     toggleIsMenu(!isMenu);
   };
 
-  const handleAddMenu = () => {
+  const handleAddMenu = (e: React.MouseEvent<any>) => {
+    e.preventDefault();
     onChange('menu')(
       compose(
         fpGet('menu'),
@@ -102,7 +151,8 @@ const LinkForm = ({ data, onChange, onSave }: LinkFormProps) => {
     );
   };
 
-  const handleDeleteMenu = (id: string) => () => {
+  const handleDeleteMenu = (id: string) => (e: React.MouseEvent<any>) => {
+    e.preventDefault();
     onChange('menu')(
       compose(
         fpGet('menu'),
@@ -119,13 +169,7 @@ const LinkForm = ({ data, onChange, onSave }: LinkFormProps) => {
     [onSave],
   );
 
-  const popover = (
-    <Popover>
-      <Popover.Body>
-        <StylePicker onChange={handleValueChange('style')} value={data.style} />
-      </Popover.Body>
-    </Popover>
-  );
+  const popover = <StylePicker onChange={handleValueChange('style')} value={data.style} />;
 
   const buttonStyle = TYPES.includes(data.style)
     ? {}
@@ -134,69 +178,57 @@ const LinkForm = ({ data, onChange, onSave }: LinkFormProps) => {
       };
 
   return (
-    <Form onSubmit={handleSubmit}>
-      <Form.Group className="mb-3" controlId="title">
-        <Form.Label>{t('name')}</Form.Label>
-        <Form.Control
-          type="input"
-          placeholder="Type link name here"
-          autoFocus
-          onChange={handleOnChange('title')}
-          value={data.title}
-        />
-      </Form.Group>
+    <form onSubmit={handleSubmit}>
+      <div className="mb-4">
+        <div className="mb-2">{t('name')}</div>
+        <Input placeholder="Type link name here" autoFocus onChange={handleOnChange('title')} value={data.title} />
+      </div>
 
-      <Form.Group className="mb-3" controlId="isMenu">
-        <Form.Check type="checkbox" checked={isMenu} onChange={handleToggleIsMenu} label={t('Convert to Menu')} />
-      </Form.Group>
+      <div className="mb-4">
+        <input type="checkbox" id="isMenu" name="isMenu" checked={isMenu} onChange={handleToggleIsMenu} />
+        <label className="ml-2" htmlFor="isMenu">
+          {t('Convert to Menu')}
+        </label>
+      </div>
 
       {!isMenu && (
-        <Form.Group className="mb-3" controlId="url">
-          <Form.Label>{t('link')}</Form.Label>
-          <InputGroup className="mb-3">
-            <OverlayTrigger trigger="click" placement="bottom" overlay={popover}>
+        <div className="mb-4">
+          <div className="mb-2">{t('link')}</div>
+          <InputGroup>
+            <StyledPopover className="self-stretch" overlay={popover}>
               <Button
-                variant={TYPES.includes(data.style) ? data.style : 'light'}
-                className="style-btn"
+                className="!p-0 w-12"
+                type={TYPES.includes(data.style) ? data.style : 'light'}
                 style={buttonStyle}
               />
-            </OverlayTrigger>
-
-            <Form.Control
-              type="input"
-              placeholder={t('Type link name here')}
-              onChange={handleOnChange('url')}
-              value={data.url}
-            />
+            </StyledPopover>
+            <Input placeholder={t('Type link name here')} onChange={handleOnChange('url')} value={data.url} />
           </InputGroup>
-        </Form.Group>
+        </div>
       )}
 
       {isMenu && (
-        <Form.Group className="mb-3" controlId="url">
-          <Form.Label>{t('links')}</Form.Label>
+        <div className="mb-4">
+          <div className="mb-2">{t('links')}</div>
           {data.menu &&
             data.menu.map((item, index) => (
-              <InputGroup className="mb-3" key={item.id}>
-                <Form.Control type="input" onChange={handleOnChange(`menu[${index}].title`)} value={item.title} />
-                <Form.Control type="input" onChange={handleOnChange(`menu[${index}].url`)} value={item.url} />
-                <Button size="sm" variant="danger" onClick={handleDeleteMenu(item.id)}>
+              <InputGroup className="mb-2" key={item.id}>
+                <Input onChange={handleOnChange(`menu[${index}].title`)} value={item.title} />
+                <Input onChange={handleOnChange(`menu[${index}].url`)} value={item.url} />
+                <Button type="danger" className="self-stretch" onClick={handleDeleteMenu(item.id)}>
                   <BiTrash />
                 </Button>
               </InputGroup>
             ))}
-          <div className="d-grid gap-2">
-            <Button variant="primary" onClick={handleAddMenu}>
-              {t('addLink')}
-            </Button>
-          </div>
-        </Form.Group>
+
+          <Button className="w-full mt-2" type="secondary" onClick={handleAddMenu}>
+            {t('addLink')}
+          </Button>
+        </div>
       )}
-      <Form.Group className="mb-3" controlId="description">
-        <Form.Label>{t('description')}</Form.Label>
-        <Form.Control value={data.description} onChange={handleOnChange('description')} as="textarea" rows={3} />
-      </Form.Group>
-    </Form>
+      <div className="mb-2">{t('description')}</div>
+      <TextArea value={data.description} onChange={handleOnChange('description')} as="textarea" rows={3} />
+    </form>
   );
 };
 
@@ -222,18 +254,10 @@ const BlockForm = ({ data, onChange, onSave }: BlockFormProps) => {
   );
 
   return (
-    <Form onSubmit={handleSubmit}>
-      <Form.Group className="mb-3" controlId="title">
-        <Form.Label>{t('title')}</Form.Label>
-        <Form.Control
-          type="input"
-          placeholder={t('blockTitle')}
-          autoFocus
-          onChange={handleOnChange('title')}
-          value={data.title}
-        />
-      </Form.Group>
-    </Form>
+    <form onSubmit={handleSubmit}>
+      <div className="mb-2">{t('title')}</div>
+      <Input placeholder={t('blockTitle')} autoFocus onChange={handleOnChange('title')} value={data.title} />
+    </form>
   );
 };
 
@@ -258,19 +282,25 @@ export default function EditModal({ data, type, onChange, ...props }: EditModalP
   const EditForm = FormSet[upperFirst(type) as FormType];
   const { t } = useTranslation();
   return (
-    <Modal {...props} onClose={props.onClose}>
-      <Modal.Header>{data.title || 'untitled'}</Modal.Header>
-      <Modal.Body>
-        <StyledBody>
-          <EditForm data={data as Link & Block} onChange={onChange} onSave={props.onSave} onClose={props.onClose} />
-        </StyledBody>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={props.onClose}>
-          {t('close')}
-        </Button>
-        <Button onClick={props.onSave}>{t('done')}</Button>
-      </Modal.Footer>
-    </Modal>
+    <MyModal
+      {...props}
+      width={type === 'link' ? 600 : 400}
+      title={data.title || 'untitled'}
+      onClose={props.onClose}
+      footer={
+        <div className="flex w-full">
+          <Button type="secondary" className="flex-1" onClick={props.onClose}>
+            {t('close')}
+          </Button>
+          <Button className="ml-2 flex-1" onClick={props.onSave}>
+            {t('done')}
+          </Button>
+        </div>
+      }
+    >
+      <StyledBody>
+        <EditForm data={data as Link & Block} onChange={onChange} onSave={props.onSave} onClose={props.onClose} />
+      </StyledBody>
+    </MyModal>
   );
 }

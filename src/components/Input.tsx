@@ -29,7 +29,7 @@ const InputGroupWrapper = styled.div`
     white-space: nowrap;
   }
 
-  & > * + * {
+  &:not(.nospace) > * + * {
     margin-left: 0.5rem;
   }
 
@@ -50,13 +50,15 @@ const InputGroupWrapper = styled.div`
 
 export function InputGroup({
   children,
-  nospace,
+  nospace = true,
+  className,
 }: React.PropsWithChildren<{
   nospace?: boolean;
+  className?: string;
 }>) {
   return (
     <InputGroupWrapper
-      className={classNames('flex flex-row items-center', {
+      className={classNames('flex flex-row items-center', className, {
         nospace,
       })}
     >

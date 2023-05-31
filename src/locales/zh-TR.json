@@ -2,7 +2,7 @@
   "setting": "設定",
   "language": "語言",
   "general": "通用",
-  "syncing": "同步",
+  "synchronization": "同步",
   "theme": "主題",
   "import": "載入設定",
   "export": "下載設定",
@@ -13,7 +13,7 @@
   "createAccessToken": "新建 Github 訪問憑證",
   "pasteToken": "粘貼憑證訊息",
   "createGist": "新建 Gist",
-  "File name ends with json": "檔案名以 json 結尾",
+  "File name ends with json": "檔案名以 .json 結尾",
   "createFile": "新建檔案",
   "selectGist": "選擇現有 Gist",
   "createdAt": "新建於",
@@ -44,5 +44,11 @@
   "Type link name here": "輸入鏈接名稱",
   "Convert to Menu": "轉換成清單",
   "themeSolution": "主題方案",
-  "clipboard content": "剪貼簿內容"
+  "clipboard content": "剪貼簿內容",
+  "gist information is missing": "Gist 訊息缺失",
+  "sync success": "同步成功",
+  "sync failed": "同步失敗",
+  "syncing": "同步中...",
+  "built in color": "內建顏色",
+  "custom color": "自訂顏色"
 }

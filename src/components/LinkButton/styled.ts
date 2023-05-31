@@ -1,7 +1,18 @@
 import styled from 'styled-components';
 
+export type ButtonType =
+  | 'primary'
+  | 'success'
+  | 'info'
+  | 'secondary'
+  | 'warning'
+  | 'danger'
+  | 'link'
+  | 'light'
+  | 'dark';
+
 export interface ButtonProps {
-  variant?: 'primary' | 'success' | 'info' | 'secondary' | 'warning' | 'danger' | 'link' | 'light';
+  variant: ButtonType;
   as?: string;
 }
 

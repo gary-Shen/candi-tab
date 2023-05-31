@@ -236,14 +236,14 @@ function GistList({ onSave }: GistListProps) {
           hidden: !isCreateGist,
         })}
       >
-        <div>{t('fileName')}</div>
+        <div className="mb-2">{t('fileName')}</div>
         <Input
-          className="mb-2"
+          className="mb-4"
           placeholder={t('fileName')}
           onChange={handleGistChange('fileName')}
           value={newGist.fileName}
         />
-        <div>{t('description')}</div>
+        <div className="mb-2">{t('description')}</div>
         <TextArea className="mb-2" rows={3} value={newGist.description} onChange={handleGistChange('description')} />
 
         <div className="flex">
@@ -269,7 +269,7 @@ function GistList({ onSave }: GistListProps) {
       >
         <div className="mb-2">{t('fileName')}</div>
         <Input
-          className="mb-2"
+          className="mb-4"
           placeholder={`${t('File name ends with json')}`}
           onChange={(e) => setFileName(e.target.value)}
           value={newFileName}

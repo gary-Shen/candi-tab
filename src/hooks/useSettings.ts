@@ -59,7 +59,7 @@ export default function useSettings(): [
   (settings: Setting) => void,
   UseMutationResult<OctokitResponse<any>>,
 ] {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [settings, setSettings] = useState<Setting | null>(null);
   const [accessToken] = useStorage('accessToken');
   const gist = settings?.gist || ({} as any);
@@ -127,15 +127,17 @@ export default function useSettings(): [
   const timer = useRef<any>(null);
   const updateWithToast = useCallback(
     async (newSettings: Setting) => {
-      const settingsWithNewLayout = calcLayout({
+      const _value = {
         ...newSettings,
         updatedAt: Date.now(),
-      });
+      };
 
-      updateSettings(settingsWithNewLayout);
+      updateSettings(_value);
 
       clearTimeout(timer.current);
       timer.current = setTimeout(() => {
+        const settingsWithNewLayout = calcLayout(_value);
+        updateSettings(settingsWithNewLayout);
         clearTimeout(timer.current);
         timer.current = null;
         // @ts-ignore
@@ -151,14 +153,14 @@ export default function useSettings(): [
             },
           }),
           {
-            loading: 'Syncing...',
-            success: 'Saved!',
-            error: 'Error saving',
+            loading: t('syncing'),
+            success: t('sync success'),
+            error: t('sync failed'),
           },
         );
       }, 2000);
     },
-    [mutation, updateSettings],
+    [mutation, t, updateSettings],
   );
 
   // @ts-ignore

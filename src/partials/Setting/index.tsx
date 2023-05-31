@@ -77,20 +77,20 @@ export default function SettingModal({ visible, onClose }: OAuthProps) {
         key: 'general',
         content: (
           <div>
-            <div className="mb-2">
-              <div>{t('language')}</div>
+            <div className="mb-4">
+              <div className="mb-2">{t('language')}</div>
               <Select options={langOptions} value={get(settings, 'general.language')} onChange={handleLangChange} />
             </div>
             <div>
-              <div>{t('themeSolution')}</div>
+              <div className="mb-2">{t('themeSolution')}</div>
               <Select options={themes} value={get(settings, 'theme.solution')} onChange={handleThemeSolutionChange} />
             </div>
           </div>
         ),
       },
       {
-        title: t('syncing'),
-        key: 'syncing',
+        title: t('synchronization'),
+        key: 'synchronization',
         content: <OAuth onClose={handleClose} />,
       },
     ];
