@@ -66,13 +66,12 @@ const Confirm = ({ title, visible, onConfirm, onClose }: ConfirmProps) => {
 
 export interface BlockProps {
   block: Block;
-  onMenuClick: (index: number) => void;
   settings: Setting;
   updateSettings: (setting: Setting) => void;
   index: number;
   editable?: boolean;
 }
-export default function BlockContainer({ block, onMenuClick, settings, updateSettings, index, editable }: BlockProps) {
+export default function BlockContainer({ block, settings, updateSettings, index, editable }: BlockProps) {
   const { buttons: links, title } = block;
   const { t } = useTranslation();
   const [editVisible, toggleEditVisible] = useState<boolean>(false);
