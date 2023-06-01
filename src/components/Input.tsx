@@ -45,6 +45,11 @@ const InputGroupWrapper = styled.div`
 
   &.nospace > :not(:first-child):not(:last-child) {
     border-radius: 0;
+    margin-left: -1px;
+
+    &:focus {
+      z-index: 999;
+    }
   }
 `;
 

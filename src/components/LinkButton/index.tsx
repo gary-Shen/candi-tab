@@ -15,6 +15,7 @@ export interface ButtonProps {
   disabled?: boolean;
   loading?: boolean;
   style?: React.CSSProperties;
+  title?: string;
 }
 
 const LoadingSvg = ({ className, ...rest }: SVGAttributes<HTMLOrSVGElement>) => (

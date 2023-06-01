@@ -19,7 +19,7 @@ export interface ButtonProps {
 export const StyledButton = styled.button<ButtonProps>`
   text-align: center;
   vertical-align: middle;
-  border: 1px solid var(--${({ variant }: ButtonProps) => `color-${variant}`});
+  border: 1px solid var(--${({ variant }: ButtonProps) => (variant === 'light' ? `border-color` : `color-${variant}`)});
   background-color: var(--${({ variant }: ButtonProps) => `color-${variant}`});
   color: ${({ variant }: ButtonProps) => (variant === 'light' ? '#000' : '#fff')};
   border-radius: var(--border-radius);

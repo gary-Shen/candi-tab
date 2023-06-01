@@ -251,7 +251,7 @@ function GistList({ onSave }: GistListProps) {
             {t('cancel')}
           </Button>
           <Button
-            className="flex-1 ml-2"
+            className="flex-1 ml-4"
             type="primary"
             loading={gistCreation.isLoading}
             onClick={handleSaveCreateGist}

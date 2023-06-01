@@ -9,7 +9,7 @@ const theme: ThemeTypes = {
   infoColor: '',
   warningColor: '',
   dangerColor: '',
-  lightColor: '',
+  lightColor: '#f6f8fa',
   darkColor: '',
   // ======
   bodyBackground: '#fff',

@@ -180,7 +180,11 @@ export default function Header({ onEdit, editable }: HeaderProps) {
         title={t('import')}
         visible={importVisible}
         onClose={() => setImportVisible(false)}
-        footer={<Button onClick={handleSaveImport}>{t('done')}</Button>}
+        footer={
+          <Button className="w-full" onClick={handleSaveImport}>
+            {t('done')}
+          </Button>
+        }
       >
         <input type="file" onChange={handleFileOnload} />
       </MyModal>
@@ -190,7 +194,7 @@ export default function Header({ onEdit, editable }: HeaderProps) {
         width={640}
         title={t('clipboard content')}
         footer={
-          <Button type="primary" onClick={handleSaveClipboard}>
+          <Button className="w-full" type="primary" onClick={handleSaveClipboard}>
             {t('done')}
           </Button>
         }
