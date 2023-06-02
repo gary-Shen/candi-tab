@@ -70,8 +70,9 @@ export interface BlockProps {
   updateSettings: (setting: Setting) => void;
   index: number;
   editable?: boolean;
+  onMenuClick: (index: number) => void;
 }
-export default function BlockContainer({ block, settings, updateSettings, index, editable }: BlockProps) {
+export default function BlockContainer({ block, settings, updateSettings, index, editable, onMenuClick }: BlockProps) {
   const { buttons: links, title } = block;
   const { t } = useTranslation();
   const [editVisible, toggleEditVisible] = useState<boolean>(false);
@@ -355,7 +356,7 @@ export default function BlockContainer({ block, settings, updateSettings, index,
                     movingLinkFromWhichBlock = index;
                   }}
                 >
-                  <div className="w-full">
+                  <div className="w-full link-group" onClick={() => onMenuClick(index)}>
                     <MyMenu
                       className="w-full"
                       buttonClassName="w-full"
@@ -365,11 +366,15 @@ export default function BlockContainer({ block, settings, updateSettings, index,
                           as: 'a',
                           href: menuItemUrl,
                           key: menuItemId,
-                          className: 'border-b-0 text-inherit',
+                          className: 'border-transparent text-inherit hover:text-white',
                         };
                       })}
                     >
-                      <MyButton className="w-full" type={TYPES.includes(style) ? style : 'light'} style={buttonStyle}>
+                      <MyButton
+                        className="w-full link-btn"
+                        type={TYPES.includes(style) ? style : 'light'}
+                        style={buttonStyle}
+                      >
                         <IconText position="right" text={buttonTitle}>
                           <BiCaretDown />
                         </IconText>
@@ -381,7 +386,7 @@ export default function BlockContainer({ block, settings, updateSettings, index,
 
               return editable ? (
                 <ContextMenu key={id} menu={linkMenu} onOpen={() => handleLinkContextOpen(linkIndex)}>
-                  <span className="under-context-menu link-btn">{linkItem!}</span>
+                  <span className="under-context-menu">{linkItem!}</span>
                 </ContextMenu>
               ) : (
                 linkItem
@@ -416,7 +421,7 @@ export default function BlockContainer({ block, settings, updateSettings, index,
             if (editable) {
               return (
                 <ContextMenu key={id} menu={linkMenu} onOpen={() => handleLinkContextOpen(linkIndex)}>
-                  <div className="link-btn under-context-menu">{button}</div>
+                  <div className="under-context-menu">{button}</div>
                 </ContextMenu>
               );
             }

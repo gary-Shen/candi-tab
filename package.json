@@ -60,6 +60,7 @@
     "camelcase": "^6.2.1",
     "eslint": "^8.24.0",
     "postcss": "^8.4.23",
+    "rollup-plugin-visualizer": "^5.9.0",
     "semantic-release": "^19.0.3",
     "semantic-release-chrome": "^3.1.0",
     "tailwindcss": "^3.3.2",

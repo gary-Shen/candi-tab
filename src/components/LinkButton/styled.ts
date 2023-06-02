@@ -16,12 +16,15 @@ export interface ButtonProps {
   as?: string;
 }
 
+const whites = ['light', 'default'];
+
 export const StyledButton = styled.button<ButtonProps>`
   text-align: center;
   vertical-align: middle;
-  border: 1px solid var(--${({ variant }: ButtonProps) => (variant === 'light' ? `border-color` : `color-${variant}`)});
+  border: 1px solid
+    var(--${({ variant }: ButtonProps) => (whites.includes(variant) ? `border-color` : `color-${variant}`)});
   background-color: var(--${({ variant }: ButtonProps) => `color-${variant}`});
-  color: ${({ variant }: ButtonProps) => (variant === 'light' ? '#000' : '#fff')};
+  color: ${({ variant }: ButtonProps) => (whites.includes(variant) ? '#000' : '#fff')};
   border-radius: var(--border-radius);
   transition: all 0.2s;
   padding: var(--button-padding-y) var(--button-padding-x);
@@ -30,7 +33,7 @@ export const StyledButton = styled.button<ButtonProps>`
   cursor: pointer;
 
   &:not(:disabled):hover {
-    color: ${({ variant }: ButtonProps) => (variant === 'light' ? '#000' : '#fff')};
+    color: ${({ variant }: ButtonProps) => (whites.includes(variant) ? '#000' : '#fff')};
     filter: brightness(0.9);
     /* border-bottom: 1px ; */
   }

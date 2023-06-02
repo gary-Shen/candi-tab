@@ -155,7 +155,7 @@ interface LinkRowProps {
 
 const LinkRow = React.memo(({ index, data, onChange, onDelete, onDragStart }: LinkRowProps) => {
   return (
-    <InputGroup className="mb-2">
+    <InputGroup className="py-1">
       <MovableTarget
         onMouseDown={onDragStart(data, index)}
         getShadowNode={(shadowRef, targetRef) => <ShadowRow ref={shadowRef} data={data} targetRef={targetRef} />}

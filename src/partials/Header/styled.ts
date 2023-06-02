@@ -5,5 +5,5 @@ export const StyledHeader = styled.div`
   display: flex;
   top: 1rem;
   right: 1rem;
-  z-index: 2;
+  z-index: 3;
 `;
