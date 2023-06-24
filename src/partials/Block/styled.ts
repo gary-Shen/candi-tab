@@ -27,6 +27,10 @@ const StyledBlock = styled.div`
   .link-btn {
     width: 100%;
     margin: 0.25rem 0;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
     border: 0;
 
     &:last-child {
@@ -36,17 +40,24 @@ const StyledBlock = styled.div`
     &:first-child {
       margin-top: 0;
     }
+  }
 
-    .under-context-menu & {
-      margin: 0;
+  .link-group,
+  .under-context-menu {
+    margin: 0.25rem 0;
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    &:first-child {
+      margin-top: 0;
     }
   }
 
-  .link-group {
-    width: 100%;
-    border: 0;
-    padding-top: 0.25rem;
-    padding-bottom: 0.25rem;
+  .under-context-menu {
+    .link-group {
+      margin: 0;
+    }
   }
 
   .block-edit {

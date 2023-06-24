@@ -1,6 +1,7 @@
 import { BiEditAlt } from '@react-icons/all-files/bi/BiEditAlt';
 import { BiListPlus } from '@react-icons/all-files/bi/BiListPlus';
 import { BiPlusCircle } from '@react-icons/all-files/bi/BiPlusCircle';
+import { BiCaretDown } from '@react-icons/all-files/bi/BiCaretDown';
 import { BiTrash } from '@react-icons/all-files/bi/BiTrash';
 import type { MenuData } from 'lina-context-menu';
 import ContextMenu from 'lina-context-menu';
@@ -9,18 +10,19 @@ import concat from 'lodash/fp/concat';
 import set from 'lodash/fp/set';
 import update from 'lodash/fp/update';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Dropdown, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
 import MyButton from '@/components/LinkButton';
 import Card from '@/components/Card';
-import Modal from '@/components/Modal';
+import MyModal from '@/components/Dialog';
 import { MovableContainer, MovableTarget } from '@/components/Movable';
 import { TYPES } from '@/constant';
 import type { Block, Link, Setting } from '@/types/setting.type';
 import { calcLayout } from '@/utils/calcLayout';
 import { gid } from '@/utils/gid';
 import { isDark } from '@/utils/hsp';
+import MyMenu from '@/components/Menu';
+import IconText from '@/components/IconText';
 
 import type { EditType } from './EditModal';
 import EditModal from './EditModal';
@@ -42,32 +44,35 @@ export interface ConfirmProps {
 const Confirm = ({ title, visible, onConfirm, onClose }: ConfirmProps) => {
   const { t } = useTranslation();
   return (
-    <Modal visible={visible} onClose={onClose}>
-      <Modal.Header>{t('confirm')}</Modal.Header>
-      <Modal.Body>
-        {t('Are you sure to delete')} <strong>{title}</strong>?
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={onClose}>
-          {t('cancel')}
-        </Button>
-        <Button variant="danger" autoFocus onClick={onConfirm}>
-          {t('yes')}
-        </Button>
-      </Modal.Footer>
-    </Modal>
+    <MyModal
+      visible={visible}
+      title={t('confirm')}
+      onClose={onClose}
+      footer={
+        <>
+          <MyButton className="flex-1" type="secondary" onClick={onClose}>
+            {t('cancel')}
+          </MyButton>
+          <MyButton className="flex-1 ml-4" type="danger" autoFocus onClick={onConfirm}>
+            {t('yes')}
+          </MyButton>
+        </>
+      }
+    >
+      {t('Are you sure to delete')} <strong>{title}</strong>?
+    </MyModal>
   );
 };
 
 export interface BlockProps {
   block: Block;
-  onMenuClick: (index: number) => void;
   settings: Setting;
   updateSettings: (setting: Setting) => void;
   index: number;
   editable?: boolean;
+  onMenuClick: (index: number) => void;
 }
-export default function BlockContainer({ block, onMenuClick, settings, updateSettings, index, editable }: BlockProps) {
+export default function BlockContainer({ block, settings, updateSettings, index, editable, onMenuClick }: BlockProps) {
   const { buttons: links, title } = block;
   const { t } = useTranslation();
   const [editVisible, toggleEditVisible] = useState<boolean>(false);
@@ -351,27 +356,37 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
                     movingLinkFromWhichBlock = index;
                   }}
                 >
-                  <Dropdown align="start" className="link-btn" onClick={() => onMenuClick(index)}>
-                    <Dropdown.Toggle as={MyButton} size="sm" className="link-group" variant={style}>
-                      {buttonTitle}
-                    </Dropdown.Toggle>
-
-                    <Dropdown.Menu>
-                      {menu.map(({ title: menuTitle, url: menuUrl, id: menuItemId }) => {
-                        return (
-                          <Dropdown.Item size="sm" key={menuItemId} href={menuUrl}>
-                            {menuTitle}
-                          </Dropdown.Item>
-                        );
+                  <div className="w-full link-group" onClick={() => onMenuClick(index)}>
+                    <MyMenu
+                      className="w-full"
+                      buttonClassName="w-full"
+                      options={menu.map(({ title: menuTitle, url: menuItemUrl, id: menuItemId }) => {
+                        return {
+                          title: menuTitle,
+                          as: 'a',
+                          href: menuItemUrl,
+                          key: menuItemId,
+                          className: 'border-transparent text-inherit hover:text-white',
+                        };
                       })}
-                    </Dropdown.Menu>
-                  </Dropdown>
+                    >
+                      <MyButton
+                        className="w-full link-btn"
+                        type={TYPES.includes(style) ? style : 'light'}
+                        style={buttonStyle}
+                      >
+                        <IconText position="right" text={buttonTitle}>
+                          <BiCaretDown />
+                        </IconText>
+                      </MyButton>
+                    </MyMenu>
+                  </div>
                 </MovableTarget>
               );
 
               return editable ? (
                 <ContextMenu key={id} menu={linkMenu} onOpen={() => handleLinkContextOpen(linkIndex)}>
-                  <span className="under-context-menu link-btn">{linkItem!}</span>
+                  <span className="under-context-menu">{linkItem!}</span>
                 </ContextMenu>
               ) : (
                 linkItem
@@ -389,12 +404,13 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
               >
                 <MyButton
                   as={editable ? 'button' : 'a'}
+                  title={description}
                   // @ts-ignore
                   href={url}
                   size="sm"
                   date-url={url}
                   className="link-btn"
-                  variant={TYPES.includes(style) ? style : 'light'}
+                  type={TYPES.includes(style) ? style : 'light'}
                   style={buttonStyle}
                 >
                   {buttonTitle}
@@ -405,21 +421,12 @@ export default function BlockContainer({ block, onMenuClick, settings, updateSet
             if (editable) {
               return (
                 <ContextMenu key={id} menu={linkMenu} onOpen={() => handleLinkContextOpen(linkIndex)}>
-                  <div className="link-btn under-context-menu">{button}</div>
+                  <div className="under-context-menu">{button}</div>
                 </ContextMenu>
               );
             }
 
-            return (
-              <OverlayTrigger
-                key={id}
-                placement="top"
-                show={typeof description === 'undefined' ? false : undefined}
-                overlay={<Tooltip>{description}</Tooltip>}
-              >
-                {button}
-              </OverlayTrigger>
-            );
+            return button;
           })}
         </MovableContainer>
       </Card>

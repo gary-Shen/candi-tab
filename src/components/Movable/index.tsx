@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import React, { Children, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { Children, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 
 import { StyledMovableContainer, StyledShadow } from './styled';
@@ -154,6 +154,7 @@ export interface MovableTargetProps {
   className?: string;
   children?: React.ReactNode;
   disabled?: boolean;
+  getShadowNode?: (ref: React.RefObject<any>, targetRef: React.RefObject<any>) => React.ReactNode;
   onMouseDown?: () => void;
   onMouseUp?: () => void;
 }
@@ -165,7 +166,14 @@ interface StartPosition {
   innerOffsetTop: number;
 }
 
-export function MovableTarget({ children, className = '', disabled, onMouseDown, onMouseUp }: MovableTargetProps) {
+export function MovableTarget({
+  children,
+  className = '',
+  disabled,
+  onMouseDown,
+  getShadowNode,
+  onMouseUp,
+}: MovableTargetProps) {
   const [active, toggleActive] = useState(false);
   const shadowRef = useRef<HTMLDivElement | null>(null);
   const positionRef = useRef<StartPosition>({} as StartPosition);
@@ -249,19 +257,15 @@ export function MovableTarget({ children, className = '', disabled, onMouseDown,
         targetRef.current.style.opacity = '0.5';
       }
 
-      if (shadowNodeRef.current) {
+      if (!getShadowNode && shadowNodeRef.current) {
         shadowNodeRef.current.style.width = `${boundingRect.width}px`;
         shadowNodeRef.current.style.height = `${boundingRect.height}px`;
       }
       document.addEventListener('mousemove', handleOnMouseMove);
       document.addEventListener('mouseup', handleOnMouseUp);
     },
-    [disabled, handleOnMouseMove, handleOnMouseUp, onMouseDown],
+    [disabled, getShadowNode, handleOnMouseMove, handleOnMouseUp, onMouseDown],
   );
-
-  if (!children) {
-    return null;
-  }
 
   const newNode = Children.map(children, (child) => {
     if (React.isValidElement(child)) {
@@ -277,24 +281,35 @@ export function MovableTarget({ children, className = '', disabled, onMouseDown,
     return null;
   });
 
-  const shadowNode = Children.map(children, (child) => {
-    if (React.isValidElement(child)) {
-      return React.cloneElement(child, {
-        // @ts-ignore
-        ref: shadowNodeRef,
-      });
-    }
+  const shadowNode = useMemo(() => {
+    return getShadowNode
+      ? getShadowNode(shadowNodeRef, targetRef)
+      : Children.map(children, (child) => {
+          if (React.isValidElement(child)) {
+            return React.cloneElement(child, {
+              // @ts-ignore
+              ref: shadowNodeRef,
+            });
+          }
 
-    return null;
-  });
+          return null;
+        });
+  }, [children, getShadowNode]);
 
-  const shadowTarget = ReactDOM.createPortal(
-    // @ts-ignore
-    <StyledShadow visible={active} ref={shadowRef}>
-      {shadowNode}
-    </StyledShadow>,
-    document.getElementById('movable')!,
+  const shadowTarget = useMemo(
+    () =>
+      ReactDOM.createPortal(
+        <StyledShadow visible={active} ref={shadowRef}>
+          {shadowNode}
+        </StyledShadow>,
+        document.getElementById('movable')!,
+      ),
+    [active, shadowNode],
   );
+
+  if (!children) {
+    return null;
+  }
 
   return (
     <>

@@ -9,7 +9,6 @@ import { BiMenu } from '@react-icons/all-files/bi/BiMenu';
 import { set } from 'lodash/fp';
 import omit from 'lodash/fp/omit';
 import React, { Fragment, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { Form } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
 import IconButton from '@/components/IconButton';
@@ -17,7 +16,6 @@ import Button from '@/components/LinkButton';
 import IconText from '@/components/IconText';
 import SettingsContext from '@/context/settings.context';
 import type { Setting } from '@/types/setting.type';
-import { calcLayout } from '@/utils/calcLayout';
 import download from '@/utils/download';
 import MyModal from '@/components/Dialog';
 import TextArea from '@/components/TextArea';
@@ -85,17 +83,12 @@ export default function Header({ onEdit, editable }: HeaderProps) {
     }
 
     const newSettings = {
-      ...(omit(['gistId'])(toImport) as Setting),
+      ...(omit(['gistId', 'gist'])(toImport) as Setting),
       gistId: settings.gistId,
       createdAt: Date.now(),
     };
 
     updateSettings(newSettings);
-
-    setTimeout(() => {
-      // 重新計算佈局
-      updateSettings(calcLayout(newSettings));
-    }, 1000);
     setImportVisible(false);
   }, [updateSettings, toImport, settings]);
 
@@ -187,11 +180,13 @@ export default function Header({ onEdit, editable }: HeaderProps) {
         title={t('import')}
         visible={importVisible}
         onClose={() => setImportVisible(false)}
-        footer={<Button onClick={handleSaveImport}>{t('done')}</Button>}
+        footer={
+          <Button className="w-full" onClick={handleSaveImport}>
+            {t('done')}
+          </Button>
+        }
       >
-        <Form>
-          <Form.Control type="file" onChange={handleFileOnload} />
-        </Form>
+        <input type="file" onChange={handleFileOnload} />
       </MyModal>
 
       <MyModal
@@ -199,16 +194,16 @@ export default function Header({ onEdit, editable }: HeaderProps) {
         width={640}
         title={t('clipboard content')}
         footer={
-          <Button type="primary" onClick={handleSaveClipboard}>
+          <Button className="w-full" type="primary" onClick={handleSaveClipboard}>
             {t('done')}
           </Button>
         }
         initialFocus={textRef}
         onClose={() => toggleClipboardVisible(false)}
       >
-        <Form onSubmit={(e) => e.preventDefault()}>
+        <form onSubmit={(e) => e.preventDefault()}>
           <TextArea rows={12} ref={textRef} value={clipContent} onChange={handleClipContentChange} />
-        </Form>
+        </form>
       </MyModal>
     </>
   );

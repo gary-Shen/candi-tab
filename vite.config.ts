@@ -1,6 +1,7 @@
 import { resolve } from 'path';
 
 import { defineConfig } from 'vite';
+import { visualizer } from 'rollup-plugin-visualizer';
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
 import { ViteEjsPlugin } from 'vite-plugin-ejs';
@@ -18,7 +19,12 @@ export default defineConfig({
     host: '0.0.0.0',
   },
 
-  plugins: [react(), svgr(), ViteEjsPlugin()],
+  plugins: [
+    react(),
+    svgr(),
+    ViteEjsPlugin(),
+    process.env.ANALYZE && visualizer({ open: true, brotliSize: true, filename: './dist/_report.html' }),
+  ].filter(Boolean),
   resolve: {
     alias: {
       'node-fetch': 'isomorphic-fetch',

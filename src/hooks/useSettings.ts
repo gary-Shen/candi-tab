@@ -3,9 +3,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { UseMutationResult } from '@tanstack/react-query';
 import type { OctokitResponse } from '@octokit/types';
 import toast from 'react-hot-toast';
-import _ from 'lodash';
 import { Octokit } from '@octokit/rest';
 import { useTranslation } from 'react-i18next';
+import _ from 'lodash';
 
 import type { Block, Link, Setting } from '@/types/setting.type';
 import { gid } from '@/utils/gid';
@@ -59,20 +59,11 @@ export default function useSettings(): [
   (settings: Setting) => void,
   UseMutationResult<OctokitResponse<any>>,
 ] {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [settings, setSettings] = useState<Setting | null>(null);
   const [accessToken] = useStorage('accessToken');
   const gist = settings?.gist || ({} as any);
-  const mutation = useGistUpdate({
-    gist_id: gist.id || settings?.gistId,
-    public: false,
-    description: gist.description,
-    files: {
-      [gist.fileName!]: {
-        content: JSON.stringify(settings),
-      },
-    },
-  });
+  const mutation = useGistUpdate(settings?.gist?.id);
   useEffect(() => {
     if (!accessToken) {
       return;
@@ -102,6 +93,10 @@ export default function useSettings(): [
     }
     // @ts-ignore
     const newSettings = parseGistContent(oneGist.data!, settings?.gist?.fileName);
+
+    if (!newSettings) {
+      return;
+    }
 
     if (settings?.updatedAt && newSettings.updatedAt < settings?.updatedAt) {
       return;
@@ -142,18 +137,30 @@ export default function useSettings(): [
       clearTimeout(timer.current);
       timer.current = setTimeout(() => {
         const settingsWithNewLayout = calcLayout(_value);
-
+        updateSettings(settingsWithNewLayout);
         clearTimeout(timer.current);
         timer.current = null;
         // @ts-ignore
-        toast.promise(mutation.mutateAsync(settingsWithNewLayout), {
-          loading: 'Syncing...',
-          success: 'Saved!',
-          error: 'Error saving',
-        });
-      }, 1000);
+        toast.promise(
+          mutation.mutateAsync({
+            gist_id: settingsWithNewLayout.gist?.id || settingsWithNewLayout?.gistId,
+            public: false,
+            description: settingsWithNewLayout.gist?.description,
+            files: {
+              [settingsWithNewLayout.gist!.fileName!]: {
+                content: JSON.stringify(settingsWithNewLayout),
+              },
+            },
+          }),
+          {
+            loading: t('syncing'),
+            success: t('sync success'),
+            error: t('sync failed'),
+          },
+        );
+      }, 2000);
     },
-    [mutation, updateSettings],
+    [mutation, t, updateSettings],
   );
 
   // @ts-ignore
