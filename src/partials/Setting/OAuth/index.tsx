@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import classNames from 'classnames';
 import { Octokit } from '@octokit/rest';
+import { set } from 'lodash/fp';
 
 import Button from '@/components/LinkButton';
 import SettingsContext from '@/context/settings.context';
@@ -130,10 +131,17 @@ function GistList({ onSave }: GistListProps) {
       // @ts-ignore
       setSelectedGist(gistResponse.data);
       setIsCreateGist(false);
+
+      updateSettings(
+        set('gist')({
+          ...newGist,
+          id: gistResponse.data.id,
+        })(settings),
+      );
     } catch (err: any) {
       toast.error(err.toString());
     }
-  }, [allGist, gistCreation, newGist, settings]);
+  }, [allGist, gistCreation, newGist, settings, updateSettings]);
 
   const handleFileOnChange = useCallback((changedFileName: string) => {
     setSelectedFile(changedFileName);
@@ -160,7 +168,7 @@ function GistList({ onSave }: GistListProps) {
   const handleUpdateGist = useCallback(async () => {
     try {
       await gistUpdate.mutateAsync({
-        gist_id: settings?.gist?.id || settings?.gistId,
+        gist_id: selectedGist?.id || settings?.gist?.id || settings?.gistId,
         public: false,
         description: settings?.gist?.description,
         files: {
@@ -173,10 +181,11 @@ function GistList({ onSave }: GistListProps) {
       oneGist.refetch();
       setSelectedFile(newFileName);
       setIsCreateFile(false);
+      updateSettings(set('gist.fileName', newFileName)(settings));
     } catch (err: any) {
       toast.error(err.toString());
     }
-  }, [oneGist, gistUpdate, newFileName, settings]);
+  }, [gistUpdate, selectedGist?.id, settings, newFileName, oneGist, updateSettings]);
 
   const disabled = useMemo(() => {
     // @ts-ignore

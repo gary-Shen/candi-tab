@@ -12,10 +12,11 @@ export interface SelectProps {
   value?: string;
   options: SelectOption[];
   onChange?: (value: string) => void;
+  defaultValue?: string;
 }
 
-export default function Select({ options, value, onChange }: SelectProps) {
-  const [selectedValue, setSelected] = useState(value);
+export default function Select({ options, defaultValue, value, onChange }: SelectProps) {
+  const [selectedValue, setSelected] = useState(defaultValue);
 
   useEffect(() => {
     setSelected(value);

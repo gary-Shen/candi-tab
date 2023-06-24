@@ -161,15 +161,13 @@ export default function Header({ onEdit, editable }: HeaderProps) {
   return (
     <>
       <StyledHeader>
-        <IconButton onClick={handleOpenClipboard} className="">
+        <IconButton onClick={handleOpenClipboard}>
           <BiClipboard />
         </IconButton>
-        <IconButton onClick={onEdit} className="">
-          {editable ? <BiCheck /> : <BiEditAlt />}
-        </IconButton>
+        <IconButton onClick={onEdit}>{editable ? <BiCheck /> : <BiEditAlt />}</IconButton>
 
         <MyMenu options={menuOptions}>
-          <IconButton>
+          <IconButton className="ml-2">
             <BiMenu />
           </IconButton>
         </MyMenu>

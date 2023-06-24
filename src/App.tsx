@@ -40,11 +40,6 @@ function App() {
 
   const handleLayoutChange = useCallback(
     (layout: Layout[]) => {
-      if (Date.now() - window.initialTime < 1000) {
-        // eslint-disable-next-line
-        console.log('Should not update settings');
-        return;
-      }
       const newLinks = settings.links.map((item, index) => {
         return { ...item, layout: layout[index] };
       });
@@ -141,7 +136,8 @@ function App() {
           isResizable={editable}
           isDraggable={editable}
           isDroppable={editable}
-          onLayoutChange={handleLayoutChange}
+          onDragStop={handleLayoutChange}
+          onResizeStop={handleLayoutChange}
           className="layout"
           cols={12}
           rowHeight={4}

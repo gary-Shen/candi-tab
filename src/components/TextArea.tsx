@@ -16,7 +16,7 @@ export default React.forwardRef<HTMLTextAreaElement, TextAreaProps>(function Tex
       value={value}
       ref={ref}
       className={classNames(
-        'rounded pt-2 pb-2 resize-y pl-3 pr-3 bg-form-inset border border-default focus:outline-none w-full',
+        'rounded-[var(--border-radius)] pt-2 pb-2 resize-y pl-3 pr-3 bg-form-inset border border-default focus:outline-none w-full',
         className,
       )}
       {...rest}

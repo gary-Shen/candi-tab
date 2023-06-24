@@ -19,7 +19,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(function InnerInput
       value={value}
       {...rest}
       ref={ref}
-      className={`rounded pt-2 pb-2 text-base pl-3 pr-3 bg-form-inset border border-default focus:outline-none w-full ${className}`}
+      className={`rounded-[var(--border-radius)] pt-2 pb-2 text-base pl-3 pr-3 bg-form-inset border border-default focus:outline-none w-full ${className}`}
     />
   );
 });

@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
+import React, { Fragment, useImperativeHandle, useLayoutEffect, useRef } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import classNames from 'classnames';
 import styled from 'styled-components';
@@ -40,7 +40,7 @@ const Items = React.forwardRef(({ options }: Pick<MyMenuProps, 'options'>, ref) 
     <Menu.Items
       static
       ref={itemsRef}
-      className="absolute z-[1999] right-0 mt-2 min-w-full divide-y divide-gray-100 rounded-md bg-[var(--menu-overlay-bg)] shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+      className="absolute z-[1999] right-0 mt-2 min-w-full divide-y divide-gray-100 rounded-[var(--border-radius)] bg-[var(--menu-overlay-bg)] shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
     >
       <div className="px-1 py-1 ">
         {options.map(({ key, title, as, className: itemClassName, ...props }) => (
@@ -50,7 +50,7 @@ const Items = React.forwardRef(({ options }: Pick<MyMenuProps, 'options'>, ref) 
                 as={as}
                 className={classNames(
                   itemClassName,
-                  'group flex w-full items-center rounded-md pl-2 pr-4 py-2 text-sm whitespace-nowrap',
+                  'group flex w-full items-center rounded-md pl-2 pr-4 py-1 whitespace-nowrap',
                   {
                     'bg-[var(--menu-active-bg)] text-[var(--menu-text-active-color)]': active,
                   },

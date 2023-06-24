@@ -3,7 +3,7 @@ import { AiOutlineHome } from '@react-icons/all-files/ai/AiOutlineHome';
 import { useMemo } from 'react';
 
 import MyModal from '@/components/Dialog';
-import icon from '@/icons/candi-tab.png';
+import icon from '@/assets/logo.png';
 
 export interface AboutProps {
   visible: boolean;

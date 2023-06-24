@@ -115,7 +115,7 @@ export default function useSettings(): [
 
   const updateSettings = useCallback(
     async (newSettings: Setting) => {
-      i18n.changeLanguage(newSettings.general.language || 'en-US');
+      i18n.changeLanguage(newSettings?.general?.language || chrome?.i18n?.getUILanguage() || 'en-US');
       setSettings(() => {
         return newSettings;
       });
@@ -137,9 +137,15 @@ export default function useSettings(): [
       clearTimeout(timer.current);
       timer.current = setTimeout(() => {
         const settingsWithNewLayout = calcLayout(_value);
+
         updateSettings(settingsWithNewLayout);
         clearTimeout(timer.current);
         timer.current = null;
+
+        if (!settingsWithNewLayout.gist?.fileName) {
+          return;
+        }
+
         // @ts-ignore
         toast.promise(
           mutation.mutateAsync({
@@ -147,7 +153,7 @@ export default function useSettings(): [
             public: false,
             description: settingsWithNewLayout.gist?.description,
             files: {
-              [settingsWithNewLayout.gist!.fileName!]: {
+              [settingsWithNewLayout.gist.fileName]: {
                 content: JSON.stringify(settingsWithNewLayout),
               },
             },

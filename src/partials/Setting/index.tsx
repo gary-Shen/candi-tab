@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import Modal from '@/components/Dialog';
 import MyTabs from '@/components/Tabs';
 import Select from '@/components/Select';
+import i18n from '@/locales';
 
 import SettingsContext from '../../context/settings.context';
 import OAuth from './OAuth';
@@ -45,6 +46,7 @@ const langOptions = [
 export default function SettingModal({ visible, onClose }: OAuthProps) {
   const { settings, updateSettings } = useContext(SettingsContext);
   const { t } = useTranslation();
+
   const handleClose = useCallback(() => {
     if (typeof onClose === 'function') {
       onClose();
@@ -79,7 +81,12 @@ export default function SettingModal({ visible, onClose }: OAuthProps) {
           <div>
             <div className="mb-4">
               <div className="mb-2">{t('language')}</div>
-              <Select options={langOptions} value={get(settings, 'general.language')} onChange={handleLangChange} />
+              <Select
+                options={langOptions}
+                value={get(settings, 'general.language') || i18n.language}
+                defaultValue={i18n.language}
+                onChange={handleLangChange}
+              />
             </div>
             <div>
               <div className="mb-2">{t('themeSolution')}</div>

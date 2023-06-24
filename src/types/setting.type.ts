@@ -33,7 +33,10 @@ export interface Setting {
   general: {
     language: string;
   };
-  theme: Theme;
+  theme: {
+    solution: string;
+    values?: Theme;
+  };
   // 可能导出gistId
   gistId?: string;
   fileName?: string;

@@ -16,6 +16,7 @@ const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
     background-attachment: fixed;
     background-position: initial;
     color: var(--font-color);
+    font-size: 100%;
   }
 
   #root {
