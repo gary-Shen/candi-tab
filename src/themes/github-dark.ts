@@ -31,9 +31,10 @@ const theme: ThemeTypes = {
   },
 
   modal: {
-    headerBackground: '#161b22',
+    headerBackground: '#161B22',
     bodyBackground: '#0d1117',
-    footerBackground: '#161b22',
+    footerBackground: '#161B22',
+    borderColor: 'var(--border-color)',
   },
 
   tabs: {
@@ -45,14 +46,16 @@ const theme: ThemeTypes = {
   },
 
   select: {
-    backgroundColor: 'transparent',
+    backgroundColor: '#161B22',
     overlayBackgroundColor: '#0d1117',
+    borderColor: 'var(--border-color)',
   },
 
   menu: {
-    overlayBackgroundColor: '#0d1117',
+    overlayBackgroundColor: '#161B22',
     activeBackgroundColor: '#5765F2',
     activeColor: '#fff',
+    borderColor: 'var(--border-color)',
   },
 
   form: {

@@ -42,7 +42,7 @@ export default function Select({ options, defaultValue, value, onChange }: Selec
           </span>
         </Listbox.Button>
         <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
-          <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-[var(--select-overlay-bg)] py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+          <Listbox.Options className="absolute z-10 border border-[var(--select-border-color)] mt-1 max-h-60 w-full overflow-auto rounded-md bg-[var(--select-bg)] py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
             {options.map((option) => (
               <Listbox.Option
                 key={option.value}

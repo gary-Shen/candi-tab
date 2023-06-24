@@ -34,6 +34,7 @@ const theme: ThemeTypes = {
     headerBackground: '#f6f8fa',
     bodyBackground: '#fff',
     footerBackground: '#f6f8fa',
+    borderColor: 'transparent',
   },
 
   tabs: {
@@ -47,12 +48,14 @@ const theme: ThemeTypes = {
   select: {
     backgroundColor: '#fff',
     overlayBackgroundColor: '#fff',
+    borderColor: 'transparent',
   },
 
   menu: {
     overlayBackgroundColor: '#fff',
     activeBackgroundColor: '#1677ff',
     activeColor: '#fff',
+    borderColor: 'transparent',
   },
 
   form: {

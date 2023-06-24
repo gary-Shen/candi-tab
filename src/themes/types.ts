@@ -28,6 +28,7 @@ export interface ThemeTypes {
     headerBackground: string;
     bodyBackground: string;
     footerBackground: string;
+    borderColor: string;
   };
 
   tabs: {
@@ -41,12 +42,14 @@ export interface ThemeTypes {
   select: {
     backgroundColor: string;
     overlayBackgroundColor: string;
+    borderColor: string;
   };
 
   menu: {
     overlayBackgroundColor: string;
     activeBackgroundColor: string;
     activeColor: string;
+    borderColor: string;
   };
 
   form: {

@@ -40,7 +40,7 @@ const Items = React.forwardRef(({ options }: Pick<MyMenuProps, 'options'>, ref) 
     <Menu.Items
       static
       ref={itemsRef}
-      className="absolute z-[1999] right-0 mt-2 min-w-full divide-y divide-gray-100 rounded-[var(--border-radius)] bg-[var(--menu-overlay-bg)] shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+      className="absolute z-[1999] right-0 mt-2 min-w-full divide-y border border-[var(--menu-border-color)] divide-gray-100 rounded-[var(--border-radius)] bg-[var(--menu-overlay-bg)] shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
     >
       <div className="px-1 py-1 ">
         {options.map(({ key, title, as, className: itemClassName, ...props }) => (

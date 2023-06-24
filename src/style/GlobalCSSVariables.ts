@@ -72,6 +72,7 @@ const GlobalCSSVariables = createGlobalStyle<ThemeProps>`
       /* select */
       --select-bg: ${theme.select.backgroundColor};
       --select-overlay-bg: ${theme.select.overlayBackgroundColor};
+      --select-border-color: ${theme.select.borderColor};
 
       /* tabs */
       --tab-bg: ${theme.tabs.backgroundColor};
@@ -84,12 +85,14 @@ const GlobalCSSVariables = createGlobalStyle<ThemeProps>`
       --modal-body-bg: ${theme.modal.bodyBackground};
       --modal-header-bg: ${theme.modal.headerBackground};
       --modal-footer-bg: ${theme.modal.footerBackground};
+      --modal-border-color: ${theme.modal.borderColor};
 
       /* menu */
       --menu-overlay-bg: ${theme.menu.overlayBackgroundColor};
       --menu-active-bg: ${theme.menu.activeBackgroundColor};
       --menu-text-active-color: ${theme.menu.activeColor};
       --menu-text-color: ${theme.menu.color};
+      --menu-border-color: ${theme.menu.borderColor};
 
       /* button */
       --button-padding-y: ${theme.button.paddingY};

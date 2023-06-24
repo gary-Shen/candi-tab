@@ -29,8 +29,12 @@ export interface GistsGetParams {
 }
 
 export function fetchOne({ gist_id }: GistsGetParams) {
+  if (!gist_id) {
+    return Promise.reject('None gist_id found!');
+  }
+
   if (!octokit) {
-    return;
+    return Promise.reject('None octokit found!');
   }
 
   return octokit.rest.gists.get({

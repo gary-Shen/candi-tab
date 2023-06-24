@@ -68,7 +68,7 @@ export default function MyModal({
                 style={{ width }}
               >
                 {title && (
-                  <div className="pl-4 pr-2 rounded-t-lg py-2 bg-modal-header flex justify-between items-center border-b border-default">
+                  <div className="pl-4 border pr-2 rounded-t-lg py-2 bg-modal-header flex justify-between items-center border-b border-[var(--modal-border-color)]">
                     <Dialog.Title as="span" className="font-medium leading-6 text-font-color">
                       {title}
                     </Dialog.Title>
@@ -80,7 +80,7 @@ export default function MyModal({
                   </div>
                 )}
                 <div
-                  className={classNames('p-4 bg-modal-body', {
+                  className={classNames('p-4 bg-modal-body border border-[var(--modal-border-color)] border-t-0', {
                     'rounded-b-lg': !footer,
                     'rounded-t-lg': !title,
                   })}
@@ -88,7 +88,7 @@ export default function MyModal({
                   {children}
                 </div>
                 {footer && (
-                  <div className="p-4 flex justify-end bg-modal-footer border-t rounded-b-lg border-default">
+                  <div className="p-4 flex justify-end bg-modal-footer border border-t-0 rounded-b-lg border-[var(--modal-border-color)]">
                     {footer}
                   </div>
                 )}
