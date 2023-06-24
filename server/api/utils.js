@@ -1,38 +1,42 @@
-const fetch = require('node-fetch');
-const { Redis } = require('@upstash/redis');
+function createCodeHandler(oauthHandler) {
+  return async function handleCode(request, response) {
+    const { code, uuid } = request.query;
 
-const { createCodeHandler } = require('./utils');
+    console.log('code', code);
+    try {
+      setCORSHeaders(response);
+      if (!request.method || request.method.toLowerCase() !== 'get') {
+        return sendRejection(response, 405);
+      }
+      if (!code || typeof code !== 'string') {
+        return sendRejection(response, 403);
+      }
+      const accessToken = await oauthHandler(code, uuid);
+      writeJSON(response, { accessToken });
+      response.end();
+    } catch (err) {
+      return sendRejection(response, 400, err instanceof Error ? err.message : '');
+    }
+  };
+}
 
-module.exports = createCodeHandler(async (code, uuid) => {
-  const { CLIENT_ID, CLIENT_SECRET, UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN } = process.env;
+function setCORSHeaders(response) {
+  response.setHeader('Access-Control-Allow-Origin', '*');
+  response.setHeader('Access-Control-Allow-Methods', 'POST');
+  response.setHeader('Access-Control-Allow-Methods', 'GET');
+}
 
-  console.log('fetching');
+function sendRejection(response, status = 400, content) {
+  response.writeHead(status);
+  response.end(content);
+}
 
-  const res = await fetch('https://github.com/login/oauth/access_token', {
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-    redirect: 'follow',
-    method: 'post',
-    body: JSON.stringify({
-      code,
-      client_id: CLIENT_ID,
-      client_secret: CLIENT_SECRET,
-    }),
-  });
+function writeJSON(response, data) {
+  response.setHeader('Content-Type', 'application/json');
+  response.write(JSON.stringify(data));
+}
 
-  const body = await res.json();
-
-  const { access_token: accessToken, scope, error_description: errorDescription } = body;
-  if (errorDescription) {
-    throw new Error(errorDescription);
-  } else if (scope !== 'gist' || !accessToken || !(typeof accessToken === 'string')) {
-    console.log(JSON.stringify(body));
-    throw new Error(`Cannot resolve response from GitHub`);
-  }
-
-  // await redis.set(uuid, accessToken);
-  // console.log('redis token', await redis.set(uuid));
-  return accessToken;
-});
+module.exports = {
+  createCodeHandler,
+  sendRejection,
+};
