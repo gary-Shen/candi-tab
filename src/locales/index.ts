@@ -1,4 +1,4 @@
-import { use } from 'i18next';
+import i18n from 'i18next';
 import { get } from 'lodash';
 import { initReactI18next } from 'react-i18next';
 
@@ -22,13 +22,17 @@ const resources = {
 (async () => {
   const settings = await loadSettings();
 
-  use(initReactI18next).init({
+  const options = {
     resources: resources,
-    lng: get(settings, 'general.language') || 'en-US',
+    lng: get(settings, 'general.language') || chrome?.i18n?.getUILanguage() || 'en-US',
     fallbackLng: 'en-US',
 
     interpolation: {
       escapeValue: false,
     },
-  });
+  };
+
+  i18n.use(initReactI18next).init(options);
 })();
+
+export default i18n;

@@ -3,8 +3,8 @@ import styled from 'styled-components';
 export const StyledMovableContainer = styled.div`
   .empty-block {
     height: 0px;
-    background-color: var(--bs-primary);
-    outline: 1px solid var(--bs-primary);
+    background-color: var(--color-primary);
+    outline: 1px solid var(--color-primary);
   }
 `;
 

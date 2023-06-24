@@ -18,10 +18,20 @@ const Icon = styled.span`
 export interface IconTextProps {
   children: React.ReactNode;
   className?: string;
-  text?: string;
+  position?: 'left' | 'right';
+  text?: React.ReactNode;
 }
 
 export default function IconText({ children, className, text, ...props }: IconTextProps) {
+  if (props.position === 'right') {
+    return (
+      <Wrap className={className} {...props}>
+        {text && <Text>{text}</Text>}
+        <Icon className="ml-2">{children}</Icon>
+      </Wrap>
+    );
+  }
+
   return (
     <Wrap className={className} {...props}>
       <Icon>{children}</Icon>

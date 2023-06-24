@@ -1,33 +1,20 @@
-import { Octokit } from '@octokit/rest';
-import { QueryClient, QueryClientProvider, useMutation, useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
-import _ from 'lodash';
 import set from 'lodash/fp/set';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { Toast, ToastContainer } from 'react-bootstrap';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import type { Layout } from 'react-grid-layout';
 import GridLayout from 'react-grid-layout';
-import BarLoader from 'react-spinners/BarLoader';
 import styled from 'styled-components';
 
-import Button from './components/Button';
-import type { SettingsContextType } from './context/settings.context';
+import Button from './components/LinkButton';
 import SettingsContext from './context/settings.context';
-import useSettings from './hooks/useSettings';
-import useStorage from './hooks/useStorage';
 import Block from './partials/Block';
 import EditModal from './partials/Block/EditModal';
 import Header from './partials/Header';
-import * as gistService from './service/gist';
-import GlobalCSSVariables from './style/GlobalCSSVariables';
 import GlobalStyle from './style/GlobalStyle';
 import StyledApp from './styled';
-import themes from './themes';
-import type { Block as IBlock, Setting } from './types/setting.type';
+import type { Block as IBlock } from './types/setting.type';
 import { gid } from './utils/gid';
-import parseGistContent from './utils/parseGistContent';
-
-const queryClient = new QueryClient();
+import Spin from './components/Spin';
 
 const Grid = styled(GridLayout)`
   margin: 48px 0;
@@ -47,13 +34,12 @@ function App() {
   const [firstBlock, setFirstBlockData] = useState<IBlock>({} as IBlock);
   const [fistBlockVisible, toggleFirstBlockVisible] = useState(false);
 
+  useEffect(() => {
+    window.initialTime = new Date().getTime();
+  }, []);
+
   const handleLayoutChange = useCallback(
     (layout: Layout[]) => {
-      if (Date.now() - window.initialTime < 1000) {
-        // eslint-disable-next-line
-        console.log('Should not update settings');
-        return;
-      }
       const newLinks = settings.links.map((item, index) => {
         return { ...item, layout: layout[index] };
       });
@@ -62,11 +48,6 @@ function App() {
         ...settings,
         links: newLinks,
       };
-
-      newSettings.createdAt = new Date().getTime();
-      setTimeout(() => {
-        document.dispatchEvent(new CustomEvent('sync-upload'));
-      }, 1000);
 
       updateSettings(newSettings);
     },
@@ -112,8 +93,8 @@ function App() {
 
   if (!settings) {
     return (
-      <div className="spinner">
-        <BarLoader />
+      <div className="flex items-center justify-center min-h-screen">
+        <Spin spinning />
       </div>
     );
   }
@@ -155,7 +136,8 @@ function App() {
           isResizable={editable}
           isDraggable={editable}
           isDroppable={editable}
-          onLayoutChange={handleLayoutChange}
+          onDragStop={handleLayoutChange}
+          onResizeStop={handleLayoutChange}
           className="layout"
           cols={12}
           rowHeight={4}
@@ -166,14 +148,7 @@ function App() {
           {links}
         </Grid>
       ) : (
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '80vh',
-          }}
-        >
+        <div className="flex items-center justify-center h-[80vh]">
           <Button onClick={handleCreateFirstBlock}>Create first block</Button>
           <EditModal
             data={firstBlock}
@@ -189,169 +164,4 @@ function App() {
   );
 }
 
-function withOauth<WrapComponentProps>(Comp: any) {
-  return function OauthWrapper(props: WrapComponentProps) {
-    const [accessToken, setAccessToken] = useStorage('accessToken');
-    const [settings, updateSettings] = useSettings();
-    const gistId = settings?.gistId;
-
-    useEffect(() => {
-      window.initialTime = new Date().getTime();
-    }, []);
-
-    const value = useMemo(() => {
-      return {
-        updateSettings,
-        settings,
-        accessToken,
-        updateAccessToken: setAccessToken,
-      };
-    }, [updateSettings, settings, accessToken, setAccessToken]);
-
-    useEffect(() => {
-      if (!accessToken) {
-        return;
-      }
-
-      gistService.setOctokit(
-        new Octokit({
-          auth: accessToken,
-        }),
-      );
-
-      return () => {
-        gistService.destroyOctokit();
-      };
-    }, [accessToken]);
-
-    // @ts-ignore
-    const updateMutation = useMutation(gistService.updateGist, {
-      enabled: !!gistId && !!accessToken,
-    });
-    const [successToastVisible, toggleSuccessToastVisible] = useState(false);
-    const [errorToastVisible, toggleErrorToastVisible] = useState(false);
-    useEffect(() => {
-      if (updateMutation.isSuccess) {
-        toggleSuccessToastVisible(true);
-      }
-    }, [updateMutation.isSuccess]);
-
-    useEffect(() => {
-      if (updateMutation.isError) {
-        toggleErrorToastVisible(true);
-      }
-    }, [updateMutation.isError]);
-    const queryOne = useQuery(['gist', gistId!], gistService.fetchOne, {
-      enabled: !!gistId,
-      initialData: {} as any,
-    });
-
-    const settingsContent = parseGistContent(_.get(queryOne, 'data.data'));
-    const fileName = _.chain(queryOne).get('data.data.files').keys().first().value();
-    const description = _.get(queryOne, 'data.data.description');
-
-    // 上传gist
-    const handleUploadGist = useCallback(() => {
-      if (!settings || !_.get(settings, 'gistId')) {
-        return;
-      }
-
-      if (settingsContent && settingsContent.createdAt > (settings as Setting).createdAt) {
-        return;
-      }
-
-      updateMutation.mutate({
-        gist_id: _.get(settings, 'gistId'),
-        public: false,
-        description: description,
-        files: {
-          [fileName]: {
-            content: JSON.stringify(settings),
-          },
-        },
-      });
-    }, [fileName, description, settings, settingsContent, updateMutation]);
-
-    useEffect(() => {
-      if (
-        queryOne.status === 'success' &&
-        settings &&
-        settingsContent?.createdAt > settings?.createdAt &&
-        updateSettings
-      ) {
-        updateSettings(settingsContent);
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [queryOne.status, settings?.createdAt, settingsContent]);
-
-    useEffect(() => {
-      document.addEventListener('sync-upload', handleUploadGist);
-
-      return () => {
-        document.removeEventListener('sync-upload', handleUploadGist);
-      };
-    }, [handleUploadGist]);
-
-    const toastStyle = {
-      width: 'auto',
-    };
-
-    const themeSolution = _.get(settings, 'theme.solution');
-    const themeVariables = _.get(themes, themeSolution);
-
-    return (
-      <SettingsContext.Provider value={value as NonNullable<SettingsContextType>}>
-        <Comp {...props} />
-        <GlobalCSSVariables theme={themeVariables} />
-        <ToastContainer
-          // @ts-ignore
-          position="bottom-end-2"
-          style={{ color: '#fff', right: 10, bottom: 10 }}
-          containerPosition="fixed"
-        >
-          <Toast autohide style={toastStyle} show={updateMutation.isLoading || queryOne.isLoading}>
-            <Toast.Body>
-              <BarLoader />
-            </Toast.Body>
-          </Toast>
-          <Toast
-            autohide
-            style={toastStyle}
-            bg="success"
-            delay={2000}
-            show={successToastVisible}
-            onClose={() => toggleSuccessToastVisible(false)}
-          >
-            <Toast.Body>Upload success</Toast.Body>
-          </Toast>
-          <Toast
-            autohide
-            style={toastStyle}
-            bg="danger"
-            delay={5000}
-            show={errorToastVisible}
-            onClose={() => toggleErrorToastVisible(false)}
-          >
-            <Toast.Header closeButton={false}>Upload failed</Toast.Header>
-            {/* @ts-ignore */}
-            <Toast.Body>{updateMutation.error?.message}</Toast.Body>
-          </Toast>
-        </ToastContainer>
-      </SettingsContext.Provider>
-    );
-  };
-}
-
-function withQuery<WrapComponentProps>(Component: any) {
-  return function QueryWrapped(props: WrapComponentProps) {
-    return (
-      <QueryClientProvider client={queryClient}>
-        <Component {...props} />
-      </QueryClientProvider>
-    );
-  };
-}
-
-const AppWrapper = withQuery(withOauth(App));
-
-export default AppWrapper;
+export default App;

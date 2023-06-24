@@ -1,5 +1,3 @@
-import type { MenuButtonProps } from '@reach/menu-button';
-import { MenuButton } from '@reach/menu-button';
 import { BiCheck } from '@react-icons/all-files/bi/BiCheck';
 import { BiClipboard } from '@react-icons/all-files/bi/BiClipboard';
 import { BiCog } from '@react-icons/all-files/bi/BiCog';
@@ -10,27 +8,22 @@ import { BiInfoCircle } from '@react-icons/all-files/bi/BiInfoCircle';
 import { BiMenu } from '@react-icons/all-files/bi/BiMenu';
 import { set } from 'lodash/fp';
 import omit from 'lodash/fp/omit';
-import React, { useCallback, useContext, useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
+import React, { Fragment, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { buttonStyle } from '@/components/IconButton';
+import IconButton from '@/components/IconButton';
+import Button from '@/components/LinkButton';
 import IconText from '@/components/IconText';
-import Menu, { MenuItem, MenuList } from '@/components/Menu';
-import Modal from '@/components/Modal';
 import SettingsContext from '@/context/settings.context';
 import type { Setting } from '@/types/setting.type';
-import { calcLayout } from '@/utils/calcLayout';
 import download from '@/utils/download';
+import MyModal from '@/components/Dialog';
+import TextArea from '@/components/TextArea';
+import MyMenu from '@/components/Menu';
 
 import About from '../About';
 import SettingModal from '../Setting';
 import { StyledHeader } from './styled';
-
-// @ts-ignore
-const StyledMenuButton = (props: Polymorphic.ForwardRefComponent<'button', MenuButtonProps>) => (
-  <MenuButton {...props} css={buttonStyle} />
-);
 
 export interface HeaderProps {
   onEdit: (e: React.MouseEvent) => void;
@@ -38,6 +31,7 @@ export interface HeaderProps {
 }
 
 export default function Header({ onEdit, editable }: HeaderProps) {
+  const textRef = React.useRef<HTMLTextAreaElement>(null);
   const { t } = useTranslation();
   const { settings, updateSettings } = useContext(SettingsContext);
   const [oauthVisible, setOauthVisible] = useState(false);
@@ -89,17 +83,12 @@ export default function Header({ onEdit, editable }: HeaderProps) {
     }
 
     const newSettings = {
-      ...(omit(['gistId'])(toImport) as Setting),
+      ...(omit(['gistId', 'gist'])(toImport) as Setting),
       gistId: settings.gistId,
       createdAt: Date.now(),
     };
 
     updateSettings(newSettings);
-
-    setTimeout(() => {
-      // 重新計算佈局
-      updateSettings(calcLayout(newSettings));
-    }, 1000);
     setImportVisible(false);
   }, [updateSettings, toImport, settings]);
 
@@ -112,6 +101,11 @@ export default function Header({ onEdit, editable }: HeaderProps) {
   // clipboard
   const [clipboardVisible, toggleClipboardVisible] = useState(false);
   const [clipContent, setClipContent] = useState(settings.clipboard);
+
+  useEffect(() => {
+    setClipContent(settings.clipboard);
+  }, [settings.clipboard]);
+
   const handleOpenClipboard = useCallback(() => {
     toggleClipboardVisible(true);
   }, []);
@@ -119,92 +113,96 @@ export default function Header({ onEdit, editable }: HeaderProps) {
     setClipContent(e.target.value);
   }, []);
   const handleSaveClipboard = useCallback(() => {
-    const newSettings = set('clipboard')(clipContent)(settings);
-    newSettings.createdAt = Date.now();
-    updateSettings(newSettings);
+    updateSettings(set('clipboard')(clipContent)(settings));
     toggleClipboardVisible(false);
-
-    setTimeout(() => {
-      document.dispatchEvent(new CustomEvent('sync-upload'));
-    }, 1000);
   }, [clipContent, settings, updateSettings]);
+
+  const menuOptions = useMemo(() => {
+    return [
+      {
+        key: 'setting',
+        title: (
+          <IconText text={t('setting')}>
+            <BiCog />
+          </IconText>
+        ),
+        onClick: handleOpenSyncing,
+      },
+      {
+        key: 'import',
+        title: (
+          <IconText text={t('import')}>
+            <BiImport />
+          </IconText>
+        ),
+        onClick: handleOpenImport,
+      },
+      {
+        key: 'export',
+        title: (
+          <IconText text={t('export')}>
+            <BiExport />
+          </IconText>
+        ),
+        onClick: handleExport,
+      },
+      {
+        key: 'about',
+        title: (
+          <IconText text={t('about')}>
+            <BiInfoCircle />
+          </IconText>
+        ),
+        onClick: handleShowAbout,
+      },
+    ];
+  }, [handleExport, handleOpenImport, handleOpenSyncing, handleShowAbout, t]);
 
   return (
     <>
       <StyledHeader>
-        <Menu>
-          <StyledMenuButton onClick={handleOpenClipboard}>
-            <BiClipboard />
-          </StyledMenuButton>
-        </Menu>
-        <Menu>
-          <StyledMenuButton onClick={onEdit}>{editable ? <BiCheck /> : <BiEditAlt />}</StyledMenuButton>
-        </Menu>
-        <Menu>
-          <StyledMenuButton>
-            <BiMenu />
-          </StyledMenuButton>
-          <MenuList>
-            <MenuItem onSelect={handleOpenSyncing}>
-              <IconText text={t('setting')}>
-                <BiCog />
-              </IconText>
-            </MenuItem>
-            <MenuItem onSelect={handleOpenImport}>
-              <IconText text={t('import')}>
-                <BiImport />
-              </IconText>
-            </MenuItem>
-            <MenuItem onSelect={handleExport}>
-              <IconText text={t('export')}>
-                <BiExport />
-              </IconText>
-            </MenuItem>
-            <MenuItem onSelect={handleShowAbout}>
-              <IconText text={t('about')}>
-                <BiInfoCircle />
-              </IconText>
-            </MenuItem>
-          </MenuList>
-        </Menu>
-      </StyledHeader>
-      {oauthVisible && <SettingModal visible={oauthVisible} onClose={handleCloseSyncing} />}
-      <About visible={aboutVisible} onClose={() => toggleAboutVisible(false)} />
-      <Modal visible={importVisible} onClose={() => setImportVisible(false)}>
-        <Form>
-          <Modal.Header>{t('import')}</Modal.Header>
-          <Modal.Body>
-            <Form.Group className="mb-3">
-              <Form.Control type="file" onChange={handleFileOnload} />
-            </Form.Group>
-          </Modal.Body>
-          <Modal.Footer>
-            <Form.Group>
-              <Button variant="primary" onClick={handleSaveImport}>
-                {t('done')}
-              </Button>
-            </Form.Group>
-          </Modal.Footer>
-        </Form>
-      </Modal>
+        <IconButton onClick={handleOpenClipboard}>
+          <BiClipboard />
+        </IconButton>
+        <IconButton onClick={onEdit}>{editable ? <BiCheck /> : <BiEditAlt />}</IconButton>
 
-      <Modal visible={clipboardVisible} onClose={() => toggleClipboardVisible(false)}>
-        <Form>
-          <Modal.Header>{t('clipboard content')}</Modal.Header>
-          <Modal.Body>
-            <Form.Group className="mb-3">
-              <Form.Control as="textarea" rows={12} value={clipContent} onChange={handleClipContentChange} />
-            </Form.Group>
-          </Modal.Body>
-          <Modal.Footer>
-            <Form.Group>
-              <Button variant="primary" onClick={handleSaveClipboard}>
-                {t('done')}
-              </Button>
-            </Form.Group>
-          </Modal.Footer>
-        </Form>
-      </Modal>
+        <MyMenu options={menuOptions}>
+          <IconButton className="ml-2">
+            <BiMenu />
+          </IconButton>
+        </MyMenu>
+      </StyledHeader>
+      <SettingModal visible={oauthVisible} onClose={handleCloseSyncing} />
+      <About visible={aboutVisible} onClose={() => toggleAboutVisible(false)} />
+      <MyModal
+        title={t('import')}
+        visible={importVisible}
+        onClose={() => setImportVisible(false)}
+        footer={
+          <Button className="w-full" onClick={handleSaveImport}>
+            {t('done')}
+          </Button>
+        }
+      >
+        <input type="file" onChange={handleFileOnload} />
+      </MyModal>
+
+      <MyModal
+        visible={clipboardVisible}
+        width={640}
+        title={t('clipboard content')}
+        footer={
+          <Button className="w-full" type="primary" onClick={handleSaveClipboard}>
+            {t('done')}
+          </Button>
+        }
+        initialFocus={textRef}
+        onClose={() => toggleClipboardVisible(false)}
+      >
+        <form onSubmit={(e) => e.preventDefault()}>
+          <TextArea rows={12} ref={textRef} value={clipContent} onChange={handleClipContentChange} />
+        </form>
+      </MyModal>
     </>
   );
 }

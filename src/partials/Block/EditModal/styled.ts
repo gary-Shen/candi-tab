@@ -5,10 +5,6 @@ const StyledBody = styled.div`
     padding: 1rem 0;
   }
 
-  .style-btn {
-    width: 3rem;
-  }
-
   .move-link {
     cursor: move !important;
   }

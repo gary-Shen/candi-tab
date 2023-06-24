@@ -16,7 +16,7 @@ export const Tab = styled(RTab)`
 
   &[data-selected] {
     font-weight: bold;
-    border-bottom: 3px solid var(--primary-color);
+    border-bottom: 3px solid var(--color-primary);
   }
 `;
 export const TabList = styled(RTabList)`

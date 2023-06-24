@@ -15,11 +15,22 @@ const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
     background-repeat: repeat;
     background-attachment: fixed;
     background-position: initial;
+    color: var(--font-color);
+    font-size: 100%;
   }
 
   #root {
     display: flex;
     justify-content: center;
+  }
+
+  a {
+    color: var(--color-primary);
+    border-bottom: 1px solid var(--color-primary);
+
+    &:hover {
+      border-bottom: 1px solid transparent;
+    }
   }
 
   .editable {
@@ -113,7 +124,7 @@ const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
     min-height: 32px;
 
     &:hover {
-      background-color: var(--primary-color);
+      background-color: var(--color-primary);
       color: #fff;
     }
   }
@@ -144,12 +155,12 @@ const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
     border-color: var(--border-color);
 
     &.list-group-item-primary {
-      background-color: var(--primary-color);
+      background-color: var(--color-primary);
       color: #fff;
     }
 
     &.list-group-item-secondary {
-      background-color: var(--secondary-color);
+      background-color: var(--color-secondary);
       color: #fff;
     }
   }
@@ -162,7 +173,7 @@ const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
   .dropdown-item {
     color: var(--font-color);
     &:hover {
-      background-color: var(--primary-color);
+      background-color: var(--color-primary);
       color: #fff;
     }
   }
@@ -171,6 +182,10 @@ const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
     background-color: var(--background-color);
     color: var(--font-color);
     border-color: var(--border-color);
+  }
+
+  .link-group .link-btn{
+    padding: 0.3rem 0.5rem;
   }
 `;
 

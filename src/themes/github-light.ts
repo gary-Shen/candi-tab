@@ -1,26 +1,28 @@
+import { rgba } from 'polished';
+
 import bg from '@/assets/bg-light.png';
 
 import type { ThemeTypes } from './types';
 
 const theme: ThemeTypes = {
-  primaryColor: '#0969da',
+  primaryColor: '#1677ff',
   infoColor: '',
   warningColor: '',
   dangerColor: '',
-  lightColor: '',
+  lightColor: '#f6f8fa',
   darkColor: '',
   // ======
   bodyBackground: '#fff',
   bodyBackgroundImage: `url(${bg})`,
   fontSize: '1rem',
   borderColor: '#d0d7de',
-  secondaryColor: '',
+  secondaryColor: '#4E5058',
   borderRadius: '5px',
   boxShadow: '0 8px 24px rgba(140,149,159,0.2)',
   // ======
   grayColor: '#6A737D',
   grayColorHover: '',
-  fontColor: '#586069',
+  fontColor: '#333',
   card: {
     paddingX: '1rem',
     paddingY: '0.375rem',
@@ -29,13 +31,31 @@ const theme: ThemeTypes = {
   },
 
   modal: {
-    bodyBackground: '#fff',
     headerBackground: '#f6f8fa',
+    bodyBackground: '#fff',
+    footerBackground: '#f6f8fa',
+    borderColor: 'transparent',
+  },
+
+  tabs: {
+    hoverColor: rgba('#fff', 0.1),
+    activeColor: '#fff',
+    textColor: '#586069',
+    activeTextColor: '#333',
+    backgroundColor: rgba('#1677ff', 0.1),
+  },
+
+  select: {
+    backgroundColor: '#fff',
+    overlayBackgroundColor: '#fff',
+    borderColor: 'transparent',
   },
 
   menu: {
-    activeBackgroundColor: '#0969da',
+    overlayBackgroundColor: '#fff',
+    activeBackgroundColor: '#1677ff',
     activeColor: '#fff',
+    borderColor: 'transparent',
   },
 
   form: {
@@ -43,8 +63,8 @@ const theme: ThemeTypes = {
   },
 
   button: {
-    paddingX: '.5rem',
-    paddingY: '.25rem',
+    paddingX: '1.5rem',
+    paddingY: '.5rem',
   },
 };
 

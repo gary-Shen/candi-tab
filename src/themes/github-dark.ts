@@ -1,9 +1,11 @@
+import { rgba } from 'polished';
+
 import bg from '@/assets/bg-dark.png';
 
 import type { ThemeTypes } from './types';
 
 const theme: ThemeTypes = {
-  primaryColor: '#0d6efd',
+  primaryColor: '#5765F2',
   infoColor: '',
   warningColor: '',
   dangerColor: '',
@@ -14,7 +16,7 @@ const theme: ThemeTypes = {
   bodyBackgroundImage: `url(${bg})`,
   borderColor: '#30363d',
   fontSize: '1rem',
-  secondaryColor: '',
+  secondaryColor: '#4E5058',
   borderRadius: '6px',
   boxShadow: '0 8px 24px #010409',
   // ======
@@ -29,13 +31,31 @@ const theme: ThemeTypes = {
   },
 
   modal: {
-    headerBackground: '#161b22',
+    headerBackground: '#161B22',
     bodyBackground: '#0d1117',
+    footerBackground: '#161B22',
+    borderColor: 'var(--border-color)',
+  },
+
+  tabs: {
+    hoverColor: '#161b22',
+    activeColor: '#5765F2',
+    textColor: '#c9d1d9',
+    activeTextColor: '#fff',
+    backgroundColor: rgba('#895DF5', 0.1),
+  },
+
+  select: {
+    backgroundColor: '#161B22',
+    overlayBackgroundColor: '#0d1117',
+    borderColor: 'var(--border-color)',
   },
 
   menu: {
-    activeBackgroundColor: '#0d6efd',
+    overlayBackgroundColor: '#161B22',
+    activeBackgroundColor: '#5765F2',
     activeColor: '#fff',
+    borderColor: 'var(--border-color)',
   },
 
   form: {

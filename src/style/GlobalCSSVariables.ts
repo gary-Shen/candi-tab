@@ -1,4 +1,4 @@
-import { lighten } from 'polished';
+import { lighten, rgba } from 'polished';
 import { createGlobalStyle, css } from 'styled-components';
 
 import themes from '@/themes';
@@ -19,45 +19,42 @@ const defaultDark = '#212529';
 const GlobalCSSVariables = createGlobalStyle<ThemeProps>`
   body {
     ${({ theme }: ThemeProps) => css`
-      --bs-primary: ${theme.primaryColor || defaultPrimary};
-      --bs-secondary: ${theme.secondaryColor || defaultSecondary};
-      --bs-success: ${theme.successColor || defaultSuccess};
-      --bs-info: ${theme.infoColor || defaultInfo};
-      --bs-warning: ${theme.warningColor || defaultWarning};
-      --bs-danger: ${theme.dangerColor || defaultDanger};
-      --bs-light: ${theme.lightColor || defaultLight};
-      --bs-dark: ${theme.darkColor || defaultDark};
-      --bs-body-font-size: ${theme.fontSize || '1rem'};
-      --bs-body-font-weight: 400;
-      --bs-body-line-height: 1.5;
-      --bs-body-color: ${theme.fontColor};
-      --bs-body-bg: ${theme.bodyBackground};
-      --bs-border-width: 1px;
-      --bs-border-style: solid;
-      --bs-border-color: #dee2e6;
-      --bs-border-color-translucent: rgba(0, 0, 0, 0.175);
-      --bs-border-radius: 0.375rem;
-      --bs-border-radius-sm: 0.25rem;
-      --bs-border-radius-lg: 0.5rem;
-      --bs-border-radius-xl: 1rem;
-      --bs-border-radius-2xl: 2rem;
-      --bs-border-radius-pill: 50rem;
-      --bs-link-color: ${theme.primaryColor || defaultPrimary};
-      --bs-link-hover-color: ${lighten(0.2, theme.primaryColor) || defaultPrimary};
-      --bs-code-color: #d63384;
-      --bs-highlight-bg: #fff3cd;
+      --color-primary: ${theme.primaryColor || defaultPrimary};
+      --color-primary-100: ${rgba(theme.primaryColor || defaultPrimary, 0.1)};
+      --color-primary-200: ${rgba(theme.primaryColor || defaultPrimary, 0.2)};
+      --color-primary-300: ${rgba(theme.primaryColor || defaultPrimary, 0.3)};
+      --color-primary-400: ${rgba(theme.primaryColor || defaultPrimary, 0.4)};
+      --color-primary-500: ${rgba(theme.primaryColor || defaultPrimary, 0.5)};
+      --color-secondary: ${theme.secondaryColor || defaultSecondary};
+      --color-success: ${theme.successColor || defaultSuccess};
+      --color-info: ${theme.infoColor || defaultInfo};
+      --color-warning: ${theme.warningColor || defaultWarning};
+      --color-danger: ${theme.dangerColor || defaultDanger};
+      --color-light: ${theme.lightColor || defaultLight};
+      --color-dark: ${theme.darkColor || defaultDark};
+      --body-font-size: ${theme.fontSize || '1rem'};
+      --body-font-weight: 400;
+      --body-line-height: 1.5;
+      --body-color: ${theme.fontColor};
+      --body-bg: ${theme.bodyBackground};
+      --border-width: 1px;
+      --border-style: solid;
+      --border-color: #dee2e6;
+      --border-color-translucent: rgba(0, 0, 0, 0.175);
+      --border-radius: 0.375rem;
+      --border-radius-sm: 0.25rem;
+      --border-radius-lg: 0.5rem;
+      --border-radius-xl: 1rem;
+      --border-radius-2xl: 2rem;
+      --border-radius-pill: 50rem;
+      --link-color: ${theme.primaryColor || defaultPrimary};
+      --link-hover-color: ${lighten(0.2, theme.primaryColor) || defaultPrimary};
+      --code-color: #d63384;
+      --highlight-bg: #fff3cd;
       /* base */
       --border-radius: ${theme.borderRadius};
 
       /* components */
-      --primary-color: ${theme.primaryColor || defaultPrimary};
-      --secondary-color: ${theme.secondaryColor || defaultSecondary};
-      --success-color: ${theme.successColor || defaultSuccess};
-      --info-color: ${theme.infoColor || defaultInfo};
-      --warning-color: ${theme.warningColor || defaultWarning};
-      --danger-color: ${theme.dangerColor || defaultDanger};
-      --light-color: ${theme.lightColor || defaultLight};
-      --dark-color: ${theme.darkColor || defaultDark};
       --background-color: ${theme.bodyBackground};
       --font-color: ${theme.fontColor};
       --gray-color: ${theme.grayColor};
@@ -72,13 +69,30 @@ const GlobalCSSVariables = createGlobalStyle<ThemeProps>`
       --card-body-bg: ${theme.card.bodyBackground};
       --card-header-bg: ${theme.card.headerBackground};
 
+      /* select */
+      --select-bg: ${theme.select.backgroundColor};
+      --select-overlay-bg: ${theme.select.overlayBackgroundColor};
+      --select-border-color: ${theme.select.borderColor};
+
+      /* tabs */
+      --tab-bg: ${theme.tabs.backgroundColor};
+      --tab-active: ${theme.tabs.activeColor};
+      --tab-hover: ${theme.tabs.hoverColor};
+      --tab-text-color: ${theme.tabs.textColor};
+      --tab-text-active-color: ${theme.tabs.textActiveColor};
+
       /* modal */
       --modal-body-bg: ${theme.modal.bodyBackground};
       --modal-header-bg: ${theme.modal.headerBackground};
+      --modal-footer-bg: ${theme.modal.footerBackground};
+      --modal-border-color: ${theme.modal.borderColor};
 
       /* menu */
+      --menu-overlay-bg: ${theme.menu.overlayBackgroundColor};
       --menu-active-bg: ${theme.menu.activeBackgroundColor};
-      --menu-active-color: ${theme.menu.activeColor};
+      --menu-text-active-color: ${theme.menu.activeColor};
+      --menu-text-color: ${theme.menu.color};
+      --menu-border-color: ${theme.menu.borderColor};
 
       /* button */
       --button-padding-y: ${theme.button.paddingY};

@@ -1,8 +1,7 @@
 function createCodeHandler(oauthHandler) {
   return async function handleCode(request, response) {
-    const { code, uuid } = request.query;
+    const { code, extension_id } = request.query;
 
-    console.log('code', code);
     try {
       setCORSHeaders(response);
       if (!request.method || request.method.toLowerCase() !== 'get') {
@@ -11,9 +10,9 @@ function createCodeHandler(oauthHandler) {
       if (!code || typeof code !== 'string') {
         return sendRejection(response, 403);
       }
-      const accessToken = await oauthHandler(code, uuid);
-      writeJSON(response, { accessToken });
-      response.end();
+      const accessToken = await oauthHandler(code);
+
+      response.redirect(`chrome-extension://${extension_id}/index.html?token=${accessToken}`);
     } catch (err) {
       return sendRejection(response, 400, err instanceof Error ? err.message : '');
     }

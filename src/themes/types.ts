@@ -27,11 +27,29 @@ export interface ThemeTypes {
   modal: {
     headerBackground: string;
     bodyBackground: string;
+    footerBackground: string;
+    borderColor: string;
+  };
+
+  tabs: {
+    hoverColor: string;
+    activeColor: string;
+    textColor: string;
+    activeTextColor: string;
+    backgroundColor: string;
+  };
+
+  select: {
+    backgroundColor: string;
+    overlayBackgroundColor: string;
+    borderColor: string;
   };
 
   menu: {
+    overlayBackgroundColor: string;
     activeBackgroundColor: string;
     activeColor: string;
+    borderColor: string;
   };
 
   form: {

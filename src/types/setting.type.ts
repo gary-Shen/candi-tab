@@ -28,9 +28,22 @@ export interface Block {
 
 export interface Setting {
   links: Block[];
+  updatedAt: number;
   createdAt: number;
-  theme: Theme;
+  general: {
+    language: string;
+  };
+  theme: {
+    solution: string;
+    values?: Theme;
+  };
   // 可能导出gistId
   gistId?: string;
+  fileName?: string;
   clipboard: string;
+  gist?: {
+    id: string;
+    fileName: string;
+    description: string;
+  };
 }
