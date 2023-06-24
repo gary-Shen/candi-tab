@@ -27,8 +27,8 @@ const StyledBlock = styled.div`
   .link-btn {
     width: 100%;
     margin: 0.25rem 0;
-    padding-top: 0.4rem;
-    padding-bottom: 0.4rem;
+    padding-top: 0.3rem;
+    padding-bottom: 0.3rem;
     padding-left: 0.5rem;
     padding-right: 0.5rem;
     border: 0;

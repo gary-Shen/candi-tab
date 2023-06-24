@@ -182,6 +182,10 @@ const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
     color: var(--font-color);
     border-color: var(--border-color);
   }
+
+  .link-group .link-btn{
+    padding: 0.3rem 0.5rem;
+  }
 `;
 
 export default GlobalStyle;

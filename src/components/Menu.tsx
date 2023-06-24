@@ -28,7 +28,6 @@ const Items = React.forwardRef(({ options }: Pick<MyMenuProps, 'options'>, ref) 
   useLayoutEffect(() => {
     const itemsRect = itemsRef.current.getBoundingClientRect();
     const distanceToBottom = window.innerHeight - itemsRect.top - itemsRect.height;
-    console.log(itemsRect, distanceToBottom);
 
     if (distanceToBottom < 0) {
       itemsRef.current.classList.remove('mt-2');
@@ -77,7 +76,7 @@ export default function MyMenu({ children, options, className, buttonClassName }
           <Transition
             show={open}
             as={Fragment}
-            enter="transition ease-out duration-100"
+            enter="transition ease-out duration-150"
             enterFrom="transform opacity-0 scale-95"
             enterTo="transform opacity-100 scale-100"
             leave="transition ease-in duration-75"

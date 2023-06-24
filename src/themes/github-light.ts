@@ -5,7 +5,7 @@ import bg from '@/assets/bg-light.png';
 import type { ThemeTypes } from './types';
 
 const theme: ThemeTypes = {
-  primaryColor: '#895DF5',
+  primaryColor: '#1677ff',
   infoColor: '',
   warningColor: '',
   dangerColor: '',
@@ -41,7 +41,7 @@ const theme: ThemeTypes = {
     activeColor: '#fff',
     textColor: '#586069',
     activeTextColor: '#333',
-    backgroundColor: rgba('#895DF5', 0.1),
+    backgroundColor: rgba('#1677ff', 0.1),
   },
 
   select: {
@@ -51,7 +51,7 @@ const theme: ThemeTypes = {
 
   menu: {
     overlayBackgroundColor: '#fff',
-    activeBackgroundColor: '#895DF5',
+    activeBackgroundColor: '#1677ff',
     activeColor: '#fff',
   },
 

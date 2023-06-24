@@ -24,7 +24,7 @@ export const StyledButton = styled.button<ButtonProps>`
   border: 1px solid
     var(--${({ variant }: ButtonProps) => (whites.includes(variant) ? `border-color` : `color-${variant}`)});
   background-color: var(--${({ variant }: ButtonProps) => `color-${variant}`});
-  color: ${({ variant }: ButtonProps) => (whites.includes(variant) ? '#000' : '#fff')};
+  color: ${({ variant }: ButtonProps) => (whites.includes(variant) ? 'var(--body-color)' : '#fff')};
   border-radius: var(--border-radius);
   transition: all 0.2s;
   padding: var(--button-padding-y) var(--button-padding-x);
@@ -33,7 +33,7 @@ export const StyledButton = styled.button<ButtonProps>`
   cursor: pointer;
 
   &:not(:disabled):hover {
-    color: ${({ variant }: ButtonProps) => (whites.includes(variant) ? '#000' : '#fff')};
+    color: ${({ variant }: ButtonProps) => (whites.includes(variant) ? 'var(--body-color)' : '#fff')};
     filter: brightness(0.9);
     /* border-bottom: 1px ; */
   }
