@@ -16,11 +16,12 @@ export interface MyMenuProps {
   children: React.ReactNode;
   className?: string;
   buttonClassName?: string;
+  buttonStyle?: React.CSSProperties;
 }
 
 const MenuButton = styled.button``;
 
-const Items = React.forwardRef(({ options }: Pick<MyMenuProps, 'options'>, ref) => {
+const Items = React.forwardRef(({ options, buttonStyle }: Pick<MyMenuProps, 'options' | 'buttonStyle'>, ref) => {
   const itemsRef = useRef<any>(null);
 
   useImperativeHandle(ref, () => itemsRef.current, []);
@@ -48,6 +49,7 @@ const Items = React.forwardRef(({ options }: Pick<MyMenuProps, 'options'>, ref) 
             {({ active }) => (
               <MenuButton
                 as={as}
+                style={active ? buttonStyle : undefined}
                 className={classNames(
                   itemClassName,
                   'group flex w-full items-center rounded-md pl-2 pr-4 py-1 whitespace-nowrap',
@@ -67,7 +69,7 @@ const Items = React.forwardRef(({ options }: Pick<MyMenuProps, 'options'>, ref) 
   );
 });
 
-export default function MyMenu({ children, options, className, buttonClassName }: MyMenuProps) {
+export default function MyMenu({ children, options, className, buttonClassName, buttonStyle }: MyMenuProps) {
   return (
     <Menu as="div" className={classNames('relative inline-block text-left', className)}>
       {({ open }) => (
@@ -83,7 +85,7 @@ export default function MyMenu({ children, options, className, buttonClassName }
             leaveFrom="transform opacity-100 scale-100"
             leaveTo="transform opacity-0 scale-95"
           >
-            <Items options={options} />
+            <Items buttonStyle={buttonStyle} options={options} />
           </Transition>
         </>
       )}

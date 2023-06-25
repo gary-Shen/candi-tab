@@ -24,7 +24,7 @@ export default function MyPopover({
             as={as}
             className={classNames(
               buttonClassName,
-              'group inline-flex items-center rounded-md text-base font-medium text-white hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75',
+              'group inline-flex items-center rounded-md text-base font-medium hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75',
               {
                 'text-opacity-90': !open,
               },
@@ -41,7 +41,7 @@ export default function MyPopover({
             leaveFrom="opacity-100 translate-y-0"
             leaveTo="opacity-0 translate-y-1"
           >
-            <Popover.Panel className="absolute left-1/2 z-10 -translate-x-1/2 bg-white p-4 shadow rounded-lg">
+            <Popover.Panel className="absolute left-1/2 z-10 border border-[var(--select-border-color)] -translate-x-1/2 bg-[var(--select-bg)] p-4 shadow rounded-lg">
               {overlay}
             </Popover.Panel>
           </Transition>

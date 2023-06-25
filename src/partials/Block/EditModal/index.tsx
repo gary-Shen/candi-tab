@@ -85,7 +85,7 @@ const StylePicker = ({ value, onChange }: LinkColorPickerProps) => {
         key: 'built-in',
         content: (
           <StyledColorWrapper className="flex">
-            {TYPES.map((type) => (
+            {TYPES.filter((item) => item !== 'default').map((type) => (
               <Button
                 key={type}
                 type={type as ButtonType}
@@ -129,7 +129,7 @@ const ShadowRow = React.memo(
             <Button
               type="light"
               onClick={(e) => e.preventDefault()}
-              className="self-stretch border !w-24 !p-0 !cursor-move"
+              className="!bg-[var(--gray-color)] !border-0 self-stretch !w-24 !p-0 !cursor-move"
             >
               <BiMove />
             </Button>
@@ -161,9 +161,8 @@ const LinkRow = React.memo(({ index, data, onChange, onDelete, onDragStart }: Li
         getShadowNode={(shadowRef, targetRef) => <ShadowRow ref={shadowRef} data={data} targetRef={targetRef} />}
       >
         <Button
-          type="light"
           onClick={(e) => e.preventDefault()}
-          className="self-stretch border !w-24 !p-0 !cursor-move"
+          className="!bg-[var(--gray-color)] !border-0 self-stretch !w-24 !p-0 !cursor-move"
         >
           <BiMove />
         </Button>

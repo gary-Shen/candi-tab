@@ -10,7 +10,7 @@ export interface MenuLink {
 
 export interface Link {
   id: string;
-  style: 'danger' | 'primary' | 'secondary' | 'dark' | 'warning' | 'success' | 'info';
+  style: 'danger' | 'primary' | 'secondary' | 'dark' | 'warning' | 'success' | 'info' | 'light';
   menu?: MenuLink[];
   description?: string;
   url?: string;
