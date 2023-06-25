@@ -359,6 +359,16 @@ export default function BlockContainer({ block, settings, updateSettings, index,
                   <div className="w-full link-group" onClick={() => onMenuClick(index)}>
                     <MyMenu
                       className="w-full"
+                      buttonStyle={{
+                        backgroundColor: TYPES.includes(style) ? `var(--color-${style})` : style,
+                        color: TYPES.includes(style)
+                          ? ['light', 'default'].includes(style)
+                            ? '#000'
+                            : undefined
+                          : isDark(style)
+                          ? '#fff'
+                          : '#000',
+                      }}
                       buttonClassName="w-full"
                       options={menu.map(({ title: menuTitle, url: menuItemUrl, id: menuItemId }) => {
                         return {
@@ -366,7 +376,7 @@ export default function BlockContainer({ block, settings, updateSettings, index,
                           as: 'a',
                           href: menuItemUrl,
                           key: menuItemId,
-                          className: 'border-transparent text-inherit hover:text-white',
+                          className: `border-transparent text-inherit hover:text-white`,
                         };
                       })}
                     >
