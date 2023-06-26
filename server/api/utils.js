@@ -44,6 +44,15 @@ function writeJSON(response, data) {
     <title>Github access token for candi-tab</title>
     <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script>
     <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: #f9f9f9;
+      }
+
       #content {
         display: flex;
         flex-direction: column;
@@ -66,6 +75,7 @@ function writeJSON(response, data) {
       }
 
       .inputs input {
+        width: 22rem;
         border-right: 0;
         border-top-right-radius: 0;
         border-bottom-right-radius: 0;
@@ -89,22 +99,26 @@ function writeJSON(response, data) {
           aria-label="Repository description"
         />
         <button
-          class="btn tooltipped tooltipped-nw"
+          class="btn"
           type="button"
           id="copy"
           data-clipboard-target="#token"
-          aria-label="This is the tooltip on the North West side."
         >
           Copy
         </button>
       </div>
     </div>
     <script>
-      new ClipboardJS('#copy');
+      var _clipboard = new ClipboardJS('#copy');
+
+      _clipboard.on('success', function(e) {
+          e.trigger.classList.add('tooltipped', 'tooltipped-n');
+          e.trigger.setAttribute('aria-label', 'Copied!');
+          e.clearSelection();
+      });
     </script>
   </body>
 </html>
-
   `);
 }
 
