@@ -27,6 +27,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(function InnerInput
 const InputGroupWrapper = styled.div`
   & > * {
     white-space: nowrap;
+    align-self: stretch;
   }
 
   &:not(.nospace) > * + * {
