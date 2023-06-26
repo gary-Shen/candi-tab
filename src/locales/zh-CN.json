@@ -50,5 +50,6 @@
   "sync failed": "同步失败",
   "syncing": "同步中...",
   "built in color": "内置颜色",
-  "custom color": "自定义颜色"
+  "custom color": "自定义颜色",
+  "proceed": "拉取 Gist"
 }

@@ -50,5 +50,6 @@
   "sync failed": "同步失敗",
   "syncing": "同步中...",
   "built in color": "內建顏色",
-  "custom color": "自訂顏色"
+  "custom color": "自訂顏色",
+  "proceed": "繼續"
 }

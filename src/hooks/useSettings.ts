@@ -10,7 +10,7 @@ import _ from 'lodash';
 import type { Block, Link, Setting } from '@/types/setting.type';
 import { gid } from '@/utils/gid';
 import parseGistContent from '@/utils/parseGistContent';
-import { setOctokit } from '@/service/gist';
+import { destroyOctokit, setOctokit } from '@/service/gist';
 import { calcLayout } from '@/utils/calcLayout';
 
 import { load, save } from './settings';
@@ -66,6 +66,7 @@ export default function useSettings(): [
   const mutation = useGistUpdate(settings?.gist?.id);
   useEffect(() => {
     if (!accessToken) {
+      destroyOctokit();
       return;
     }
 

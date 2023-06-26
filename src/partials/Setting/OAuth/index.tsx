@@ -13,7 +13,7 @@ import type { IGist } from '@/types/gist.type';
 import { gid } from '@/utils/gid';
 import parseGistContent from '@/utils/parseGistContent';
 import { useGistAll, useGistOne } from '@/hooks/useGistQuery';
-import Input from '@/components/Input';
+import Input, { InputGroup } from '@/components/Input';
 import TextArea from '@/components/TextArea';
 import Spin from '@/components/Spin';
 import IconText from '@/components/IconText';
@@ -335,20 +335,24 @@ export default function OAuth({ onClose }: OAuthProps) {
 
   return (
     <StyledOauth className="oauth-modal-content">
-      <Input
-        className="mb-2"
-        placeholder={t('pasteToken')}
-        autoFocus
-        onBlur={handleSave}
-        onKeyDown={(e) => {
-          if (e.which === 13) {
-            e.preventDefault();
-            handleSave();
-          }
-        }}
-        onChange={handleOnChange}
-        value={tokenValue}
-      />
+      <InputGroup className="mb-2">
+        <Input
+          placeholder={t('pasteToken')}
+          autoFocus
+          onBlur={handleSave}
+          onKeyDown={(e) => {
+            if (e.which === 13) {
+              e.preventDefault();
+              handleSave();
+            }
+          }}
+          onChange={handleOnChange}
+          value={tokenValue}
+        />
+        <Button className="!px-4" disabled={!tokenValue} onClick={handleSave}>
+          {t('proceed')}
+        </Button>
+      </InputGroup>
       <div className="flex justify-end mb-4">
         <IconText
           position="right"
