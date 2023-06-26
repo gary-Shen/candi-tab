@@ -192,6 +192,10 @@ function GistList({ onSave }: GistListProps) {
     return !oneGist.data || oneGist.isLoading || !(selectedFile in oneGist.data.files!);
   }, [selectedFile, oneGist.data, oneGist.isLoading]);
 
+  if (gistOptions.length === 0 && !accessToken) {
+    return null;
+  }
+
   return (
     <div className="max-h-[60vh] mx-[-0.8rem] px-[0.8rem] my-[-3px] py-[3px]">
       <div
