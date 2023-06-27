@@ -169,7 +169,6 @@ function GistList({ onSave }: GistListProps) {
     try {
       await gistUpdate.mutateAsync({
         gist_id: selectedGist?.id || settings?.gist?.id || settings?.gistId,
-        public: false,
         description: settings?.gist?.description,
         files: {
           [newFileName]: {

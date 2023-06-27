@@ -151,7 +151,6 @@ export default function useSettings(): [
         toast.promise(
           mutation.mutateAsync({
             gist_id: settingsWithNewLayout.gist?.id || settingsWithNewLayout?.gistId,
-            public: false,
             description: settingsWithNewLayout.gist?.description,
             files: {
               [settingsWithNewLayout.gist.fileName]: {
