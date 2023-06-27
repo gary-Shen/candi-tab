@@ -112,7 +112,8 @@ export default function useSettings(): [
     };
 
     setSettings(newSettings);
-  }, [oneGist.data, oneGist.isSuccess, settings?.createdAt, settings?.gist?.fileName, settings?.updatedAt]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [oneGist.data, oneGist.isSuccess]);
 
   const updateSettings = useCallback(
     async (newSettings: Setting) => {
@@ -143,7 +144,25 @@ export default function useSettings(): [
         clearTimeout(timer.current);
         timer.current = null;
 
-        if (!settingsWithNewLayout.gist?.fileName) {
+        let fileName = settingsWithNewLayout.gist?.fileName;
+
+        // 兼容旧配置
+        if (!fileName) {
+          if (oneGist.data?.data?.files) {
+            if (
+              Object.keys(oneGist.data?.data?.files).length === 1 ||
+              (Object.keys(oneGist.data?.data?.files).length === 1 && 'undefined' in oneGist.data?.data?.files)
+            ) {
+              fileName = Object.keys(oneGist.data?.data?.files)[0];
+            }
+
+            if ('candi_tab_settings.json' in oneGist.data?.data?.files) {
+              fileName = 'candi_tab_settings.json';
+            }
+          }
+        }
+
+        if (!fileName) {
           return;
         }
 
@@ -153,7 +172,7 @@ export default function useSettings(): [
             gist_id: settingsWithNewLayout.gist?.id || settingsWithNewLayout?.gistId,
             description: settingsWithNewLayout.gist?.description,
             files: {
-              [settingsWithNewLayout.gist.fileName]: {
+              [fileName]: {
                 content: JSON.stringify(settingsWithNewLayout),
               },
             },
@@ -166,7 +185,7 @@ export default function useSettings(): [
         );
       }, 2000);
     },
-    [mutation, t, updateSettings],
+    [mutation, oneGist.data?.data?.files, t, updateSettings],
   );
 
   // @ts-ignore
