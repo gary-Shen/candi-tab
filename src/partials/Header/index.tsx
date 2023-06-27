@@ -48,7 +48,7 @@ export default function Header({ onEdit, editable }: HeaderProps) {
   const handleExport = useCallback(() => {
     download(
       'data:application/json;charset=UTF-8,' + encodeURIComponent(JSON.stringify(settings)),
-      'candi-tab-settings.json',
+      settings.gist?.fileName ?? 'candi-tab-settings.json',
     );
   }, [settings]);
 
