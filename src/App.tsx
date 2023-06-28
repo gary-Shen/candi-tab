@@ -17,7 +17,7 @@ import { gid } from './utils/gid';
 import Spin from './components/Spin';
 
 const Grid = styled(GridLayout)`
-  margin: 48px 0;
+  margin-bottom: 48px;
 `;
 
 declare global {
