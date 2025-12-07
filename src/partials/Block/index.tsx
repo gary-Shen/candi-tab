@@ -416,6 +416,7 @@ export default function BlockContainer({ block, settings, updateSettings, index,
                         className="w-full py-[0.3rem] px-2 border-0"
                         type={TYPES.includes(style) ? style : 'light'}
                         style={buttonStyle}
+                        data-link-id={id}
                       >
                         <IconText position="right" text={buttonTitle}>
                           <ChevronDown size={16} />

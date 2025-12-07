@@ -192,12 +192,15 @@ a:hover {
   padding: 0.3rem 0.5rem;
 }
 
-@keyframes flash-bg {
-  0%, 100% { background-color: transparent; outline: 4px solid transparent; outline-offset: 2px; }
-  50% { background-color: var(--color-light); outline: 4px solid var(--color-light); outline-offset: 2px; }
+@keyframes flash-highlight {
+  50% {
+    background-color: var(--font-color);
+    box-shadow: 0 0 0 4px var(--font-color);
+    color: var(--background-color);
+  }
 }
 
 .flash-animation {
-  animation: flash-bg 0.5s ease-in-out 2;
+  animation: flash-highlight 0.5s ease-in-out 2;
   border-radius: var(--border-radius);
 }
