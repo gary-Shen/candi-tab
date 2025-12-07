@@ -117,7 +117,7 @@ export default function Header({ onEdit, editable }: HeaderProps) {
         key: 'setting',
         title: (
           <IconText text={t('setting')}>
-            <Cog />
+            <Cog size={16} />
           </IconText>
         ),
         onClick: handleOpenSyncing,
@@ -126,7 +126,7 @@ export default function Header({ onEdit, editable }: HeaderProps) {
         key: 'import',
         title: (
           <IconText text={t('import')}>
-            <Upload />
+            <Upload size={16} />
           </IconText>
         ),
         onClick: handleOpenImport,
@@ -135,7 +135,7 @@ export default function Header({ onEdit, editable }: HeaderProps) {
         key: 'export',
         title: (
           <IconText text={t('export')}>
-            <Download />
+            <Download size={16} />
           </IconText>
         ),
         onClick: handleExport,
@@ -144,7 +144,7 @@ export default function Header({ onEdit, editable }: HeaderProps) {
         key: 'about',
         title: (
           <IconText text={t('about')}>
-            <Info />
+            <Info size={16} />
           </IconText>
         ),
         onClick: handleShowAbout,
@@ -156,13 +156,13 @@ export default function Header({ onEdit, editable }: HeaderProps) {
     <>
       <div className="fixed flex items-center justify-end px-4 top-0 left-0 w-full h-16 z-50 backdrop-blur-md bg-[rgba(255,255,255,0.01)] border-b border-transparent transition-colors duration-300">
         <IconButton onClick={handleOpenClipboard}>
-          <ClipboardPen />
+          <ClipboardPen size={16} />
         </IconButton>
-        <IconButton onClick={onEdit}>{editable ? <Check /> : <PencilRuler />}</IconButton>
+        <IconButton onClick={onEdit}>{editable ? <Check size={16} /> : <PencilRuler size={16} />}</IconButton>
 
         <MyMenu options={menuOptions}>
           <IconButton className="ml-2">
-            <Menu />
+            <Menu size={16} />
           </IconButton>
         </MyMenu>
       </div>

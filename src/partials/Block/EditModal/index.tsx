@@ -92,17 +92,18 @@ const ShadowRow = React.memo(
       return (
         <div ref={containerRef} className="opacity-70">
           <InputGroup className="mb-2">
+
             <Button
               type="light"
               onClick={e => e.preventDefault()}
               className="!bg-[var(--gray-color)] !border-0 self-stretch !w-24 !p-0 !cursor-move"
             >
-              <Move />
+              <Move size={16} />
             </Button>
             <Input readOnly value={data?.title} />
             <Input readOnly value={data?.url} />
             <Button type="danger" className="self-stretch !w-24 !p-0">
-              <Trash2 />
+              <Trash2 size={16} />
             </Button>
           </InputGroup>
         </div>
@@ -130,13 +131,13 @@ const LinkRow = React.memo(({ index, data, onChange, onDelete, onDragStart }: Li
           onClick={e => e.preventDefault()}
           className="!bg-[var(--gray-color)] !border-0 self-stretch !w-24 !p-0 !cursor-move"
         >
-          <Move />
+          <Move size={16} />
         </Button>
       </MovableTarget>
       <Input onChange={onChange(`menu[${index}].title`)} value={data?.title} />
       <Input onChange={onChange(`menu[${index}].url`)} value={data?.url} />
       <Button type="danger" className="self-stretch !w-24 !p-0" onClick={onDelete(data?.id)}>
-        <Trash2 />
+        <Trash2 size={16} />
       </Button>
     </InputGroup>
   )

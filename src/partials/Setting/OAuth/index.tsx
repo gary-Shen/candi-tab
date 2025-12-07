@@ -367,7 +367,7 @@ export default function OAuth({ onClose }: OAuthProps) {
             </a>
           )}
         >
-          <ExternalLink />
+          <ExternalLink size={16} />
         </IconText>
       </div>
       <Spin spinning={allGist.isFetching}>

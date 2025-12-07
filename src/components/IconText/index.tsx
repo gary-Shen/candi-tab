@@ -11,17 +11,17 @@ export interface IconTextProps extends React.HTMLAttributes<HTMLSpanElement> {
 export default function IconText({ children, className, text, position = 'left', ...props }: IconTextProps) {
   if (position === 'right') {
     return (
-      <span className={classNames('flex items-center', className)} {...props}>
-        {text && <span className="ml-2">{text}</span>}
-        <span className="flex text-lg ml-2">{children}</span>
+      <span className={classNames('flex items-center gap-1', className)} {...props}>
+        {text && <span>{text}</span>}
+        <span className="flex text-lg">{children}</span>
       </span>
     )
   }
 
   return (
-    <span className={classNames('flex items-center', className)} {...props}>
+    <span className={classNames('flex items-center gap-1', className)} {...props}>
       <span className="flex text-lg">{children}</span>
-      {text && <span className="ml-2">{text}</span>}
+      {text && <span>{text}</span>}
     </span>
   )
 }

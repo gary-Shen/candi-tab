@@ -37,7 +37,7 @@ export default function About({ visible, onClose }: AboutProps) {
               target="_blank"
               rel="noreferrer"
             >
-              <Home />
+              <Home size={16} />
             </a>
             <a
               href="https://github.com/gary-Shen/candi-tab#candi-tab"
@@ -45,7 +45,7 @@ export default function About({ visible, onClose }: AboutProps) {
               target="_blank"
               rel="noreferrer"
             >
-              <Github />
+              <Github size={16} />
             </a>
           </div>
         </div>

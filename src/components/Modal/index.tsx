@@ -34,7 +34,7 @@ function Modal({ visible, onClose, children, style, showCloseButton = true, clas
       >
         {showCloseButton && (
           <IconButton className="absolute z-[9] top-[6px] right-[6px]" onClick={onClose}>
-            <X />
+            <X size={16} />
           </IconButton>
         )}
         {visible && children}

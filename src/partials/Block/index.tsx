@@ -28,7 +28,7 @@ let movingLink: Link | null = null
 let movingLinkFromWhichBlock: number | undefined
 
 const iconStyle = {
-  fontSize: 16,
+  // fontSize: 16, // Lucide icons ignore fontSize in style, use size prop
 }
 
 export interface ConfirmProps {
@@ -78,6 +78,7 @@ export default function BlockContainer({ block, settings, updateSettings, index,
   const [isAddition, toggleAddition] = useState<boolean>(false)
   const [confirmVisible, toggleConfirmVisible] = useState(false)
   const [dataToDelete, setDataToDelete] = useState<Block | Link | null>(null)
+  const [collapsed, setCollapsed] = useState(false)
 
   const blockBodyRef = useRef<HTMLDivElement | null>(null)
   const blockHeaderRef = useRef<HTMLDivElement | null>(null)
@@ -98,6 +99,14 @@ export default function BlockContainer({ block, settings, updateSettings, index,
     },
     [updateSettings],
   )
+
+  const handleToggleCollapse = useCallback(() => {
+    setCollapsed(pre => !pre)
+    // Wait for render
+    setTimeout(() => {
+      updateLayout(settings)
+    })
+  }, [settings, updateLayout])
 
   /**
    * 编辑block
@@ -273,19 +282,19 @@ export default function BlockContainer({ block, settings, updateSettings, index,
       [
         {
           title: t('edit'),
-          icon: <PencilRuler style={iconStyle} />,
+          icon: <PencilRuler size={16} />,
           onClick: handleEditBlock,
         },
         {
           title: t('addBlock'),
-          icon: <Plus style={iconStyle} />,
+          icon: <Plus size={16} />,
           onClick: handleAddBlock,
         },
       ],
       [
         {
           title: t('delete'),
-          icon: <Trash2 style={iconStyle} />,
+          icon: <Trash2 size={16} />,
           onClick: () => {
             setDataToDelete(block)
             toggleConfirmVisible(true)
@@ -301,15 +310,26 @@ export default function BlockContainer({ block, settings, updateSettings, index,
       <Card className="card h-full">
         <Card.Header className={classNames('block-header flex justify-between select-none', { 'cursor-move': editable })} ref={blockHeaderRef}>
           {title}
-          {editable && (
-            <div
-              className="cursor-pointer hover:text-color-primary flex items-center"
-              onMouseDown={(e) => e.stopPropagation()}
-              onClick={handleAddLink}
-            >
-              <Plus style={{ fontSize: 20 }} />
-            </div>
-          )}
+          {editable
+            ? (
+              <div
+                className="cursor-pointer hover:text-color-primary flex items-center"
+                onMouseDown={(e) => e.stopPropagation()}
+                onClick={handleAddLink}
+              >
+                <Plus size={16} />
+              </div>
+            )
+            : (
+              <div
+                className="cursor-pointer hover:text-color-primary flex items-center transition-transform duration-300"
+                style={{ transform: collapsed ? 'rotate(90deg)' : 'rotate(0deg)' }}
+                onMouseDown={(e) => e.stopPropagation()}
+                onClick={handleToggleCollapse}
+              >
+                <ChevronDown size={16} />
+              </div>
+            )}
         </Card.Header>
         <MovableContainer
           className="flex flex-col p-card-x block-content"
@@ -317,8 +337,10 @@ export default function BlockContainer({ block, settings, updateSettings, index,
           disabled={!editable}
           onMouseUp={handleContainerMouseUp}
         >
-          {links?.map((link, linkIndex) => {
+
+          {links?.filter((_, i) => !collapsed || i < 2).map((link, linkIndex) => {
             const { title: buttonTitle, style, url, menu, id, description } = link
+            const isBlurred = collapsed && linkIndex === 1
             const buttonStyle = TYPES.includes(style)
               ? {}
               : {
@@ -326,11 +348,15 @@ export default function BlockContainer({ block, settings, updateSettings, index,
                 color: isDark(style) ? '#fff' : '#000',
               }
 
+
+
+            const blurClass = isBlurred ? 'opacity-50 blur-[1px]' : ''
+
             const linkMenu = [
               [
                 {
                   title: t('edit'),
-                  icon: <PencilRuler style={iconStyle} />,
+                  icon: <PencilRuler size={16} />,
                   onClick: () => {
                     setEditType('link')
                     toggleEditVisible(true)
@@ -339,14 +365,14 @@ export default function BlockContainer({ block, settings, updateSettings, index,
                 },
                 {
                   title: t('addLinkAfter'),
-                  icon: <ListPlus style={iconStyle} />,
+                  icon: <ListPlus size={16} />,
                   onClick: handleAddLink,
                 },
               ],
               [
                 {
                   title: t('delete'),
-                  icon: <Trash2 style={iconStyle} />,
+                  icon: <Trash2 size={16} />,
                   onClick: () => {
                     setDataToDelete(link)
                     toggleConfirmVisible(true)
@@ -365,7 +391,7 @@ export default function BlockContainer({ block, settings, updateSettings, index,
                   }}
                   onCancel={handleDragCancel}
                 >
-                  <div className="w-full my-1 first:mt-0 last:mb-0 group-[.under-context-menu]:m-0" onClick={() => onMenuClick(index)}>
+                  <div className={`w-full my-1 first:mt-0 last:mb-0 group-[.under-context-menu]:m-0 ${blurClass}`} onClick={() => onMenuClick(index)}>
                     <MyMenu
                       className="w-full"
                       buttonStyle={{
@@ -395,10 +421,13 @@ export default function BlockContainer({ block, settings, updateSettings, index,
                         style={buttonStyle}
                       >
                         <IconText position="right" text={buttonTitle}>
-                          <ChevronDown />
+                          <ChevronDown size={16} />
                         </IconText>
                       </MyButton>
                     </MyMenu>
+                    {isBlurred && (
+                      <div className="absolute inset-0 bg-gradient-to-t from-white/80 to-transparent dark:from-black/80 pointer-events-none" />
+                    )}
                   </div>
                 </MovableTarget>
               )
@@ -423,19 +452,24 @@ export default function BlockContainer({ block, settings, updateSettings, index,
                 }}
                 onCancel={handleDragCancel}
               >
-                <MyButton
-                  as={editable ? 'button' : 'a'}
-                  title={description}
-                  // @ts-expect-error Library typings incomplete
-                  href={url}
-                  size="sm"
-                  date-url={url}
-                  className="w-full my-1 py-[0.3rem] px-2 border-0 first:mt-0 last:mb-0"
-                  type={TYPES.includes(style) ? style : 'light'}
-                  style={buttonStyle}
-                >
-                  {buttonTitle}
-                </MyButton>
+                <div className={`relative w-full my-1 first:mt-0 last:mb-0 ${blurClass}`}>
+                  <MyButton
+                    as={editable ? 'button' : 'a'}
+                    title={description}
+                    // @ts-expect-error Library typings incomplete
+                    href={url}
+                    size="sm"
+                    date-url={url}
+                    className="w-full py-[0.3rem] px-2 border-0"
+                    type={TYPES.includes(style) ? style : 'light'}
+                    style={buttonStyle}
+                  >
+                    {buttonTitle}
+                  </MyButton>
+                  {isBlurred && (
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent dark:from-gray-900/90 pointer-events-none backdrop-blur-[1px]" />
+                  )}
+                </div>
               </MovableTarget>
             )
 

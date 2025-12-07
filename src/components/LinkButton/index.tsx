@@ -54,7 +54,7 @@ const VARIANT_CLASSES: Record<ButtonType, string> = {
 const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
   ({ className, type = 'primary', autoFocus, children, as = 'button', onClick, disabled, loading, ...rest }, ref) => {
     // Common classes
-    const baseClasses = 'text-center align-middle border rounded-[var(--border-radius)] transition-all duration-200 px-button-x py-button-y leading-[1.5] no-underline cursor-pointer'
+    const baseClasses = 'text-center align-middle border rounded-[var(--border-radius)] transition-all duration-200 py-button-y leading-[1.5] no-underline cursor-pointer'
     const stateClasses = !disabled
       ? 'hover:brightness-90 focus:brightness-75 active:brightness-75'
       : 'opacity-65 cursor-not-allowed'
