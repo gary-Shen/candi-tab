@@ -15,11 +15,13 @@ export interface SelectProps {
 }
 
 export default function Select({ options, defaultValue, value, onChange }: SelectProps) {
-  const [selectedValue, setSelected] = useState(defaultValue)
+  const [selectedValue, setSelected] = useState(value !== undefined ? value : defaultValue)
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
-    setSelected(value)
+    if (value !== undefined) {
+      setSelected(value)
+    }
   }, [value])
 
   const handleChange = (changedValue: string) => {

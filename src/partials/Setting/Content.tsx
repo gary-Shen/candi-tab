@@ -82,14 +82,14 @@ export default function SettingContent({ onClose }: SettingContentProps) {
               <div className="mb-2">{t('language')}</div>
               <Select
                 options={langOptions}
-                value={get(settings, 'general.language') || i18n.language}
-                defaultValue={i18n.language}
+                value={get(settings, 'general.language') || i18n.language || 'en-US'}
+                defaultValue={i18n.language || 'en-US'}
                 onChange={handleLangChange}
               />
             </div>
             <div>
               <div className="mb-2">{t('themeSolution')}</div>
-              <Select options={themeOptions} value={get(settings, 'theme.solution')} onChange={handleThemeSolutionChange} />
+              <Select options={themeOptions} value={get(settings, 'theme.solution') || 'github-light'} onChange={handleThemeSolutionChange} />
             </div>
           </div>
         ),

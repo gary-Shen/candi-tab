@@ -210,7 +210,7 @@ function GistList({ onSave }: GistListProps) {
       >
         <div className="mb-2">
           <div>{t('gist')}</div>
-          <Select options={gistOptions} value={settings.gistId} onChange={handleSelectGist} />
+          <Select options={gistOptions} value={settings.gistId || ''} onChange={handleSelectGist} />
         </div>
         <div className="flex justify-end mb-4">
           <Button type="link" onClick={() => setIsCreateGist(true)}>
@@ -226,7 +226,7 @@ function GistList({ onSave }: GistListProps) {
       >
         <div className="mb-2">
           <div>{t('file')}</div>
-          <Select options={files} value={selectedFile} onChange={handleFileOnChange} />
+          <Select options={files} value={selectedFile || ''} onChange={handleFileOnChange} />
         </div>
         <div className="flex justify-end mb-4">
           <Button type="link" onClick={() => setIsCreateFile(true)}>
