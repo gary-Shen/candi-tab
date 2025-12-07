@@ -32,18 +32,28 @@ export function calcLayout(inputSettings: Setting) {
       .value()
 
     newSettings = update(`links[${i}]`)((blockItem) => {
+      const newH = (linkHeight
+        + (linkSize! - 1) * blockStyle.linkMargin
+        + blockStyle.blockPadding * 2
+        + blockStyle.blockMargin * 2
+        + headerHeight!)
+      / 4
+
+      const newLayout = { ...blockItem.layout, h: newH }
+      const newLayouts = blockItem.layouts ? { ...blockItem.layouts } : undefined
+
+      if (newLayouts) {
+        Object.keys(newLayouts).forEach((key) => {
+          if (newLayouts[key].w === newLayout.w) {
+            newLayouts[key] = { ...newLayouts[key], h: newH }
+          }
+        })
+      }
+
       return {
         ...blockItem,
-        layout: {
-          ...blockItem.layout,
-          h:
-            (linkHeight
-              + (linkSize! - 1) * blockStyle.linkMargin
-              + blockStyle.blockPadding * 2
-              + blockStyle.blockMargin * 2
-              + headerHeight!)
-            / 4,
-        },
+        layout: newLayout,
+        layouts: newLayouts,
       }
     })(newSettings)
   }

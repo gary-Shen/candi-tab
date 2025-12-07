@@ -154,7 +154,7 @@ export default function Header({ onEdit, editable }: HeaderProps) {
 
   return (
     <>
-      <div className="absolute flex top-4 right-4 z-[3]">
+      <div className="fixed flex top-4 right-4 z-[3]">
         <IconButton onClick={handleOpenClipboard}>
           <Clipboard />
         </IconButton>
