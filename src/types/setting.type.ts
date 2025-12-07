@@ -1,4 +1,4 @@
-import type { Layout } from 'react-grid-layout'
+import type { Layout, Layouts } from 'react-grid-layout'
 
 import type { Theme } from './theme.type'
 
@@ -23,6 +23,7 @@ export interface Block {
   id: string
   title: string
   layout: Layout
+  layouts?: { [key: string]: Layout }
   buttons?: Links
 }
 
