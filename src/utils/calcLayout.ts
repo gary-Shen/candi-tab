@@ -10,15 +10,19 @@ const blockStyle = {
 }
 
 export function calcLayout(inputSettings: Setting) {
-  const blockElements = document.querySelectorAll(`.block-content`)
   let newSettings = inputSettings
+  /*
+   * 修复收起时会影响同一列的block的顺序问题
+   * 直接查询dom会导致grid layout渲染顺序变化，改用id查询
+   */
+  for (let i = 0; i < inputSettings.links.length; i++) {
+    const link = inputSettings.links[i]
+    const blockElem = document.querySelector(`.block-content[data-block-id="${link.id}"]`) as HTMLDivElement
 
-  for (let i = 0; i < blockElements.length; i++) {
-    if (i >= newSettings.links.length) {
-      break
+    if (!blockElem) {
+      continue
     }
 
-    const blockElem = blockElements[i] as HTMLDivElement
     const headerElem = blockElem.previousSibling as HTMLDivElement
     const headerHeight = headerElem?.offsetHeight || 0
     const linkSize = blockElem.children!.length

@@ -336,6 +336,7 @@ export default function BlockContainer({ block, settings, updateSettings, index,
           ref={blockBodyRef}
           disabled={!editable}
           onMouseUp={handleContainerMouseUp}
+          data-block-id={block.id}
         >
 
           {links?.filter((_, i) => !collapsed || i < 2).map((link, linkIndex) => {

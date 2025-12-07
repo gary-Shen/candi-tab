@@ -3,7 +3,7 @@ import _ from 'lodash'
 import React, { Children, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 
-export interface MovableContainerProps {
+export interface MovableContainerProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onMouseUp'> {
   className?: string
   children?: React.ReactNode
   disabled?: boolean
@@ -16,7 +16,7 @@ export type Position = {
 }[]
 
 export const MovableContainer = React.forwardRef((
-  { className, children, disabled, onMouseUp }: MovableContainerProps,
+  { className, children, disabled, onMouseUp, ...rest }: MovableContainerProps,
   ref,
 ) => {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -156,7 +156,7 @@ export const MovableContainer = React.forwardRef((
   }, [handleActive])
 
   return (
-    <div className={className} ref={containerRef}>
+    <div className={className} ref={containerRef} {...rest}>
       {newChildren}
     </div>
   )
