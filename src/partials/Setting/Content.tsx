@@ -30,6 +30,14 @@ const langOptions = [
     label: '中文-繁体',
     value: 'zh-TR',
   },
+  {
+    label: '日本語',
+    value: 'ja-JP',
+  },
+  {
+    label: '한국어',
+    value: 'ko-KR',
+  },
 ]
 
 export default function SettingContent({ onClose }: SettingContentProps) {

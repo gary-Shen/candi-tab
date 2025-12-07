@@ -55,10 +55,7 @@ function Confirm({ title, visible, onConfirm, onClose }: ConfirmProps) {
         </>
       )}
     >
-      {t('Are you sure to delete')}
-      {' '}
-      <strong>{title}</strong>
-      ?
+      {t('Are you sure to delete', { name: title })}
     </MyModal>
   )
 }

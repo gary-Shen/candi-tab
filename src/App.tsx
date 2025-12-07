@@ -45,9 +45,6 @@ function App() {
 
   const handleLayoutChange = useCallback(
     (layout: Layout[]) => {
-      if (currentBreakpoint !== 'lg') {
-        return
-      }
       const newLinks = settings.links.map((item) => {
         const layoutItem = layout.find(l => l.i === item.id)
         return { ...item, layout: layoutItem || item.layout }
@@ -60,7 +57,7 @@ function App() {
 
       updateSettings(newSettings)
     },
-    [currentBreakpoint, settings, updateSettings],
+    [settings, updateSettings],
   )
 
   const handleToggleEditable = useCallback(() => {
@@ -143,10 +140,9 @@ function App() {
           <ResponsiveGridLayout
             className="layout my-12"
             layouts={{ lg: layouts }}
-            breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-            cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
+            breakpoints={{ lg: 1400, md: 1200, sm: 768, xs: 480, xxs: 0 }}
+            cols={{ lg: 24, md: 24, sm: 12, xs: 6, xxs: 4 }}
             rowHeight={4}
-            width={1200}
             margin={[0, 0]}
             onLayoutChange={handleLayoutChange}
             onBreakpointChange={setCurrentBreakpoint}
