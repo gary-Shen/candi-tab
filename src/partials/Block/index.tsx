@@ -1,7 +1,7 @@
 import type { MenuData } from 'lina-context-menu'
 import type { EditType } from './EditModal'
 import type { Block, Link, Setting } from '@/types/setting.type'
-import { ChevronDown, Edit2, ListPlus, Plus, Trash2 } from 'lucide-react'
+import { ChevronDown, PencilRuler, ListPlus, Plus, Trash2 } from 'lucide-react'
 import classNames from 'classnames'
 import ContextMenu from 'lina-context-menu'
 import _ from 'lodash'
@@ -273,7 +273,7 @@ export default function BlockContainer({ block, settings, updateSettings, index,
       [
         {
           title: t('edit'),
-          icon: <Edit2 style={iconStyle} />,
+          icon: <PencilRuler style={iconStyle} />,
           onClick: handleEditBlock,
         },
         {
@@ -330,7 +330,7 @@ export default function BlockContainer({ block, settings, updateSettings, index,
               [
                 {
                   title: t('edit'),
-                  icon: <Edit2 style={iconStyle} />,
+                  icon: <PencilRuler style={iconStyle} />,
                   onClick: () => {
                     setEditType('link')
                     toggleEditVisible(true)

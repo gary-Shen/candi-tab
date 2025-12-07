@@ -1,5 +1,5 @@
 import type { Setting } from '@/types/setting.type'
-import { Check, Clipboard, Cog, Edit2, Download, Upload, Info, Menu } from 'lucide-react'
+import { Check, ClipboardPen, Cog, PencilRuler, Download, Upload, Info, Menu } from 'lucide-react'
 import { set } from 'lodash/fp'
 import omit from 'lodash/fp/omit'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
@@ -154,11 +154,11 @@ export default function Header({ onEdit, editable }: HeaderProps) {
 
   return (
     <>
-      <div className="fixed flex top-4 right-4 z-[3]">
+      <div className="fixed flex items-center justify-end px-4 top-0 left-0 w-full h-16 z-50 backdrop-blur-md bg-[rgba(255,255,255,0.01)] border-b border-transparent transition-colors duration-300">
         <IconButton onClick={handleOpenClipboard}>
-          <Clipboard />
+          <ClipboardPen />
         </IconButton>
-        <IconButton onClick={onEdit}>{editable ? <Check /> : <Edit2 />}</IconButton>
+        <IconButton onClick={onEdit}>{editable ? <Check /> : <PencilRuler />}</IconButton>
 
         <MyMenu options={menuOptions}>
           <IconButton className="ml-2">
