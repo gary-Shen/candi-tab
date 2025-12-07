@@ -8,10 +8,10 @@
   "export": "下載設定",
   "about": "關於",
   "done": "好的",
-  "close": "关闭",
+  "close": "關閉",
   "cancel": "取消",
-  "createAccessToken": "新建 Github 訪問憑證",
-  "pasteToken": "粘貼憑證訊息",
+  "createAccessToken": "建立 GitHub Access Token",
+  "pasteToken": "貼上 Access Token",
   "createGist": "新建 Gist",
   "File name ends with json": "檔案名以 .json 結尾",
   "createFile": "新建檔案",
@@ -29,7 +29,7 @@
   "dateFormat": "YYYY-MM-DD HH:mm:ss",
   "edit": "編輯",
 
-  "Are you sure to delete": "你確定要刪除",
+  "Are you sure to delete": "確定要刪除 {{name}} 嗎？",
   "confirm": "確定",
   "yes": "確定",
   "name": "名稱",
@@ -51,5 +51,6 @@
   "syncing": "同步中...",
   "built in color": "內建顏色",
   "custom color": "自訂顏色",
-  "proceed": "繼續"
+  "proceed": "繼續",
+  "search": "搜尋"
 }

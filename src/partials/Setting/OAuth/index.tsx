@@ -1,170 +1,174 @@
-import _ from 'lodash';
-import { BiLinkExternal } from '@react-icons/all-files/bi/BiLinkExternal';
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import toast from 'react-hot-toast';
-import classNames from 'classnames';
-import { Octokit } from '@octokit/rest';
-import { set } from 'lodash/fp';
+import type { IGist } from '@/types/gist.type'
+import { Octokit } from '@octokit/rest'
+import { ExternalLink } from 'lucide-react'
+import classNames from 'classnames'
+import _ from 'lodash'
+import { set } from 'lodash/fp'
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import toast from 'react-hot-toast'
 
-import Button from '@/components/LinkButton';
-import SettingsContext from '@/context/settings.context';
-import type { IGist } from '@/types/gist.type';
-import { gid } from '@/utils/gid';
-import parseGistContent from '@/utils/parseGistContent';
-import { useGistAll, useGistOne } from '@/hooks/useGistQuery';
-import Input, { InputGroup } from '@/components/Input';
-import TextArea from '@/components/TextArea';
-import Spin from '@/components/Spin';
-import IconText from '@/components/IconText';
-import Select from '@/components/Select';
-import { useGistCreation, useGistUpdate } from '@/hooks/useGistMutation';
-import { setOctokit } from '@/service/gist';
+import { useTranslation } from 'react-i18next'
+import IconText from '@/components/IconText'
+import Input, { InputGroup } from '@/components/Input'
+import Button from '@/components/LinkButton'
+import Select from '@/components/Select'
+import Spin from '@/components/Spin'
+import TextArea from '@/components/TextArea'
+import SettingsContext from '@/context/settings.context'
+import { useGistCreation, useGistUpdate } from '@/hooks/useGistMutation'
+import { useGistAll, useGistOne } from '@/hooks/useGistQuery'
+import { setOctokit } from '@/service/gist'
+import { gid } from '@/utils/gid'
+import parseGistContent from '@/utils/parseGistContent'
 
-import StyledOauth from './styled';
-
-const uuid = gid();
-const OAUTH_URL = `https://github.com/login/oauth/authorize?scope=gist&client_id=9f776027a79806fc1363&redirect_uri=https://candi-tab.vercel.app/api/github?uuid=${uuid}`;
+const uuid = gid()
+const OAUTH_URL = `https://github.com/login/oauth/authorize?scope=gist&client_id=9f776027a79806fc1363&redirect_uri=https://candi-tab.vercel.app/api/github?uuid=${uuid}`
 
 interface GistListProps {
-  onSave: () => void;
+  onSave: () => void
 }
 
 function GistList({ onSave }: GistListProps) {
-  const { settings, updateSettings, accessToken } = useContext(SettingsContext);
-  const allGist = useGistAll(accessToken);
-  const [selectedGist, setSelectedGist] = useState<IGist | undefined>();
-  const [selectedFile, setSelectedFile] = useState<string>('');
-  const oneGist = useGistOne(selectedGist?.id || settings.gistId);
-  const { t } = useTranslation();
-  const [isCreateGist, setIsCreateGist] = useState(false);
-  const [isCreateFile, setIsCreateFile] = useState(false);
+  const { settings, updateSettings, accessToken } = useContext(SettingsContext)
+  const allGist = useGistAll(accessToken)
+  const [selectedGist, setSelectedGist] = useState<IGist | undefined>()
+  const [selectedFile, setSelectedFile] = useState<string>('')
+  const oneGist = useGistOne(selectedGist?.id || settings.gistId)
+  const { t } = useTranslation()
+  const [isCreateGist, setIsCreateGist] = useState(false)
+  const [isCreateFile, setIsCreateFile] = useState(false)
   const [newGist, setNewGist] = useState({
     files: {},
     public: false,
     description: 'Gist created by Candi Tab',
     fileName: 'candi-tab-settings.json',
-  });
-  const [newFileName, setFileName] = useState('');
-  const gistUpdate = useGistUpdate(selectedGist?.id || settings?.gist?.id);
+  })
+  const [newFileName, setFileName] = useState('')
+  const gistUpdate = useGistUpdate(selectedGist?.id || settings?.gist?.id)
   const gistCreation = useGistCreation({
     onSuccess: (data: any) => {
       const newSettings = {
-        // @ts-ignore
         ...parseGistContent(data.data, newGist.fileName),
         gistId: data.data.id,
-      };
+      }
 
       newSettings.gist = {
         ..._.pick(data.data, ['description', 'id']),
         fileName: newGist.fileName,
-      };
-      allGist.refetch();
-      updateSettings(newSettings);
-      setIsCreateGist(false);
+      }
+      allGist.refetch()
+      updateSettings(newSettings)
+      setIsCreateGist(false)
     },
-  });
+  })
 
   const files = useMemo(() => {
     if (!oneGist.data) {
-      return [];
+      return []
     }
 
-    // @ts-ignore
+    // @ts-expect-error Library type mismatch
     return Object.keys(oneGist.data.files || {}).map((_fileName) => {
       return {
         label: _fileName,
         value: _fileName,
-      };
-    });
-  }, [oneGist]);
+      }
+    })
+  }, [oneGist])
 
   useEffect(() => {
     if (oneGist.isSuccess && !selectedFile) {
-      setSelectedFile(settings.gist?.fileName || files?.[0]?.value);
-      // @ts-ignore
-      setSelectedGist(oneGist.data);
+      // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect, react-hooks/set-state-in-effect
+      setSelectedFile(settings.gist?.fileName || files?.[0]?.value)
+      // @ts-expect-error Library type mismatch
+      // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
+      setSelectedGist(oneGist.data)
     }
-  }, [files, oneGist, selectedFile, settings.gist?.fileName]);
+  }, [files, oneGist, selectedFile, settings.gist?.fileName])
 
   const gistOptions = useMemo(() => {
     return (allGist.data ?? []).map((gist: IGist) => {
       return {
         label: (
           <div className="flex flex-col">
-            <div className="mb-2">ID: {gist.id}</div>
+            <div className="mb-2">
+              ID:
+              {gist.id}
+            </div>
             <div className="text-[var(--gray-color)]">{gist.description}</div>
           </div>
         ),
         value: gist.id,
-      };
-    });
-  }, [allGist.data]);
+      }
+    })
+  }, [allGist.data])
 
   const handleSelectGist = useCallback(
     (gistId: string) => {
-      const gist = allGist.data?.find((item: IGist) => item.id === gistId);
-      setSelectedGist(gist!);
-      setSelectedFile('');
+      const gist = allGist.data?.find((item: IGist) => item.id === gistId)
+      setSelectedGist(gist!)
+      setSelectedFile('')
     },
     [allGist.data],
-  );
+  )
 
   const handleGistChange = useCallback(
     (field: string) => (e: React.ChangeEvent<any>) => {
       setNewGist({
         ...newGist,
         [field]: e.target.value,
-      });
+      })
     },
     [newGist],
-  );
+  )
 
   const handleSaveCreateGist = useCallback(async () => {
     try {
       const gistResponse = await gistCreation.mutateAsync({
         gist: newGist,
         settings,
-      });
+      })
 
-      allGist.refetch();
-      // @ts-ignore
-      setSelectedGist(gistResponse.data);
-      setIsCreateGist(false);
+      allGist.refetch()
+      // @ts-expect-error Library type mismatch
+      setSelectedGist(gistResponse.data)
+      setIsCreateGist(false)
 
       updateSettings(
         set('gist')({
           ...newGist,
           id: gistResponse.data.id,
         })(settings),
-      );
-    } catch (err: any) {
-      toast.error(err.toString());
+      )
     }
-  }, [allGist, gistCreation, newGist, settings, updateSettings]);
+    catch (err: any) {
+      toast.error(err.toString())
+    }
+  }, [allGist, gistCreation, newGist, settings, updateSettings])
 
   const handleFileOnChange = useCallback((changedFileName: string) => {
-    setSelectedFile(changedFileName);
-  }, []);
+    setSelectedFile(changedFileName)
+  }, [])
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleFileSelect = useCallback(() => {
     if (oneGist?.data && selectedGist?.id) {
       const newSettings = {
-        // @ts-ignore
         ...parseGistContent(oneGist.data!, selectedFile),
         gistId: selectedGist.id,
-      };
+      }
 
       newSettings.gist = {
         ..._.pick(oneGist.data, ['description', 'id']),
         fileName: selectedFile,
-      };
+      }
 
-      updateSettings(newSettings);
-      onSave?.();
+      updateSettings(newSettings)
+      onSave?.()
     }
-  }, [onSave, oneGist.data, selectedFile, selectedGist?.id, updateSettings]);
+  }, [onSave, oneGist.data, selectedFile, selectedGist?.id, updateSettings])
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleUpdateGist = useCallback(async () => {
     try {
       await gistUpdate.mutateAsync({
@@ -175,24 +179,25 @@ function GistList({ onSave }: GistListProps) {
             content: JSON.stringify(settings),
           },
         },
-      });
+      })
 
-      oneGist.refetch();
-      setSelectedFile(newFileName);
-      setIsCreateFile(false);
-      updateSettings(set('gist.fileName', newFileName)(settings));
-    } catch (err: any) {
-      toast.error(err.toString());
+      oneGist.refetch()
+      setSelectedFile(newFileName)
+      setIsCreateFile(false)
+      updateSettings(set('gist.fileName', newFileName)(settings))
     }
-  }, [gistUpdate, selectedGist?.id, settings, newFileName, oneGist, updateSettings]);
+    catch (err: any) {
+      toast.error(err.toString())
+    }
+  }, [gistUpdate, selectedGist?.id, settings, newFileName, oneGist, updateSettings])
 
   const disabled = useMemo(() => {
-    // @ts-ignore
-    return !oneGist.data || oneGist.isLoading || !(selectedFile in oneGist.data.files!);
-  }, [selectedFile, oneGist.data, oneGist.isLoading]);
+    // @ts-expect-error Preserving logic despite type mismatch
+    return !oneGist.data || oneGist.isLoading || !(selectedFile in oneGist.data.files!)
+  }, [selectedFile, oneGist.data, oneGist.isLoading])
 
   if (gistOptions.length === 0 && !accessToken) {
-    return null;
+    return null
   }
 
   return (
@@ -205,12 +210,12 @@ function GistList({ onSave }: GistListProps) {
       >
         <div className="mb-2">
           <div>{t('gist')}</div>
-          <Select options={gistOptions} value={settings.gistId} onChange={handleSelectGist} />
+          <Select options={gistOptions} value={settings.gistId || ''} onChange={handleSelectGist} />
         </div>
         <div className="flex justify-end mb-4">
-          <a href="javascript: void" onClick={() => setIsCreateGist(true)}>
+          <Button type="link" onClick={() => setIsCreateGist(true)}>
             {t('createGist')}
-          </a>
+          </Button>
         </div>
       </div>
       <div
@@ -221,12 +226,12 @@ function GistList({ onSave }: GistListProps) {
       >
         <div className="mb-2">
           <div>{t('file')}</div>
-          <Select options={files} value={selectedFile} onChange={handleFileOnChange} />
+          <Select options={files} value={selectedFile || ''} onChange={handleFileOnChange} />
         </div>
         <div className="flex justify-end mb-4">
-          <a href="javascript: void" onClick={() => setIsCreateFile(true)}>
+          <Button type="link" onClick={() => setIsCreateFile(true)}>
             {t('createFile')}
-          </a>
+          </Button>
         </div>
         <Button
           disabled={disabled}
@@ -279,7 +284,7 @@ function GistList({ onSave }: GistListProps) {
         <Input
           className="mb-4"
           placeholder={`${t('File name ends with json')}`}
-          onChange={(e) => setFileName(e.target.value)}
+          onChange={e => setFileName(e.target.value)}
           value={newFileName}
         />
         <div className="flex">
@@ -298,42 +303,43 @@ function GistList({ onSave }: GistListProps) {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 interface OAuthProps {
-  onClose: () => void;
+  onClose: () => void
 }
 
 export default function OAuth({ onClose }: OAuthProps) {
-  const { settings, accessToken, updateAccessToken } = useContext(SettingsContext);
-  const [tokenValue, setTokenValue] = useState(accessToken);
-  const { t } = useTranslation();
+  const { settings, accessToken, updateAccessToken } = useContext(SettingsContext)
+  const [tokenValue, setTokenValue] = useState(accessToken)
+  const { t } = useTranslation()
 
   useEffect(() => {
-    setTokenValue(accessToken);
-  }, [accessToken]);
+    // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
+    setTokenValue(accessToken)
+  }, [accessToken])
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTokenValue(e.target.value);
-  };
+    setTokenValue(e.target.value)
+  }
 
-  const gistId = _.get(settings, `gistId`);
-  const oneGist = useGistOne(gistId);
-  const allGist = useGistAll(accessToken);
+  const gistId = _.get(settings, `gistId`)
+  const oneGist = useGistOne(gistId)
+  const allGist = useGistAll(accessToken)
 
   const handleSave = useCallback(() => {
     setOctokit(
       new Octokit({
         auth: tokenValue,
       }),
-    );
-    updateAccessToken(tokenValue);
-    oneGist.refetch();
-  }, [oneGist, tokenValue, updateAccessToken]);
+    )
+    updateAccessToken(tokenValue)
+    oneGist.refetch()
+  }, [oneGist, tokenValue, updateAccessToken])
 
   return (
-    <StyledOauth className="oauth-modal-content">
+    <div className="flex flex-col items-end justify-center [&_.oauth-form]:w-full [&_.oauth-form_.mb-3:last-child]:mb-0 oauth-modal-content">
       <InputGroup className="mb-2">
         <Input
           placeholder={t('pasteToken')}
@@ -341,8 +347,8 @@ export default function OAuth({ onClose }: OAuthProps) {
           onBlur={handleSave}
           onKeyDown={(e) => {
             if (e.which === 13) {
-              e.preventDefault();
-              handleSave();
+              e.preventDefault()
+              handleSave()
             }
           }}
           onChange={handleOnChange}
@@ -355,18 +361,18 @@ export default function OAuth({ onClose }: OAuthProps) {
       <div className="flex justify-end mb-4">
         <IconText
           position="right"
-          text={
+          text={(
             <a href={OAUTH_URL} target="_blank" rel="noreferrer">
               {t('createAccessToken')}
             </a>
-          }
+          )}
         >
-          <BiLinkExternal />
+          <ExternalLink size={16} />
         </IconText>
       </div>
       <Spin spinning={allGist.isFetching}>
         <GistList onSave={onClose} />
       </Spin>
-    </StyledOauth>
-  );
+    </div>
+  )
 }

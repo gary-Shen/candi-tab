@@ -1,27 +1,30 @@
+import type { TabListProps, TabProps } from '@reach/tabs'
 import {
   Tab as RTab,
   TabList as RTabList,
   TabPanel as RTabPanel,
   TabPanels as RTabPanels,
   Tabs as RTabs,
-} from '@reach/tabs';
-import styled from 'styled-components';
+} from '@reach/tabs'
+import classNames from 'classnames'
 
-export const Tab = styled(RTab)`
-  padding: 0.25em 1.5em;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  color: var(--font-color);
-  background: transparent;
+import React from 'react'
 
-  &[data-selected] {
-    font-weight: bold;
-    border-bottom: 3px solid var(--color-primary);
-  }
-`;
-export const TabList = styled(RTabList)`
-  background: transparent;
-`;
-export const TabPanel = styled(RTabPanel)``;
-export const TabPanels = styled(RTabPanels)``;
-export const Tabs = styled(RTabs)``;
+export const Tab = React.forwardRef<any, TabProps & { className?: string }>(({ className, ...props }, ref) => (
+  <RTab
+    ref={ref}
+    className={classNames(
+      'px-6 py-1 border-0 border-b-2 border-transparent text-[var(--tab-text-color)] bg-transparent data-[selected]:font-bold data-[selected]:border-[var(--tab-active)] data-[selected]:text-[var(--tab-text-active-color)] hover:text-[var(--tab-text-active-color)]',
+      className,
+    )}
+    {...props}
+  />
+))
+
+export const TabList = React.forwardRef<any, TabListProps & { className?: string }>(({ className, ...props }, ref) => (
+  <RTabList ref={ref} className={classNames('bg-transparent', className)} {...props} />
+))
+
+export const TabPanel = RTabPanel
+export const TabPanels = RTabPanels
+export const Tabs = RTabs

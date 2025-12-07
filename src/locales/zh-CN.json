@@ -7,11 +7,11 @@
   "import": "导入设置",
   "export": "导出设置",
   "about": "关于",
-  "done": "确定",
+  "done": "完成",
   "close": "关闭",
   "cancel": "取消",
-  "createAccessToken": "创建 Github 访问令牌",
-  "pasteToken": "粘贴令牌",
+  "createAccessToken": "创建 GitHub Access Token",
+  "pasteToken": "粘贴 Access Token",
   "createGist": "创建 Gist",
   "File name ends with json": "文件名以 .json 结尾",
   "createFile": "创建文件",
@@ -29,13 +29,13 @@
   "settingFile": "配置文件",
   "edit": "编辑",
 
-  "Are you sure to delete": "你要确定删除",
+  "Are you sure to delete": "确定要删除 {{name}} 吗？",
   "confirm": "确认",
   "yes": "是的",
   "name": "名称",
   "delete": "删除",
   "addBlock": "添加区块",
-  "addLinkAfter": "在下方插入链接",
+  "addLinkAfter": "在后方插入链接",
   "links": "链接",
   "addLink": "添加链接",
   "title": "标题",
@@ -51,5 +51,6 @@
   "syncing": "同步中...",
   "built in color": "内置颜色",
   "custom color": "自定义颜色",
-  "proceed": "拉取 Gist"
+  "proceed": "继续",
+  "search": "搜索"
 }

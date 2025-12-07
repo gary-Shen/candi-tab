@@ -1,32 +1,24 @@
-import styled, { css } from 'styled-components';
+import classNames from 'classnames'
+import React from 'react'
 
-export const buttonStyle = css`
-  box-sizing: content-box;
-  border: 0;
-  display: flex;
-  padding: 4px;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  color: var(--gray-color);
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
-  transition: all 0.2s;
-  border-radius: 3px;
-  background-color: transparent;
-  &:hover {
-    color: var(--gray-color-hover);
-    background-color: rgba(0, 0, 0, 0.1);
-  }
+const IconButton = React.forwardRef<
+  HTMLButtonElement,
+  React.ButtonHTMLAttributes<HTMLButtonElement>
+>((props, ref) => {
+  const { className, children, ...rest } = props
+  return (
+    <button
+      type="button"
+      ref={ref}
+      className={classNames(
+        'box-content border-0 flex p-1 items-center justify-center text-2xl text-[var(--gray-color)] w-6 h-6 cursor-pointer transition-all duration-200 rounded-[3px] bg-transparent hover:text-[var(--gray-color-hover)] hover:bg-black/10',
+        className,
+      )}
+      {...rest}
+    >
+      {children}
+    </button>
+  )
+})
 
-  & + & {
-    margin-left: 0.5rem;
-  }
-`;
-
-const IconButton = styled.button`
-  ${buttonStyle}
-`;
-
-export default IconButton;
+export default IconButton

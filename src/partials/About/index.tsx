@@ -1,25 +1,24 @@
-import { AiOutlineGithub } from '@react-icons/all-files/ai/AiOutlineGithub';
-import { AiOutlineHome } from '@react-icons/all-files/ai/AiOutlineHome';
-import { useMemo } from 'react';
+import { Github, Home } from 'lucide-react'
+import { useMemo } from 'react'
 
-import MyModal from '@/components/Dialog';
-import icon from '@/assets/logo.png';
+import icon from '@/assets/logo.png'
+import MyModal from '@/components/Dialog'
 
 export interface AboutProps {
-  visible: boolean;
-  onClose: () => void;
+  visible: boolean
+  onClose: () => void
 }
 
 export default function About({ visible, onClose }: AboutProps) {
   const manifest = useMemo(() => {
     try {
-      return chrome.runtime.getManifest();
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.warn(err);
-      return {};
+      return chrome.runtime.getManifest()
     }
-  }, []);
+    catch (err) {
+      console.warn(err)
+      return {}
+    }
+  }, [])
   return (
     <MyModal visible={visible} onClose={onClose} width={300} showCloseButton={false}>
       <div className="p-2">
@@ -38,7 +37,7 @@ export default function About({ visible, onClose }: AboutProps) {
               target="_blank"
               rel="noreferrer"
             >
-              <AiOutlineHome />
+              <Home size={16} />
             </a>
             <a
               href="https://github.com/gary-Shen/candi-tab#candi-tab"
@@ -46,11 +45,11 @@ export default function About({ visible, onClose }: AboutProps) {
               target="_blank"
               rel="noreferrer"
             >
-              <AiOutlineGithub />
+              <Github size={16} />
             </a>
           </div>
         </div>
       </div>
     </MyModal>
-  );
+  )
 }

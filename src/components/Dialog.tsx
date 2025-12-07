@@ -1,20 +1,20 @@
-import type { DialogProps } from '@headlessui/react';
-import { Dialog, Transition } from '@headlessui/react';
-import { BiX } from '@react-icons/all-files/bi/BiX';
-import React, { Fragment, useEffect, useState } from 'react';
-import classNames from 'classnames';
+import type { DialogProps } from '@headlessui/react'
+import { Dialog, Transition } from '@headlessui/react'
+import { X } from 'lucide-react'
+import classNames from 'classnames'
+import React, { Fragment, useEffect, useState } from 'react'
 
-import IconButton from './IconButton';
+import IconButton from './IconButton'
 
 export interface ModalProps {
-  children: React.ReactNode;
-  visible?: boolean;
-  title?: React.ReactNode;
-  footer?: React.ReactNode;
-  onClose?: () => void;
-  showCloseButton?: boolean;
-  width?: number | string;
-  initialFocus?: DialogProps<React.FC>['initialFocus'];
+  children: React.ReactNode
+  visible?: boolean
+  title?: React.ReactNode
+  footer?: React.ReactNode
+  onClose?: () => void
+  showCloseButton?: boolean
+  width?: number | string
+  initialFocus?: DialogProps<React.FC>['initialFocus']
 }
 
 export default function MyModal({
@@ -27,14 +27,15 @@ export default function MyModal({
   width = '28rem',
   initialFocus,
 }: ModalProps) {
-  const [isOpen, setIsOpen] = useState(visible);
+  const [isOpen, setIsOpen] = useState(visible)
 
   useEffect(() => {
-    setIsOpen(visible);
-  }, [visible]);
+    // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
+    setIsOpen(visible)
+  }, [visible])
 
   function closeModal() {
-    setIsOpen(false);
+    setIsOpen(false)
   }
 
   return (
@@ -74,7 +75,7 @@ export default function MyModal({
                     </Dialog.Title>
                     {showCloseButton && (
                       <IconButton onClick={onClose} className="">
-                        <BiX />
+                        <X />
                       </IconButton>
                     )}
                   </div>
@@ -98,5 +99,5 @@ export default function MyModal({
         </div>
       </Dialog>
     </Transition>
-  );
+  )
 }

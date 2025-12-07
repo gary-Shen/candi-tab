@@ -1,73 +1,79 @@
-import classNames from 'classnames';
-import set from 'lodash/fp/set';
-import { useCallback, useContext, useEffect, useState } from 'react';
-import type { Layout } from 'react-grid-layout';
-import GridLayout from 'react-grid-layout';
-import styled from 'styled-components';
+import type { Layout } from 'react-grid-layout'
+import type { Block as IBlock } from './types/setting.type'
+import classNames from 'classnames'
+import set from 'lodash/fp/set'
+import { useCallback, useContext, useEffect, useState } from 'react'
 
-import Button from './components/LinkButton';
-import SettingsContext from './context/settings.context';
-import Block from './partials/Block';
-import EditModal from './partials/Block/EditModal';
-import Header from './partials/Header';
-import GlobalStyle from './style/GlobalStyle';
-import StyledApp from './styled';
-import type { Block as IBlock } from './types/setting.type';
-import { gid } from './utils/gid';
-import Spin from './components/Spin';
-
-const Grid = styled(GridLayout)`
-  margin: 48px 0;
-`;
+import { Responsive, WidthProvider } from 'react-grid-layout'
+import Button from './components/LinkButton'
+import Spin from './components/Spin'
+import SettingsContext from './context/settings.context'
+import Block from './partials/Block'
+import EditModal from './partials/Block/EditModal'
+import Header from './partials/Header'
+import { gid } from './utils/gid'
 
 declare global {
   interface Window {
-    initialTime: number;
+    initialTime: number
   }
 }
 
+const ResponsiveGridLayout = WidthProvider(Responsive)
+
 function App() {
-  const { settings, updateSettings } = useContext(SettingsContext);
-  const [editable, toggleEditable] = useState(false);
-  const [activeBlockIndex, setActiveBlockIndex] = useState<number | undefined>();
-  const layouts = (settings || {}).links?.map((item) => item.layout) || [];
-  const [firstBlock, setFirstBlockData] = useState<IBlock>({} as IBlock);
-  const [fistBlockVisible, toggleFirstBlockVisible] = useState(false);
+  const { settings, updateSettings } = useContext(SettingsContext)
+  const [editable, toggleEditable] = useState(false)
+  const [activeBlockIndex, setActiveBlockIndex] = useState<number | undefined>()
+  const layouts = (settings || {}).links?.map(item => item.layout) || []
+  const [firstBlock, setFirstBlockData] = useState<IBlock>({} as IBlock)
+  const [fistBlockVisible, toggleFirstBlockVisible] = useState(false)
+  const [currentBreakpoint, setCurrentBreakpoint] = useState('lg')
 
   useEffect(() => {
-    window.initialTime = new Date().getTime();
-  }, []);
+    window.initialTime = new Date().getTime()
+  }, [])
+
+  useEffect(() => {
+    if (editable) {
+      document.body.classList.add('editable')
+    }
+    else {
+      document.body.classList.remove('editable')
+    }
+  }, [editable])
 
   const handleLayoutChange = useCallback(
     (layout: Layout[]) => {
-      const newLinks = settings.links.map((item, index) => {
-        return { ...item, layout: layout[index] };
-      });
+      const newLinks = settings.links.map((item) => {
+        const layoutItem = layout.find(l => l.i === item.id)
+        return { ...item, layout: layoutItem || item.layout }
+      })
 
       const newSettings = {
         ...settings,
         links: newLinks,
-      };
+      }
 
-      updateSettings(newSettings);
+      updateSettings(newSettings)
     },
     [settings, updateSettings],
-  );
+  )
 
   const handleToggleEditable = useCallback(() => {
-    toggleEditable(!editable);
-  }, [editable]);
+    toggleEditable(!editable)
+  }, [editable])
 
   const handleSetActiveBlockIndex = useCallback((index: number) => {
-    setActiveBlockIndex(index);
-  }, []);
+    setActiveBlockIndex(index)
+  }, [])
 
   const handleCreateFirstBlock = useCallback(() => {
-    toggleEditable(true);
-    toggleFirstBlockVisible(true);
-    const id = gid();
+    toggleEditable(true)
+    toggleFirstBlockVisible(true)
+    const id = gid()
     setFirstBlockData({
-      id: id,
+      id,
       title: '',
       buttons: [],
       layout: {
@@ -77,26 +83,26 @@ function App() {
         y: 0,
         i: id,
       },
-    });
-  }, []);
+    })
+  }, [])
 
   const handleSaveFirstBlock = useCallback(() => {
-    updateSettings(set(`links[0]`)(firstBlock)(settings));
-  }, [updateSettings, firstBlock, settings]);
+    updateSettings(set(`links[0]`)(firstBlock)(settings))
+  }, [updateSettings, firstBlock, settings])
 
   const handleBlockChange = useCallback(
     (field: string) => (value: string | number | undefined | any[]) => {
-      setFirstBlockData(set(field)(value)(firstBlock));
+      setFirstBlockData(set(field)(value)(firstBlock))
     },
     [firstBlock],
-  );
+  )
 
   if (!settings) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Spin spinning />
       </div>
-    );
+    )
   }
 
   const links = settings.links.map((item, index) => {
@@ -104,7 +110,8 @@ function App() {
       <div
         key={item.id}
         className={classNames({
-          blockActive: activeBlockIndex === index,
+          'blockActive': activeBlockIndex === index,
+          'z-10': activeBlockIndex === index,
         })}
       >
         <div data-grid={item.layout} className={classNames('block-wrap')}>
@@ -118,50 +125,51 @@ function App() {
           />
         </div>
       </div>
-    );
-  });
+    )
+  })
 
   return (
-    <StyledApp
-      className={classNames('main', {
+    <div
+      className={classNames('main w-full max-w-[1240px] px-5 mt-4 [&_.editBtn]:leading-none [&_.editBtn_button]:px-[0.4rem]', {
         editable,
       })}
     >
-      <GlobalStyle editable={editable} />
       <Header onEdit={handleToggleEditable} editable={editable} />
-      {links.length ? (
-        <Grid
-          layout={layouts}
-          draggableHandle=".block-header"
-          isResizable={editable}
-          isDraggable={editable}
-          isDroppable={editable}
-          onDragStop={handleLayoutChange}
-          onResizeStop={handleLayoutChange}
-          className="layout"
-          cols={12}
-          rowHeight={4}
-          width={1200}
-          margin={[0, 0]}
-          resizeHandles={['e', 'w']}
-        >
-          {links}
-        </Grid>
-      ) : (
-        <div className="flex items-center justify-center h-[80vh]">
-          <Button onClick={handleCreateFirstBlock}>Create first block</Button>
-          <EditModal
-            data={firstBlock}
-            onChange={handleBlockChange}
-            onSave={handleSaveFirstBlock}
-            type="block"
-            visible={fistBlockVisible}
-            onClose={() => toggleFirstBlockVisible(false)}
-          />
-        </div>
-      )}
-    </StyledApp>
-  );
+      {links.length
+        ? (
+          <ResponsiveGridLayout
+            className="layout my-12"
+            layouts={{ lg: layouts }}
+            breakpoints={{ lg: 1400, md: 1200, sm: 768, xs: 480, xxs: 0 }}
+            cols={{ lg: 24, md: 24, sm: 12, xs: 6, xxs: 4 }}
+            rowHeight={4}
+            margin={[0, 0]}
+            onLayoutChange={handleLayoutChange}
+            onBreakpointChange={setCurrentBreakpoint}
+            draggableHandle=".block-header"
+            isResizable={editable}
+            isDraggable={editable}
+            isDroppable={editable}
+            resizeHandles={['e', 'w']}
+          >
+            {links}
+          </ResponsiveGridLayout>
+        )
+        : (
+          <div className="flex items-center justify-center h-[80vh]">
+            <Button onClick={handleCreateFirstBlock}>Create first block</Button>
+            <EditModal
+              data={firstBlock}
+              onChange={handleBlockChange}
+              onSave={handleSaveFirstBlock}
+              type="block"
+              visible={fistBlockVisible}
+              onClose={() => toggleFirstBlockVisible(false)}
+            />
+          </div>
+        )}
+    </div>
+  )
 }
 
-export default App;
+export default App

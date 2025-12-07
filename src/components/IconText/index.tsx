@@ -1,41 +1,27 @@
-import React from 'react';
-import styled from 'styled-components';
+import classNames from 'classnames'
+import React from 'react'
 
-const Wrap = styled.span`
-  display: flex;
-  align-items: center;
-`;
-
-const Text = styled.span`
-  margin-left: 0.5rem;
-`;
-
-const Icon = styled.span`
-  display: flex;
-  font-size: 18px;
-`;
-
-export interface IconTextProps {
-  children: React.ReactNode;
-  className?: string;
-  position?: 'left' | 'right';
-  text?: React.ReactNode;
+export interface IconTextProps extends React.HTMLAttributes<HTMLSpanElement> {
+  children: React.ReactNode
+  className?: string
+  position?: 'left' | 'right'
+  text?: React.ReactNode
 }
 
-export default function IconText({ children, className, text, ...props }: IconTextProps) {
-  if (props.position === 'right') {
+export default function IconText({ children, className, text, position = 'left', ...props }: IconTextProps) {
+  if (position === 'right') {
     return (
-      <Wrap className={className} {...props}>
-        {text && <Text>{text}</Text>}
-        <Icon className="ml-2">{children}</Icon>
-      </Wrap>
-    );
+      <span className={classNames('flex items-center gap-1', className)} {...props}>
+        {text && <span>{text}</span>}
+        <span className="flex text-lg">{children}</span>
+      </span>
+    )
   }
 
   return (
-    <Wrap className={className} {...props}>
-      <Icon>{children}</Icon>
-      {text && <Text>{text}</Text>}
-    </Wrap>
-  );
+    <span className={classNames('flex items-center gap-1', className)} {...props}>
+      <span className="flex text-lg">{children}</span>
+      {text && <span>{text}</span>}
+    </span>
+  )
 }

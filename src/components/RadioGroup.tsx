@@ -1,41 +1,40 @@
-import type { SVGAttributes } from 'react';
-import React, { useState } from 'react';
-import { RadioGroup } from '@headlessui/react';
+import type { SVGAttributes } from 'react'
+import { RadioGroup } from '@headlessui/react'
+import React, { useState } from 'react'
 
 interface RadioOption {
-  label: React.ReactNode;
-  value: string;
-  content?: React.ReactNode;
+  label: React.ReactNode
+  value: string
+  content?: React.ReactNode
 }
 
 export interface RadioGroupProps {
-  value?: string;
-  options: RadioOption[];
-  onChange?: (value: string) => void;
-  className?: string;
+  value?: string
+  options: RadioOption[]
+  onChange?: (value: string) => void
+  className?: string
 }
 
 export default function MyRadioGroup({ value, options, onChange, className }: RadioGroupProps) {
-  const [selected, setSelected] = useState(value);
+  const [selected, setSelected] = useState(value)
 
   const handleOnChange = (changedValue: string) => {
-    setSelected(changedValue);
-    onChange?.(changedValue);
-  };
+    setSelected(changedValue)
+    onChange?.(changedValue)
+  }
 
   return (
     <RadioGroup value={selected} onChange={handleOnChange} className={className}>
       <RadioGroup.Label className="sr-only">Server size</RadioGroup.Label>
       <div className="space-y-2">
-        {options.map((option) => (
+        {options.map(option => (
           <RadioGroup.Option
             key={option.value}
             value={option.value}
             className={({ active, checked }) =>
               `${active ? 'ring-2 ring-[var(--color-primary)]' : ''}
                   ${checked ? 'bg-color-primary text-white' : 'bg-[var(--card-body-bg)]'}
-                    relative flex cursor-pointer rounded-lg px-4 py-3 border border-[var(--border-color)] focus:outline-none`
-            }
+                    relative flex cursor-pointer rounded-lg px-4 py-3 border border-[var(--border-color)] focus:outline-none`}
           >
             {({ checked }) => (
               <>
@@ -62,7 +61,7 @@ export default function MyRadioGroup({ value, options, onChange, className }: Ra
         ))}
       </div>
     </RadioGroup>
-  );
+  )
 }
 
 function CheckIcon(props: SVGAttributes<HTMLOrSVGElement>) {
@@ -71,5 +70,5 @@ function CheckIcon(props: SVGAttributes<HTMLOrSVGElement>) {
       <circle cx={12} cy={12} r={12} fill="#fff" opacity="0.2" />
       <path d="M7 13l3 3 7-7" stroke="#fff" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
     </svg>
-  );
+  )
 }
