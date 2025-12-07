@@ -1,8 +1,9 @@
 import type { Setting } from '@/types/setting.type'
-import { Check, ClipboardPen, Cog, PencilRuler, Download, Upload, Info, Menu } from 'lucide-react'
+import Input from '@/components/Input'
+import { Check, ClipboardPen, Cog, Download, Info, Menu, PencilRuler, Search, Upload } from 'lucide-react'
 import { set } from 'lodash/fp'
 import omit from 'lodash/fp/omit'
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useTranslation } from 'react-i18next'
 import MyModal from '@/components/Dialog'
@@ -29,6 +30,39 @@ export default function Header({ onEdit, editable }: HeaderProps) {
   const [oauthVisible, setOauthVisible] = useState(false)
   const [importVisible, setImportVisible] = useState(false)
   const [toImport, setToImport] = useState<Setting | null>(null)
+  const [search, setSearch] = useState('')
+
+  const handleSearch = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && search) {
+      const lowerSearch = search.toLowerCase()
+      const matches: string[] = []
+
+      for (const block of settings.links) {
+        for (const link of block.buttons || []) {
+          if (
+            link.title?.toLowerCase().includes(lowerSearch)
+            || link.url?.toLowerCase().includes(lowerSearch)
+            || (link.menu && link.menu.some(m => m.title?.toLowerCase().includes(lowerSearch) || m.url?.toLowerCase().includes(lowerSearch)))
+          ) {
+            matches.push(link.id)
+          }
+        }
+      }
+
+      matches.forEach((id, index) => {
+        const el = document.querySelector(`[data-link-id="${id}"]`)
+        if (el) {
+          if (index === 0) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          }
+          el.classList.add('flash-animation')
+          setTimeout(() => {
+            el.classList.remove('flash-animation')
+          }, 1000)
+        }
+      })
+    }
+  }, [search, settings.links])
 
   const handleOpenSyncing = useCallback(() => {
     setOauthVisible(true)
@@ -154,17 +188,32 @@ export default function Header({ onEdit, editable }: HeaderProps) {
 
   return (
     <>
-      <div className="fixed flex items-center justify-end px-4 top-0 left-0 w-full h-16 z-50 backdrop-blur-md bg-[rgba(255,255,255,0.01)] border-b border-transparent transition-colors duration-300">
-        <IconButton onClick={handleOpenClipboard}>
-          <ClipboardPen size={16} />
-        </IconButton>
-        <IconButton onClick={onEdit}>{editable ? <Check size={16} /> : <PencilRuler size={16} />}</IconButton>
+      <div className="fixed top-0 left-0 w-full h-16 z-50 backdrop-blur-md bg-[rgba(255,255,255,0.01)] border-b border-transparent transition-colors duration-300">
+        <div className="flex items-center justify-between w-full max-w-[1240px] px-5 mx-auto h-full">
+          <div className="relative w-64 group">
+            <Input
+              className="pl-9 bg-transparent border-transparent focus:bg-form-inset group-hover:bg-form-inset transition-colors duration-200"
+              placeholder={t('search')}
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              onKeyDown={handleSearch}
+            />
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          </div>
 
-        <MyMenu options={menuOptions}>
-          <IconButton className="ml-2">
-            <Menu size={16} />
-          </IconButton>
-        </MyMenu>
+          <div className="flex items-center">
+            <IconButton onClick={handleOpenClipboard}>
+              <ClipboardPen size={16} />
+            </IconButton>
+            <IconButton onClick={onEdit}>{editable ? <Check size={16} /> : <PencilRuler size={16} />}</IconButton>
+
+            <MyMenu options={menuOptions}>
+              <IconButton className="ml-2">
+                <Menu size={16} />
+              </IconButton>
+            </MyMenu>
+          </div>
+        </div>
       </div>
       <SettingModal visible={oauthVisible} onClose={handleCloseSyncing} />
       <About visible={aboutVisible} onClose={() => toggleAboutVisible(false)} />

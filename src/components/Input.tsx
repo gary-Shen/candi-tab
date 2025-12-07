@@ -27,7 +27,7 @@ export function InputGroup({
   return (
     <div
       className={classNames(
-        'flex flex-row items-stretch',
+        'flex flex-row items-stretch w-full',
         {
           'space-x-2': !nospace,
           '[&>:not(:first-child):not(:last-child)]:rounded-none [&>:not(:first-child):not(:last-child)]:-ml-px [&>:not(:first-child):not(:last-child)]:focus:z-[999] [&>:first-child]:rounded-r-none [&>:last-child]:rounded-l-none':

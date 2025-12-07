@@ -2,7 +2,6 @@ function createCodeHandler(oauthHandler) {
   return async function handleCode(request, response) {
     const { code, uuid } = request.query
 
-    console.log('code', code)
     try {
       setCORSHeaders(response)
       if (!request.method || request.method.toLowerCase() !== 'get') {
@@ -12,6 +11,17 @@ function createCodeHandler(oauthHandler) {
         return sendRejection(response, 403)
       }
       const accessToken = await oauthHandler(code, uuid)
+
+      if (request.query.redirect_url) {
+        const redirectUrl = new URL(request.query.redirect_url)
+        redirectUrl.searchParams.set('accessToken', accessToken)
+        response.writeHead(302, {
+          Location: redirectUrl.toString(),
+        })
+        response.end()
+        return
+      }
+
       writeJSON(response, { accessToken })
       response.end()
     }

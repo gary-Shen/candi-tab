@@ -26,7 +26,6 @@ module.exports = createCodeHandler(async (code, uuid) => {
     throw new Error(errorDescription)
   }
   else if (scope !== 'gist' || !accessToken || !(typeof accessToken === 'string')) {
-    console.log(JSON.stringify(body))
     throw new Error(`Cannot resolve response from GitHub`)
   }
 

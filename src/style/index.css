@@ -191,3 +191,13 @@ a:hover {
 .link-group .link-btn{
   padding: 0.3rem 0.5rem;
 }
+
+@keyframes flash-bg {
+  0%, 100% { background-color: transparent; outline: 4px solid transparent; outline-offset: 2px; }
+  50% { background-color: var(--color-light); outline: 4px solid var(--color-light); outline-offset: 2px; }
+}
+
+.flash-animation {
+  animation: flash-bg 0.5s ease-in-out 2;
+  border-radius: var(--border-radius);
+}

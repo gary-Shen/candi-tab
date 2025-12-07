@@ -33,7 +33,7 @@ export default function Spin({ spinning, className, children }: SpinProps) {
   return (
     <>
       {spinning && spinner}
-      <div className={classNames('spin-content', className, { hidden: spinning })}>{children}</div>
+      <div className={classNames('spin-content w-full', className, { hidden: spinning })}>{children}</div>
     </>
   )
 }

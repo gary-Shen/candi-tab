@@ -320,7 +320,7 @@ export default function BlockContainer({ block, settings, updateSettings, index,
                 <Plus size={16} />
               </div>
             )
-            : (
+            : links && links?.length > 2 ? (
               <div
                 className="cursor-pointer hover:text-color-primary flex items-center transition-transform duration-300"
                 style={{ transform: collapsed ? 'rotate(90deg)' : 'rotate(0deg)' }}
@@ -329,7 +329,7 @@ export default function BlockContainer({ block, settings, updateSettings, index,
               >
                 <ChevronDown size={16} />
               </div>
-            )}
+            ) : null}
         </Card.Header>
         <MovableContainer
           className="flex flex-col p-card-x block-content"
@@ -348,10 +348,7 @@ export default function BlockContainer({ block, settings, updateSettings, index,
                 color: isDark(style) ? '#fff' : '#000',
               }
 
-
-
             const blurClass = isBlurred ? 'opacity-50 blur-[1px]' : ''
-
             const linkMenu = [
               [
                 {
@@ -460,6 +457,7 @@ export default function BlockContainer({ block, settings, updateSettings, index,
                     href={url}
                     size="sm"
                     date-url={url}
+                    data-link-id={id}
                     className="w-full py-[0.3rem] px-2 border-0"
                     type={TYPES.includes(style) ? style : 'light'}
                     style={buttonStyle}

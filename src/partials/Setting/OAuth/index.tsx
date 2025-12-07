@@ -339,7 +339,7 @@ export default function OAuth({ onClose }: OAuthProps) {
   }, [oneGist, tokenValue, updateAccessToken])
 
   return (
-    <div className="flex flex-col items-center justify-center [&_.oauth-form]:w-full [&_.oauth-form_.mb-3:last-child]:mb-0 oauth-modal-content">
+    <div className="flex flex-col items-end justify-center [&_.oauth-form]:w-full [&_.oauth-form_.mb-3:last-child]:mb-0 oauth-modal-content">
       <InputGroup className="mb-2">
         <Input
           placeholder={t('pasteToken')}
