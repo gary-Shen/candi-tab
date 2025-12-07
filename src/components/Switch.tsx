@@ -1,20 +1,20 @@
-import { useState } from 'react';
-import { Switch } from '@headlessui/react';
+import { Switch } from '@headlessui/react'
+import { useState } from 'react'
 
 export interface ToggleProps {
-  value: boolean;
-  onChange?: (value: boolean) => void;
+  value: boolean
+  onChange?: (value: boolean) => void
 }
 
 export default function Toggle({ value, onChange }: ToggleProps) {
-  const [checked, setChecked] = useState(value);
+  const [checked, setChecked] = useState(value)
 
   const handleOnChange = (changedValue: boolean) => {
-    setChecked(changedValue);
+    setChecked(changedValue)
     if (typeof onChange === 'function') {
-      onChange(changedValue);
+      onChange(changedValue)
     }
-  };
+  }
 
   return (
     <Switch
@@ -29,5 +29,5 @@ export default function Toggle({ value, onChange }: ToggleProps) {
         } inline-block h-4 w-4 transform rounded-full bg-white transition`}
       />
     </Switch>
-  );
+  )
 }

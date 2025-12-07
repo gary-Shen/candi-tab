@@ -1,54 +1,50 @@
-import { BiEditAlt } from '@react-icons/all-files/bi/BiEditAlt';
-import { BiListPlus } from '@react-icons/all-files/bi/BiListPlus';
-import { BiPlusCircle } from '@react-icons/all-files/bi/BiPlusCircle';
-import { BiCaretDown } from '@react-icons/all-files/bi/BiCaretDown';
-import { BiTrash } from '@react-icons/all-files/bi/BiTrash';
-import type { MenuData } from 'lina-context-menu';
-import ContextMenu from 'lina-context-menu';
-import _ from 'lodash';
-import concat from 'lodash/fp/concat';
-import set from 'lodash/fp/set';
-import update from 'lodash/fp/update';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import type { MenuData } from 'lina-context-menu'
+import type { EditType } from './EditModal'
+import type { Block, Link, Setting } from '@/types/setting.type'
+import { ChevronDown, Edit2, ListPlus, Plus, Trash2 } from 'lucide-react'
+import classNames from 'classnames'
+import ContextMenu from 'lina-context-menu'
+import _ from 'lodash'
+import concat from 'lodash/fp/concat'
+import set from 'lodash/fp/set'
+import update from 'lodash/fp/update'
 
-import MyButton from '@/components/LinkButton';
-import Card from '@/components/Card';
-import MyModal from '@/components/Dialog';
-import { MovableContainer, MovableTarget } from '@/components/Movable';
-import { TYPES } from '@/constant';
-import type { Block, Link, Setting } from '@/types/setting.type';
-import { calcLayout } from '@/utils/calcLayout';
-import { gid } from '@/utils/gid';
-import { isDark } from '@/utils/hsp';
-import MyMenu from '@/components/Menu';
-import IconText from '@/components/IconText';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import Card from '@/components/Card'
+import MyModal from '@/components/Dialog'
+import IconText from '@/components/IconText'
+import MyButton from '@/components/LinkButton'
+import MyMenu from '@/components/Menu'
+import { MovableContainer, MovableTarget } from '@/components/Movable'
+import { TYPES } from '@/constant'
+import { calcLayout } from '@/utils/calcLayout'
+import { gid } from '@/utils/gid'
 
-import type { EditType } from './EditModal';
-import EditModal from './EditModal';
-import StyledBlock from './styled';
+import { isDark } from '@/utils/hsp'
+import EditModal from './EditModal'
 
-let movingLink: Link | null = null;
-let movingLinkFromWhichBlock: number | undefined;
+let movingLink: Link | null = null
+let movingLinkFromWhichBlock: number | undefined
 
 const iconStyle = {
   fontSize: 16,
-};
+}
 
 export interface ConfirmProps {
-  title: React.ReactNode;
-  visible: boolean;
-  onConfirm: () => void;
-  onClose: () => void;
+  title: React.ReactNode
+  visible: boolean
+  onConfirm: () => void
+  onClose: () => void
 }
-const Confirm = ({ title, visible, onConfirm, onClose }: ConfirmProps) => {
-  const { t } = useTranslation();
+function Confirm({ title, visible, onConfirm, onClose }: ConfirmProps) {
+  const { t } = useTranslation()
   return (
     <MyModal
       visible={visible}
       title={t('confirm')}
       onClose={onClose}
-      footer={
+      footer={(
         <>
           <MyButton className="flex-1" type="secondary" onClick={onClose}>
             {t('cancel')}
@@ -57,34 +53,37 @@ const Confirm = ({ title, visible, onConfirm, onClose }: ConfirmProps) => {
             {t('yes')}
           </MyButton>
         </>
-      }
+      )}
     >
-      {t('Are you sure to delete')} <strong>{title}</strong>?
+      {t('Are you sure to delete')}
+      {' '}
+      <strong>{title}</strong>
+      ?
     </MyModal>
-  );
-};
+  )
+}
 
 export interface BlockProps {
-  block: Block;
-  settings: Setting;
-  updateSettings: (setting: Setting) => void;
-  index: number;
-  editable?: boolean;
-  onMenuClick: (index: number) => void;
+  block: Block
+  settings: Setting
+  updateSettings: (setting: Setting) => void
+  index: number
+  editable?: boolean
+  onMenuClick: (index: number) => void
 }
 export default function BlockContainer({ block, settings, updateSettings, index, editable, onMenuClick }: BlockProps) {
-  const { buttons: links, title } = block;
-  const { t } = useTranslation();
-  const [editVisible, toggleEditVisible] = useState<boolean>(false);
-  const [editType, setEditType] = useState<EditType>('block');
-  const [editData, setEditData] = useState<Block | Link>(block);
-  const [activeLinkIndex, setActiveLinkIndex] = useState<number>(-1);
-  const [isAddition, toggleAddition] = useState<boolean>(false);
-  const [confirmVisible, toggleConfirmVisible] = useState(false);
-  const [dataToDelete, setDataToDelete] = useState<Block | Link | null>(null);
+  const { buttons: links, title } = block
+  const { t } = useTranslation()
+  const [editVisible, toggleEditVisible] = useState<boolean>(false)
+  const [editType, setEditType] = useState<EditType>('block')
+  const [editData, setEditData] = useState<Block | Link>(block)
+  const [activeLinkIndex, setActiveLinkIndex] = useState<number>(-1)
+  const [isAddition, toggleAddition] = useState<boolean>(false)
+  const [confirmVisible, toggleConfirmVisible] = useState(false)
+  const [dataToDelete, setDataToDelete] = useState<Block | Link | null>(null)
 
-  const blockBodyRef = useRef<HTMLDivElement | null>(null);
-  const blockHeaderRef = useRef<HTMLDivElement | null>(null);
+  const blockBodyRef = useRef<HTMLDivElement | null>(null)
+  const blockHeaderRef = useRef<HTMLDivElement | null>(null)
 
   /**
    * 动态更新block尺寸
@@ -92,70 +91,73 @@ export default function BlockContainer({ block, settings, updateSettings, index,
   const updateLayout = useCallback(
     (inputSettings: Setting) => {
       if (!blockBodyRef.current || !blockHeaderRef.current) {
-        return;
+        return
       }
 
       // 更新全部Block布局
       setTimeout(() => {
-        updateSettings(calcLayout(inputSettings));
-      });
+        updateSettings(calcLayout(inputSettings))
+      })
     },
     [updateSettings],
-  );
+  )
 
   /**
    * 编辑block
    */
   const handleEditBlock = useCallback(() => {
-    setEditType('block');
-    toggleEditVisible(true);
-    setEditData(block);
-  }, [block]);
+    setEditType('block')
+    toggleEditVisible(true)
+    setEditData(block)
+  }, [block])
   /**
    * 编辑表单
    */
   const handleOnChange = useCallback(
     (field: string) => (value: string | number | undefined | any[]) => {
-      setEditData((pre) => set(field)(value)(pre));
+      setEditData(pre => set(field)(value)(pre))
     },
     [],
-  );
+  )
 
   /**
    * 保存表单
    */
   const handleSave = useCallback(() => {
-    let newSettings = _.cloneDeep(settings);
+    let newSettings = _.cloneDeep(settings)
     if (isAddition) {
       if (editType === 'link') {
-        newSettings.links[index].buttons!.splice(activeLinkIndex + 1, 0, editData as Link);
-      } else {
-        newSettings = update('links')((blocks) => concat(blocks || [])([editData]))(newSettings);
+        newSettings.links[index].buttons!.splice(activeLinkIndex + 1, 0, editData as Link)
       }
-    } else {
+      else {
+        newSettings = update('links')(blocks => concat(blocks || [])([editData]))(newSettings)
+      }
+    }
+    else {
       if (editType === 'link') {
-        newSettings = set(`links[${index}].buttons[${activeLinkIndex}]`)(editData)(newSettings);
-      } else {
-        newSettings = set(`links[${index}]`)(editData)(newSettings);
+        newSettings = set(`links[${index}].buttons[${activeLinkIndex}]`)(editData)(newSettings)
+      }
+      else {
+        newSettings = set(`links[${index}]`)(editData)(newSettings)
       }
     }
 
-    newSettings.createdAt = new Date().getTime();
-    toggleEditVisible(false);
-    toggleAddition(false);
-    updateSettings(newSettings);
+    newSettings.createdAt = new Date().getTime()
+    toggleEditVisible(false)
+    toggleAddition(false)
+    updateSettings(newSettings)
     setTimeout(() => {
-      document.dispatchEvent(new CustomEvent('sync-upload'));
-    }, 1000);
-    updateLayout(newSettings);
-  }, [activeLinkIndex, editData, editType, index, isAddition, settings, updateLayout, updateSettings]);
+      document.dispatchEvent(new CustomEvent('sync-upload'))
+    }, 1000)
+    updateLayout(newSettings)
+  }, [activeLinkIndex, editData, editType, index, isAddition, settings, updateLayout, updateSettings])
 
   /**
    * 添加block
    */
   const handleAddBlock = useCallback(() => {
-    toggleAddition(true);
-    const newId = gid();
+    toggleAddition(true)
+    const newId = gid()
     setEditData({
       id: newId,
       title: 'Untitled',
@@ -167,196 +169,206 @@ export default function BlockContainer({ block, settings, updateSettings, index,
         x: block.layout.x,
         y: 39.5,
       },
-    });
-    toggleEditVisible(true);
-    setEditType('block');
-  }, [block.layout.x]);
+    })
+    toggleEditVisible(true)
+    setEditType('block')
+  }, [block.layout.x])
 
   useEffect(() => {
-    document.addEventListener('candi-add-block', handleAddBlock);
+    document.addEventListener('candi-add-block', handleAddBlock)
 
     return () => {
-      document.removeEventListener('candi-add-block', handleAddBlock);
-    };
-  }, [handleAddBlock]);
+      document.removeEventListener('candi-add-block', handleAddBlock)
+    }
+  }, [handleAddBlock])
 
   /**
    * 删除block
    */
   const handleDelete = useCallback(() => {
-    const isBlock = dataToDelete && (dataToDelete as Block).layout;
-    const isLink = !isBlock;
-    let path = '';
+    const isBlock = dataToDelete && (dataToDelete as Block).layout
+    const isLink = !isBlock
+    let path = ''
 
     if (isLink) {
-      path = `links[${index}].buttons`;
-    } else {
-      path = 'links';
+      path = `links[${index}].buttons`
+    }
+    else {
+      path = 'links'
     }
 
-    setDataToDelete(null);
-    const newSettings = update(path)((items) => items.filter((item: Link | Block) => item.id !== dataToDelete?.id))(
+    setDataToDelete(null)
+    const newSettings = update(path)(items => items.filter((item: Link | Block) => item.id !== dataToDelete?.id))(
       settings,
-    );
-    newSettings.createdAt = new Date().getTime();
-    updateSettings(newSettings);
-    toggleConfirmVisible(false);
+    )
+    newSettings.createdAt = new Date().getTime()
+    updateSettings(newSettings)
+    toggleConfirmVisible(false)
     setTimeout(() => {
-      document.dispatchEvent(new CustomEvent('sync-upload'));
-    }, 1000);
-    updateLayout(newSettings);
-  }, [dataToDelete, index, settings, updateLayout, updateSettings]);
+      document.dispatchEvent(new CustomEvent('sync-upload'))
+    }, 1000)
+    updateLayout(newSettings)
+  }, [dataToDelete, index, settings, updateLayout, updateSettings])
 
   const handleCloseConfirm = useCallback(() => {
-    toggleConfirmVisible(false);
-  }, []);
+    toggleConfirmVisible(false)
+  }, [])
 
   /**
    * 添加链接
    */
   const handleAddLink = useCallback(() => {
-    setEditType('link');
-    toggleAddition(true);
+    setEditType('link')
+    toggleAddition(true)
     setEditData({
       id: gid(),
       title: '',
       url: '',
       style: 'info',
-    });
-    toggleEditVisible(true);
-  }, []);
+    })
+    toggleEditVisible(true)
+  }, [])
 
   /**
    * 打开右键菜单时记录link索引
    * @param {*} linkIndex
    */
   const handleLinkContextOpen = useCallback((linkIndex: number) => {
-    setActiveLinkIndex(linkIndex);
-  }, []);
+    setActiveLinkIndex(linkIndex)
+  }, [])
+
+  const handleDragCancel = useCallback(() => {
+    movingLink = null
+    movingLinkFromWhichBlock = undefined
+  }, [])
 
   // link排序
   const handleContainerMouseUp = useCallback(
     (insertOrder: number) => {
       if (!movingLink || _.isNil(movingLinkFromWhichBlock) || _.isNil(insertOrder)) {
-        return;
+        return
       }
 
-      let newSettings = _.cloneDeep(settings);
+      let newSettings = _.cloneDeep(settings)
       // 在原来的block中删除
       newSettings = update(`links[${movingLinkFromWhichBlock}].buttons`)((buttons) => {
-        return buttons.filter((item: Link) => item.id !== movingLink!.id);
-      })(newSettings);
+        return buttons.filter((item: Link) => item.id !== movingLink!.id)
+      })(newSettings)
 
-      newSettings.links[index].buttons?.splice(insertOrder, 0, _.cloneDeep(movingLink));
+      newSettings.links[index].buttons?.splice(insertOrder, 0, _.cloneDeep(movingLink))
 
-      newSettings.createdAt = new Date().getTime();
-      updateSettings(newSettings);
+      newSettings.createdAt = new Date().getTime()
+      updateSettings(newSettings)
 
       setTimeout(() => {
-        document.dispatchEvent(new CustomEvent('sync-upload'));
-      }, 1000);
+        document.dispatchEvent(new CustomEvent('sync-upload'))
+      }, 1000)
       // 延时任务，等待渲染完成后自动更新布局
       setTimeout(() => {
-        updateLayout(newSettings);
-      }, 100);
+        updateLayout(newSettings)
+      }, 100)
     },
     [index, settings, updateLayout, updateSettings],
-  );
+  )
 
   const blockMenu = useMemo(
     () => [
       [
         {
           title: t('edit'),
-          icon: <BiEditAlt style={iconStyle} />,
+          icon: <Edit2 style={iconStyle} />,
           onClick: handleEditBlock,
         },
         {
           title: t('addBlock'),
-          icon: <BiPlusCircle style={iconStyle} />,
+          icon: <Plus style={iconStyle} />,
           onClick: handleAddBlock,
         },
       ],
       [
         {
           title: t('delete'),
-          icon: <BiTrash style={iconStyle} />,
+          icon: <Trash2 style={iconStyle} />,
           onClick: () => {
-            setDataToDelete(block);
-            toggleConfirmVisible(true);
+            setDataToDelete(block)
+            toggleConfirmVisible(true)
           },
         },
       ],
     ],
     [block, handleAddBlock, handleEditBlock, t],
-  );
+  )
 
   const card = (
-    <StyledBlock>
-      <Card>
-        <Card.Header className="block-header" ref={blockHeaderRef}>
+    <div className="p-2 h-full [&_.card]:h-full [&_.card]:bg-card-body [&_.card]:border-default">
+      <Card className="card h-full">
+        <Card.Header className={classNames('block-header flex justify-between select-none', { 'cursor-move': editable })} ref={blockHeaderRef}>
           {title}
+          {editable && (
+            <div
+              className="cursor-pointer hover:text-color-primary flex items-center"
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={handleAddLink}
+            >
+              <Plus style={{ fontSize: 20 }} />
+            </div>
+          )}
         </Card.Header>
-        {/* @ts-ignore */}
         <MovableContainer
-          className="block-content"
+          className="flex flex-col p-card-x block-content"
           ref={blockBodyRef}
           disabled={!editable}
           onMouseUp={handleContainerMouseUp}
         >
-          {links?.length === 0 && editable && (
-            <MyButton className="link-btn" onClick={handleAddLink}>
-              Add link
-            </MyButton>
-          )}
           {links?.map((link, linkIndex) => {
-            const { title: buttonTitle, style, url, menu, id, description } = link;
+            const { title: buttonTitle, style, url, menu, id, description } = link
             const buttonStyle = TYPES.includes(style)
               ? {}
               : {
-                  backgroundColor: style,
-                  color: isDark(style) ? '#fff' : '#000',
-                };
+                backgroundColor: style,
+                color: isDark(style) ? '#fff' : '#000',
+              }
 
             const linkMenu = [
               [
                 {
                   title: t('edit'),
-                  icon: <BiEditAlt style={iconStyle} />,
+                  icon: <Edit2 style={iconStyle} />,
                   onClick: () => {
-                    setEditType('link');
-                    toggleEditVisible(true);
-                    setEditData(link);
+                    setEditType('link')
+                    toggleEditVisible(true)
+                    setEditData(link)
                   },
                 },
                 {
                   title: t('addLinkAfter'),
-                  icon: <BiListPlus style={iconStyle} />,
+                  icon: <ListPlus style={iconStyle} />,
                   onClick: handleAddLink,
                 },
               ],
               [
                 {
                   title: t('delete'),
-                  icon: <BiTrash style={iconStyle} />,
+                  icon: <Trash2 style={iconStyle} />,
                   onClick: () => {
-                    setDataToDelete(link);
-                    toggleConfirmVisible(true);
+                    setDataToDelete(link)
+                    toggleConfirmVisible(true)
                   },
                 },
               ],
-            ] as MenuData;
+            ] as MenuData
 
             if (menu) {
               const linkItem = (
                 <MovableTarget
                   disabled={!editable}
                   onMouseDown={() => {
-                    movingLink = link;
-                    movingLinkFromWhichBlock = index;
+                    movingLink = link
+                    movingLinkFromWhichBlock = index
                   }}
+                  onCancel={handleDragCancel}
                 >
-                  <div className="w-full link-group" onClick={() => onMenuClick(index)}>
+                  <div className="w-full my-1 first:mt-0 last:mb-0 group-[.under-context-menu]:m-0" onClick={() => onMenuClick(index)}>
                     <MyMenu
                       className="w-full"
                       buttonStyle={{
@@ -366,8 +378,8 @@ export default function BlockContainer({ block, settings, updateSettings, index,
                             ? '#000'
                             : undefined
                           : isDark(style)
-                          ? '#fff'
-                          : '#000',
+                            ? '#fff'
+                            : '#000',
                       }}
                       buttonClassName="w-full"
                       options={menu.map(({ title: menuTitle, url: menuItemUrl, id: menuItemId }) => {
@@ -377,71 +389,73 @@ export default function BlockContainer({ block, settings, updateSettings, index,
                           href: menuItemUrl,
                           key: menuItemId,
                           className: `border-transparent text-inherit hover:text-white`,
-                        };
+                        }
                       })}
                     >
                       <MyButton
-                        className="w-full link-btn"
+                        className="w-full py-[0.3rem] px-2 border-0"
                         type={TYPES.includes(style) ? style : 'light'}
                         style={buttonStyle}
                       >
                         <IconText position="right" text={buttonTitle}>
-                          <BiCaretDown />
+                          <ChevronDown />
                         </IconText>
                       </MyButton>
                     </MyMenu>
                   </div>
                 </MovableTarget>
-              );
+              )
 
-              return editable ? (
-                <ContextMenu key={id} menu={linkMenu} onOpen={() => handleLinkContextOpen(linkIndex)}>
-                  <span className="under-context-menu">{linkItem!}</span>
-                </ContextMenu>
-              ) : (
-                linkItem
-              );
+              return editable
+                ? (
+                  <ContextMenu key={id} menu={linkMenu} onOpen={() => handleLinkContextOpen(linkIndex)}>
+                    <span className="my-1 first:mt-0 last:mb-0 group under-context-menu">{linkItem!}</span>
+                  </ContextMenu>
+                )
+                : (
+                  <React.Fragment key={id}>{linkItem}</React.Fragment>
+                )
             }
 
             const button = (
-              // @ts-ignore
               <MovableTarget
                 disabled={!editable}
                 onMouseDown={() => {
-                  movingLink = link;
-                  movingLinkFromWhichBlock = index;
+                  movingLink = link
+                  movingLinkFromWhichBlock = index
                 }}
+                onCancel={handleDragCancel}
               >
                 <MyButton
                   as={editable ? 'button' : 'a'}
                   title={description}
-                  // @ts-ignore
+                  // @ts-expect-error Library typings incomplete
                   href={url}
                   size="sm"
                   date-url={url}
-                  className="link-btn"
+                  className="w-full my-1 py-[0.3rem] px-2 border-0 first:mt-0 last:mb-0"
                   type={TYPES.includes(style) ? style : 'light'}
                   style={buttonStyle}
                 >
                   {buttonTitle}
                 </MyButton>
               </MovableTarget>
-            );
+            )
 
             if (editable) {
               return (
                 <ContextMenu key={id} menu={linkMenu} onOpen={() => handleLinkContextOpen(linkIndex)}>
-                  <div className="under-context-menu">{button}</div>
+                  <div className="my-1 first:mt-0 last:mb-0 under-context-menu">{button}</div>
                 </ContextMenu>
-              );
+              )
             }
 
-            return button;
+            return <React.Fragment key={id}>{button}</React.Fragment>
           })}
         </MovableContainer>
       </Card>
-    </StyledBlock>
-  );
+    </div>
+  )
 
   if (editable) {
     return (
@@ -462,8 +476,8 @@ export default function BlockContainer({ block, settings, updateSettings, index,
           onConfirm={handleDelete}
         />
       </>
-    );
+    )
   }
 
-  return card;
+  return card
 }

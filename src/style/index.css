@@ -1,3 +1,193 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+  background: var(--background-color);
+  background-repeat: repeat;
+  background-attachment: fixed;
+  background-position: initial;
+  color: var(--font-color);
+  font-size: 100%;
+}
+
+body.editable {
+  background-image: linear-gradient(
+      45deg,
+      rgba(0, 0, 0, 0.05) 25%,
+      transparent 25%
+    ),
+    linear-gradient(-45deg, rgba(0, 0, 0, 0.05) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(0, 0, 0, 0.05) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(0, 0, 0, 0.05) 75%);
+  background-size: 20px 20px;
+  background-position:
+    0 0,
+    0 10px,
+    10px -10px,
+    -10px 0px;
+}
+
+#root {
+  display: flex;
+  justify-content: center;
+}
+
+a {
+  color: var(--color-primary);
+  border-bottom: 1px solid var(--color-primary);
+}
+
+a:hover {
+  border-bottom: 1px solid transparent;
+}
+
+.editable .react-grid-item > .react-resizable-handle {
+  display: block;
+}
+
+.react-grid-layout {
+  position: relative;
+  transition: height 200ms ease;
+}
+
+.react-grid-item {
+  transition: all 200ms ease;
+  transition-property: left, top;
+}
+
+.react-grid-item.cssTransforms {
+  transition-property: transform;
+}
+
+.react-grid-item.resizing {
+  z-index: 1;
+  will-change: width, height;
+}
+
+.react-grid-item.react-draggable-dragging {
+  transition: none;
+  z-index: 3;
+  will-change: transform;
+}
+
+.react-grid-item.react-grid-placeholder {
+  background: blue;
+  opacity: 0.2;
+  transition-duration: 100ms;
+  z-index: 2;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+.react-resizable-handle-w {
+  bottom: 50%;
+  transform: translateY(50%);
+  cursor: w-resize;
+  left: 4px;
+}
+
+.react-resizable-handle-e {
+  bottom: 50%;
+  transform: translateY(50%);
+  right: 4px;
+  cursor: e-resize;
+}
+
+.react-grid-item > .react-resizable-handle {
+  display: none;
+  position: absolute;
+  width: 10px;
+  height: 100%;
+  background: none;
+  background-position: bottom right;
+  background-repeat: no-repeat;
+  background-origin: content-box;
+  box-sizing: border-box;
+}
+
+[data-reach-menu-popover] {
+  z-index: 999;
+}
+
+/* context-menu */
+.LCM {
+  border-radius: var(--border-radius);
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--box-shadow);
+}
+
+.LCM__group {
+  border-color: var(--border-color);
+}
+
+.LCM__item {
+  transition: none;
+  font-size: 14px;
+  min-height: 32px;
+}
+
+.LCM__item:hover {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+
+.form-control, .form-select {
+  background-color: var(--form-inset-bg);
+  color: var(--font-color);
+  border-color: var(--border-color);
+}
+
+.form-control:focus, .form-select:focus {
+  color: var(--font-color);
+  border-color: var(--border-color);
+  background-color: var(--background-color);
+}
+
+.form-label {
+  color: var(--font-color);
+}
+
+.list-group-item {
+  background-color: var(--background-color);
+  color: var(--font-color);
+  border-color: var(--border-color);
+}
+
+.list-group-item.list-group-item-primary {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+
+.list-group-item.list-group-item-secondary {
+  background-color: var(--color-secondary);
+  color: #fff;
+}
+
+.dropdown-menu {
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+}
+
+.dropdown-item {
+  color: var(--font-color);
+}
+
+.dropdown-item:hover {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+
+.input-group-text {
+  background-color: var(--background-color);
+  color: var(--font-color);
+  border-color: var(--border-color);
+}
+
+.link-group .link-btn{
+  padding: 0.3rem 0.5rem;
+}

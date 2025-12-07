@@ -1,41 +1,38 @@
-import React, { Fragment, useImperativeHandle, useLayoutEffect, useRef } from 'react';
-import { Menu, Transition } from '@headlessui/react';
-import classNames from 'classnames';
-import styled from 'styled-components';
+import { Menu, Transition } from '@headlessui/react'
+import classNames from 'classnames'
+import React, { Fragment, useImperativeHandle, useLayoutEffect, useRef } from 'react'
 
 interface MenuItemProps {
-  title: React.ReactNode;
-  key: string;
-  as?: React.ElementType;
-  onClick?: () => void;
-  className?: string;
+  title: React.ReactNode
+  key: string
+  as?: React.ElementType
+  onClick?: () => void
+  className?: string
 }
 
 export interface MyMenuProps {
-  options: MenuItemProps[];
-  children: React.ReactNode;
-  className?: string;
-  buttonClassName?: string;
-  buttonStyle?: React.CSSProperties;
+  options: MenuItemProps[]
+  children: React.ReactNode
+  className?: string
+  buttonClassName?: string
+  buttonStyle?: React.CSSProperties
 }
 
-const MenuButton = styled.button``;
-
 const Items = React.forwardRef(({ options, buttonStyle }: Pick<MyMenuProps, 'options' | 'buttonStyle'>, ref) => {
-  const itemsRef = useRef<any>(null);
+  const itemsRef = useRef<any>(null)
 
-  useImperativeHandle(ref, () => itemsRef.current, []);
+  useImperativeHandle(ref, () => itemsRef.current, [])
 
   useLayoutEffect(() => {
-    const itemsRect = itemsRef.current.getBoundingClientRect();
-    const distanceToBottom = window.innerHeight - itemsRect.top - itemsRect.height;
+    const itemsRect = itemsRef.current.getBoundingClientRect()
+    const distanceToBottom = window.innerHeight - itemsRect.top - itemsRect.height
 
     if (distanceToBottom < 0) {
-      itemsRef.current.classList.remove('mt-2');
-      itemsRef.current.classList.add('mb-2');
-      itemsRef.current.style.bottom = '100%';
+      itemsRef.current.classList.remove('mt-2')
+      itemsRef.current.classList.add('mb-2')
+      itemsRef.current.style.bottom = '100%'
     }
-  }, []);
+  }, [])
 
   return (
     <Menu.Items
@@ -44,30 +41,34 @@ const Items = React.forwardRef(({ options, buttonStyle }: Pick<MyMenuProps, 'opt
       className="absolute z-[1999] right-0 mt-2 min-w-full divide-y border border-[var(--menu-border-color)] divide-gray-100 rounded-[var(--border-radius)] bg-[var(--menu-overlay-bg)] shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
     >
       <div className="px-1 py-1 ">
-        {options.map(({ key, title, as, className: itemClassName, ...props }) => (
-          <Menu.Item key={key}>
-            {({ active }) => (
-              <MenuButton
-                as={as}
-                style={active ? buttonStyle : undefined}
-                className={classNames(
-                  itemClassName,
-                  'group flex w-full items-center rounded-md pl-2 pr-4 py-1 whitespace-nowrap',
-                  {
-                    'bg-[var(--menu-active-bg)] text-[var(--menu-text-active-color)]': active,
-                  },
-                )}
-                {...props}
-              >
-                {title}
-              </MenuButton>
-            )}
-          </Menu.Item>
-        ))}
+        {options.map(({ key, title, as, className: itemClassName, ...props }) => {
+          const Component = as || 'button'
+          return (
+            <Menu.Item key={key}>
+              {({ active }) => (
+                <Component
+
+                  type={Component === 'button' ? 'button' : undefined}
+                  style={active ? buttonStyle : undefined}
+                  className={classNames(
+                    itemClassName,
+                    'group flex w-full items-center rounded-md pl-2 pr-4 py-1 whitespace-nowrap',
+                    {
+                      'bg-[var(--menu-active-bg)] text-[var(--menu-text-active-color)]': active,
+                    },
+                  )}
+                  {...props}
+                >
+                  {title}
+                </Component>
+              )}
+            </Menu.Item>
+          )
+        })}
       </div>
     </Menu.Items>
-  );
-});
+  )
+})
 
 export default function MyMenu({ children, options, className, buttonClassName, buttonStyle }: MyMenuProps) {
   return (
@@ -90,5 +91,5 @@ export default function MyMenu({ children, options, className, buttonClassName, 
         </>
       )}
     </Menu>
-  );
+  )
 }

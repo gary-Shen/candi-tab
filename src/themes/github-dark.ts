@@ -1,8 +1,8 @@
-import { rgba } from 'polished';
+import type { ThemeTypes } from './types'
 
-import bg from '@/assets/bg-dark.png';
+import { rgba } from 'polished'
 
-import type { ThemeTypes } from './types';
+import bg from '@/assets/bg-dark.png'
 
 const theme: ThemeTypes = {
   primaryColor: '#5765F2',
@@ -66,5 +66,5 @@ const theme: ThemeTypes = {
     paddingX: '.5rem',
     paddingY: '.25rem',
   },
-};
-export default theme;
+}
+export default theme

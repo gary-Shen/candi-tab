@@ -5,4 +5,4 @@ export const gistKeys = {
   list: (filters: string) => [...gistKeys.lists(), { filters }] as const,
   details: () => [...gistKeys.all, 'detail'] as const,
   detail: (id: string) => [...gistKeys.details(), id] as const,
-};
+}

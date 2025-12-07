@@ -1,12 +1,12 @@
-import { Popover, Transition } from '@headlessui/react';
-import classNames from 'classnames';
-import React, { Fragment } from 'react';
+import { Popover, Transition } from '@headlessui/react'
+import classNames from 'classnames'
+import React, { Fragment } from 'react'
 
 export interface PopoverProps {
-  className?: string;
-  overlay: React.ReactNode;
-  as?: React.ElementType;
-  buttonClassName?: string;
+  className?: string
+  overlay: React.ReactNode
+  as?: React.ElementType
+  buttonClassName?: string
 }
 
 export default function MyPopover({
@@ -48,5 +48,5 @@ export default function MyPopover({
         </>
       )}
     </Popover>
-  );
+  )
 }

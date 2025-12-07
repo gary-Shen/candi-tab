@@ -29,10 +29,10 @@ module.exports = {
         'menu-active-color': 'var(--menu-active-color)',
       },
       backgroundColor: {
-        light: 'var(--light-bg)',
-        highlight: 'var(--highlight-bg)',
-        body: 'var(--body-bg)',
-        base: 'var(--background-color)',
+        'light': 'var(--light-bg)',
+        'highlight': 'var(--highlight-bg)',
+        'body': 'var(--body-bg)',
+        'base': 'var(--background-color)',
         'menu-active': 'var(--menu-active-bg)',
         'modal-header': 'var(--modal-header-bg)',
         'modal-body': 'var(--modal-body-bg)',
@@ -42,11 +42,11 @@ module.exports = {
         'card-header': 'var(--card-header-bg)',
       },
       borderRadius: {
-        sm: 'var(--border-radius-sm)',
-        lg: 'var(--border-radius-lg)',
-        xl: 'var(--border-radius-xl)',
+        'sm': 'var(--border-radius-sm)',
+        'lg': 'var(--border-radius-lg)',
+        'xl': 'var(--border-radius-xl)',
         '2xl': 'var(--border-radius-2xl)',
-        pill: 'var(--border-radius-pill)',
+        'pill': 'var(--border-radius-pill)',
       },
       padding: {
         'button-x': 'var(--button-padding-x)',
@@ -81,4 +81,4 @@ module.exports = {
     },
   },
   plugins: [require('@headlessui/tailwindcss')],
-};
+}

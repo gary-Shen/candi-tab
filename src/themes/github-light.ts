@@ -1,8 +1,8 @@
-import { rgba } from 'polished';
+import type { ThemeTypes } from './types'
 
-import bg from '@/assets/bg-light.png';
+import { rgba } from 'polished'
 
-import type { ThemeTypes } from './types';
+import bg from '@/assets/bg-light.png'
 
 const theme: ThemeTypes = {
   primaryColor: '#1677ff',
@@ -64,8 +64,8 @@ const theme: ThemeTypes = {
 
   button: {
     paddingX: '1.5rem',
-    paddingY: '.5rem',
+    paddingY: '.25rem',
   },
-};
+}
 
-export default theme;
+export default theme

@@ -1,76 +1,45 @@
-import classNames from 'classnames';
-import React from 'react';
-import type { TextareaHTMLAttributes } from 'react';
-import styled from 'styled-components';
+import type { TextareaHTMLAttributes } from 'react'
+import classNames from 'classnames'
+import React from 'react'
 
-export type InputProps = TextareaHTMLAttributes<HTMLInputElement>;
+export type InputProps = TextareaHTMLAttributes<HTMLInputElement>
 
-export const InputWrapper = styled.input`
-  &:focus {
-    border: 1px solid var(--color-primary);
-    box-shadow: 0 0 0 1px var(--color-primary);
-  }
-`;
-
-const Input = React.forwardRef<HTMLInputElement, InputProps>(function InnerInput({ value, className, ...rest }, ref) {
+const Input = React.forwardRef<HTMLInputElement, InputProps>(({ value, className, ...rest }, ref) => {
   return (
-    <InputWrapper
+    <input
       type="text"
       value={value}
       {...rest}
       ref={ref}
-      className={`rounded-[var(--border-radius)] pt-2 pb-2 text-base pl-3 pr-3 bg-form-inset border border-default focus:outline-none w-full ${className}`}
+      className={`rounded-[var(--border-radius)] pt-2 pb-2 text-base pl-3 pr-3 bg-form-inset border border-default focus:outline-none w-full focus:border-color-primary focus:ring-1 focus:ring-color-primary ${className}`}
     />
-  );
-});
-
-const InputGroupWrapper = styled.div`
-  & > * {
-    white-space: nowrap;
-    align-self: stretch;
-  }
-
-  &:not(.nospace) > * + * {
-    margin-left: 0.5rem;
-  }
-
-  &.nospace > :first-child {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-
-  &.nospace > :last-child {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-  }
-
-  &.nospace > :not(:first-child):not(:last-child) {
-    border-radius: 0;
-    margin-left: -1px;
-
-    &:focus {
-      z-index: 999;
-    }
-  }
-`;
+  )
+})
 
 export function InputGroup({
   children,
   nospace = true,
   className,
 }: React.PropsWithChildren<{
-  nospace?: boolean;
-  className?: string;
+  nospace?: boolean
+  className?: string
 }>) {
   return (
-    <InputGroupWrapper
-      className={classNames('flex flex-row items-center', className, {
-        nospace,
-      })}
+    <div
+      className={classNames(
+        'flex flex-row items-stretch',
+        {
+          'space-x-2': !nospace,
+          '[&>:not(:first-child):not(:last-child)]:rounded-none [&>:not(:first-child):not(:last-child)]:-ml-px [&>:not(:first-child):not(:last-child)]:focus:z-[999] [&>:first-child]:rounded-r-none [&>:last-child]:rounded-l-none':
+            nospace,
+          '[&>*]:whitespace-nowrap': true,
+        },
+        className,
+      )}
     >
       {children}
-    </InputGroupWrapper>
-  );
+    </div>
+  )
 }
 
-export default Input;
+export default Input

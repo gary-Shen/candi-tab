@@ -17,5 +17,9 @@
       "128": "icons/candi-tab@3x.png"
     }
   },
+  "options_ui": {
+    "page": "src/options.html",
+    "open_in_tab": false
+  },
   "permissions": ["storage"]
 }

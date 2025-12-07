@@ -1,17 +1,15 @@
-import _ from 'lodash';
+import _ from 'lodash'
 
-import type { IGist } from '@/types/gist.type';
-
-export default function parseGistContent(data: IGist, fileName: string) {
-  const finalFileName = fileName || _.chain(data).get('files').keys().first().value();
-  const content = _.get(data, ['files', finalFileName, 'content']);
-  let result;
+export default function parseGistContent(data: any, fileName?: string) {
+  const finalFileName = fileName || _.chain(data).get('files').keys().first().value()
+  const content = _.get(data, ['files', finalFileName, 'content'])
+  let result
   try {
-    result = JSON.parse(content);
-  } catch (err) {
-    // eslint-disable-next-line
-    console.warn(err);
+    result = JSON.parse(content)
+  }
+  catch (err) {
+    console.warn(err)
   }
 
-  return result;
+  return result
 }

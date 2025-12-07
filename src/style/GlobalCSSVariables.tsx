@@ -1,24 +1,24 @@
-import { lighten, rgba } from 'polished';
-import { createGlobalStyle, css } from 'styled-components';
+import { lighten, rgba } from 'polished'
+import React from 'react'
 
-import themes from '@/themes';
+import themes from '@/themes'
 
 export interface ThemeProps {
-  theme: any;
+  theme: any
 }
 
-const defaultPrimary = '#0d6efd';
-const defaultSecondary = '#6c757d';
-const defaultSuccess = '#198754';
-const defaultInfo = '#0dcaf0';
-const defaultWarning = '#ffc107';
-const defaultDanger = '#dc3545';
-const defaultLight = '#f8f9fa';
-const defaultDark = '#212529';
+const defaultPrimary = '#0d6efd'
+const defaultSecondary = '#6c757d'
+const defaultSuccess = '#198754'
+const defaultInfo = '#0dcaf0'
+const defaultWarning = '#ffc107'
+const defaultDanger = '#dc3545'
+const defaultLight = '#f8f9fa'
+const defaultDark = '#212529'
 
-const GlobalCSSVariables = createGlobalStyle<ThemeProps>`
-  body {
-    ${({ theme }: ThemeProps) => css`
+function GlobalCSSVariables({ theme = themes['github-light'] }: ThemeProps) {
+  const css = `
+    body {
       --color-primary: ${theme.primaryColor || defaultPrimary};
       --color-primary-100: ${rgba(theme.primaryColor || defaultPrimary, 0.1)};
       --color-primary-200: ${rgba(theme.primaryColor || defaultPrimary, 0.2)};
@@ -91,7 +91,7 @@ const GlobalCSSVariables = createGlobalStyle<ThemeProps>`
       --menu-overlay-bg: ${theme.menu.overlayBackgroundColor};
       --menu-active-bg: ${theme.menu.activeBackgroundColor};
       --menu-text-active-color: ${theme.menu.activeColor};
-      --menu-text-color: ${theme.menu.color};
+
       --menu-border-color: ${theme.menu.borderColor};
 
       /* button */
@@ -101,12 +101,26 @@ const GlobalCSSVariables = createGlobalStyle<ThemeProps>`
       /* form */
       --form-inset-bg: ${theme.form.insetColor};
       --default-color: ${defaultDark};
-    `}
-  }
-`;
+    }
 
-GlobalCSSVariables.defaultProps = {
-  theme: themes['github-light'],
-};
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background-color: ${theme.grayColor || '#ccc'};
+      border-radius: ${theme.borderRadius};
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background-color: ${theme.grayColorHover || '#aaa'};
+    }
+  `
 
-export default GlobalCSSVariables;
+  // eslint-disable-next-line react-dom/no-dangerously-set-innerhtml
+  return <style id="candi-tab-global-variables" dangerouslySetInnerHTML={{ __html: css }} />
+}
+
+export default GlobalCSSVariables

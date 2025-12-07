@@ -1,0 +1,29 @@
+
+> candi-tab@1.0.0 build
+> vite build
+
+build.terserOptions is specified but build.minify is not set to use Terser. Note Vite now defaults to use esbuild for minification. If you still prefer Terser, set build.minify to "terser".
+vite v4.5.14 building for production...
+transforming...
+✓ 870 modules transformed.
+✓ built in 1.13s
+"InputWrapper" is not exported by "src/components/Input.tsx", imported by "src/components/TextArea.tsx".
+file: /Users/garyshen/development/candi-tab/src/components/TextArea.tsx:5:9
+3: import classNames from 'classnames';
+4: 
+5: import { InputWrapper } from './Input';
+            ^
+6: 
+7: export type TextAreaProps = TextareaHTMLAttributes<HTMLTextAreaElement>;
+error during build:
+RollupError: "InputWrapper" is not exported by "src/components/Input.tsx", imported by "src/components/TextArea.tsx".
+    at error (file:///Users/garyshen/development/candi-tab/node_modules/.pnpm/rollup@3.29.5/node_modules/rollup/dist/es/shared/node-entry.js:2287:30)
+    at Module.error (file:///Users/garyshen/development/candi-tab/node_modules/.pnpm/rollup@3.29.5/node_modules/rollup/dist/es/shared/node-entry.js:13745:16)
+    at Module.traceVariable (file:///Users/garyshen/development/candi-tab/node_modules/.pnpm/rollup@3.29.5/node_modules/rollup/dist/es/shared/node-entry.js:14175:29)
+    at ModuleScope.findVariable (file:///Users/garyshen/development/candi-tab/node_modules/.pnpm/rollup@3.29.5/node_modules/rollup/dist/es/shared/node-entry.js:12615:39)
+    at FunctionScope.findVariable (file:///Users/garyshen/development/candi-tab/node_modules/.pnpm/rollup@3.29.5/node_modules/rollup/dist/es/shared/node-entry.js:7124:38)
+    at ChildScope.findVariable (file:///Users/garyshen/development/candi-tab/node_modules/.pnpm/rollup@3.29.5/node_modules/rollup/dist/es/shared/node-entry.js:7124:38)
+    at Identifier.bind (file:///Users/garyshen/development/candi-tab/node_modules/.pnpm/rollup@3.29.5/node_modules/rollup/dist/es/shared/node-entry.js:8319:40)
+    at CallExpression.bind (file:///Users/garyshen/development/candi-tab/node_modules/.pnpm/rollup@3.29.5/node_modules/rollup/dist/es/shared/node-entry.js:5888:28)
+    at CallExpression.bind (file:///Users/garyshen/development/candi-tab/node_modules/.pnpm/rollup@3.29.5/node_modules/rollup/dist/es/shared/node-entry.js:9890:15)
+    at ReturnStatement.bind (file:///Users/garyshen/development/candi-tab/node_modules/.pnpm/rollup@3.29.5/node_modules/rollup/dist/es/shared/node-entry.js:5892:23)

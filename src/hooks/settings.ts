@@ -1,11 +1,11 @@
-import type { Setting } from '@/types/setting.type';
+import type { Setting } from '@/types/setting.type'
 
-import { get, set } from './storage';
+import { get, set } from './storage'
 
 export function save(settings: Setting) {
-  return set('settings', settings);
+  return set('settings', settings)
 }
 
 export function load(): Promise<Setting> {
-  return get('settings') as Promise<Setting>;
+  return get('settings') as Promise<Setting>
 }

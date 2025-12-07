@@ -1,23 +1,23 @@
-import React from 'react';
-import type { TabGroupProps } from '@headlessui/react';
-import { Tab } from '@headlessui/react';
-import classNames from 'classnames';
+import type { TabGroupProps } from '@headlessui/react'
+import { Tab } from '@headlessui/react'
+import classNames from 'classnames'
+import React from 'react'
 
 interface TabItem {
-  key: string;
-  title: string;
-  content: React.ReactNode;
+  key: string
+  title: string
+  content: React.ReactNode
 }
 
 export interface MyTabsProps extends TabGroupProps<any> {
-  items: TabItem[];
+  items: TabItem[]
 }
 
 export default function MyTabs({ items = [], ...props }: MyTabsProps) {
   return (
     <Tab.Group {...props}>
       <Tab.List className="flex space-x-1 rounded-lg bg-[var(--tab-bg)] p-1">
-        {items.map((item) => (
+        {items.map(item => (
           <Tab
             key={item.key}
             className={({ selected }) =>
@@ -27,8 +27,7 @@ export default function MyTabs({ items = [], ...props }: MyTabsProps) {
                 selected
                   ? 'bg-[var(--tab-active)] shadow text-[var(--tab-text-active-color)]'
                   : 'hover:bg-[var(--tab-hover)]',
-              )
-            }
+              )}
           >
             {item.title}
           </Tab>
@@ -45,5 +44,5 @@ export default function MyTabs({ items = [], ...props }: MyTabsProps) {
         ))}
       </Tab.Panels>
     </Tab.Group>
-  );
+  )
 }
