@@ -36,10 +36,10 @@ const theme: ThemeTypes = {
   },
 
   tabs: {
-    hoverColor: rgba('#282a36', 0.1),
-    activeColor: '#282a36',
-    textColor: '#bfbfbf',
-    activeTextColor: '#282a36',
+    hoverColor: rgba('#793a80', 0.1),
+    activeColor: rgba('#793a80', 0.7),
+    textColor: '#282a36',
+    activeTextColor: '#f8f8f2',
     backgroundColor: rgba('#793a80', 0.1),
   },
 

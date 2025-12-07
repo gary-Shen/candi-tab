@@ -36,9 +36,9 @@ const theme: ThemeTypes = {
   },
 
   tabs: {
-    hoverColor: rgba('#f8f8f2', 0.1),
-    activeColor: '#f8f8f2',
-    textColor: '#6272a4',
+    hoverColor: rgba('#bd93f9', 0.1),
+    activeColor: rgba('#bd93f9', 0.35),
+    textColor: '#f8f8f2',
     activeTextColor: '#f8f8f2',
     backgroundColor: rgba('#bd93f9', 0.1),
   },

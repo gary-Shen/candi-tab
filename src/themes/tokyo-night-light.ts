@@ -7,7 +7,7 @@ const theme: ThemeTypes = {
   infoColor: '#0e6988',
   warningColor: '#8f5e15',
   dangerColor: '#8c4351',
-  lightColor: '#e1e2e7',
+  lightColor: '#',
   darkColor: '#343b59',
   // ======
   bodyBackground: '#d5d6db',
@@ -37,22 +37,22 @@ const theme: ThemeTypes = {
 
   tabs: {
     hoverColor: rgba('#343b59', 0.1),
-    activeColor: '#343b59',
-    textColor: '#565a6e',
+    activeColor: '#e1e2e7',
+    textColor: rgba('#343b59', 0.7),
     activeTextColor: '#343b59',
     backgroundColor: rgba('#34548a', 0.1),
   },
 
   select: {
-    backgroundColor: '#fff',
-    overlayBackgroundColor: '#fff',
+    backgroundColor: '#e1e2e7',
+    overlayBackgroundColor: '#e1e2e7',
     borderColor: 'transparent',
   },
 
   menu: {
-    overlayBackgroundColor: '#fff',
+    overlayBackgroundColor: '#e1e2e7',
     activeBackgroundColor: '#34548a',
-    activeColor: '#fff',
+    activeColor: '#e1e2e7',
     borderColor: 'transparent',
   },
 

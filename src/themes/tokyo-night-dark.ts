@@ -37,8 +37,8 @@ const theme: ThemeTypes = {
   },
 
   tabs: {
-    hoverColor: rgba('#c0caf5', 0.1),
-    activeColor: '#c0caf5',
+    hoverColor: rgba('#3d4465', 0.2),
+    activeColor: '#3d4465',
     textColor: '#565f89',
     activeTextColor: '#c0caf5',
     backgroundColor: rgba('#7aa2f7', 0.1),

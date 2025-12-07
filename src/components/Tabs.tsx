@@ -20,14 +20,12 @@ export default function MyTabs({ items = [], ...props }: MyTabsProps) {
         {items.map(item => (
           <Tab
             key={item.key}
-            className={({ selected }) =>
-              classNames(
-                'w-full rounded-lg py-2 px-4 text-sm font-medium leading-5 text-[var(--tab-text-color)]',
-                'ring-opacity-60 ring-offset-2 ring-color-primary-400 focus:outline-none',
-                selected
-                  ? 'bg-[var(--tab-active)] shadow text-[var(--tab-text-active-color)]'
-                  : 'hover:bg-[var(--tab-hover)]',
-              )}
+            className={classNames(
+              'w-full rounded-lg py-2 px-4 text-sm font-medium leading-5 text-[var(--tab-text-color)]',
+              'ring-opacity-60 ring-offset-2 ring-color-primary-400 focus:outline-none',
+              'aria-selected:bg-[var(--tab-active)] aria-selected:shadow aria-selected:text-[var(--tab-text-active-color)]',
+              'aria-[selected=false]:hover:bg-[var(--tab-hover)]',
+            )}
           >
             {item.title}
           </Tab>

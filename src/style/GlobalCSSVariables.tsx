@@ -79,7 +79,7 @@ function GlobalCSSVariables({ theme = themes['github-light'] }: ThemeProps) {
       --tab-active: ${theme.tabs.activeColor};
       --tab-hover: ${theme.tabs.hoverColor};
       --tab-text-color: ${theme.tabs.textColor};
-      --tab-text-active-color: ${theme.tabs.textActiveColor};
+      --tab-text-active-color: ${theme.tabs.activeTextColor};
 
       /* modal */
       --modal-body-bg: ${theme.modal.bodyBackground};
