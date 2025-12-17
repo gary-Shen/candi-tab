@@ -1,4 +1,4 @@
-import type { Layout, Layouts } from 'react-grid-layout'
+import type { Layout } from 'react-grid-layout'
 
 import type { Theme } from './theme.type'
 

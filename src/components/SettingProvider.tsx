@@ -6,6 +6,7 @@ import React, { useEffect, useMemo } from 'react'
 
 import { Toaster } from 'react-hot-toast'
 import { gistKeys } from '@/constant/queryKeys/gist'
+import { useGistSync } from '@/hooks/useGistSync'
 import useSettings from '@/hooks/useSettings'
 import useStorage from '@/hooks/useStorage'
 
@@ -16,6 +17,9 @@ export default function SettingProvider({ children }: PropsWithChildren) {
   const [accessToken, setAccessToken] = useStorage('accessToken')
   const [settings, updateSettings] = useSettings()
   const queryClient = useQueryClient()
+
+  useGistSync(settings)
+
   const value = useMemo(() => {
     return {
       updateSettings,

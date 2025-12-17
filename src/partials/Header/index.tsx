@@ -1,14 +1,14 @@
 import type { Setting } from '@/types/setting.type'
-import Input from '@/components/Input'
-import { Check, ClipboardPen, Cog, Download, Info, Menu, PencilRuler, Search, Upload } from 'lucide-react'
 import { set } from 'lodash/fp'
 import omit from 'lodash/fp/omit'
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
-
+import { Check, ClipboardPen, Cog, Download, Info, Menu, PencilRuler, Search, Upload } from 'lucide-react'
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+
 import MyModal from '@/components/Dialog'
 import IconButton from '@/components/IconButton'
 import IconText from '@/components/IconText'
+import Input from '@/components/Input'
 import Button from '@/components/LinkButton'
 import MyMenu from '@/components/Menu'
 import TextArea from '@/components/TextArea'

@@ -2,14 +2,14 @@
   "name": "candi-tab",
   "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "build": "vite build",
     "lint": "eslint . --fix",
     "release": "semantic-release",
     "start": "vite --port 55558"
-  },
-  "engines": {
-    "node": ">=24"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.14",

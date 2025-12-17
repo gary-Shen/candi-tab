@@ -1,12 +1,12 @@
 import type { ButtonType } from '@/components/LinkButton/index'
 import type { Block, Link, MenuLink } from '@/types/setting.type'
-import { Move, Trash2 } from 'lucide-react'
 import compose from 'lodash/fp/compose'
 import fpGet from 'lodash/fp/get'
 import update from 'lodash/fp/update'
 import get from 'lodash/get'
 import pick from 'lodash/pick'
 import upperFirst from 'lodash/upperFirst'
+import { Move, Trash2 } from 'lucide-react'
 import React, { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import MyModal from '@/components/Dialog'
@@ -209,8 +209,8 @@ function LinkForm({ data, onChange, onSave }: LinkFormProps) {
   const buttonStyle = TYPES.includes(data.style)
     ? {}
     : {
-      backgroundColor: data.style,
-    }
+        backgroundColor: data.style,
+      }
 
   const sortIndex = useRef<number | undefined>(undefined)
   const handleMoveEnd = useCallback(

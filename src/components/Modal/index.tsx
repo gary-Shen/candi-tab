@@ -1,6 +1,6 @@
 import Dialog from '@reach/dialog'
-import { X } from 'lucide-react'
 import classNames from 'classnames'
+import { X } from 'lucide-react'
 import React from 'react'
 import IconButton from '../IconButton'
 

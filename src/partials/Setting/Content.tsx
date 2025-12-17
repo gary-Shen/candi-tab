@@ -9,8 +9,8 @@ import MyTabs from '@/components/Tabs'
 import SettingsContext from '@/context/settings.context'
 import i18n from '@/locales'
 
-import OAuth from './OAuth'
 import themes from '@/themes'
+import OAuth from './OAuth'
 
 export interface SettingContentProps {
   onCheckForUpdate?: () => void
@@ -48,10 +48,6 @@ export default function SettingContent({ onClose }: SettingContentProps) {
     (value: string) => {
       updateSettings(set('general.language')(value)(settings))
       changeLanguage(value)
-
-      setTimeout(() => {
-        document.dispatchEvent(new CustomEvent('sync-upload'))
-      }, 1000)
     },
     [settings, updateSettings],
   )
@@ -64,9 +60,9 @@ export default function SettingContent({ onClose }: SettingContentProps) {
   )
 
   const themeOptions = useMemo(() => {
-    return Object.entries(themes).map(([key, value]) => ({
+    return Object.entries(themes).map(([key]) => ({
       // 按 - 分割，然后首字母大写
-      label: key.split('-').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
+      label: key.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
       value: key,
     }))
   }, [])
@@ -100,7 +96,7 @@ export default function SettingContent({ onClose }: SettingContentProps) {
         content: <OAuth onClose={onClose || (() => { })} />,
       },
     ]
-  }, [handleLangChange, handleThemeSolutionChange, onClose, settings, t])
+  }, [handleLangChange, handleThemeSolutionChange, onClose, settings, t, themeOptions])
 
   return <MyTabs items={tabItems} />
 }

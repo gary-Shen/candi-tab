@@ -4,11 +4,10 @@ import { create, updateGist } from '@/service/gist'
 
 import useStorage from './useStorage'
 
-export function useGistUpdate(gistId?: string) {
-  const [accessToken] = useStorage('accessToken')
-  // @ts-expect-error Library typings incomplete
+export function useGistUpdate(_gistId?: string) {
+  useStorage('accessToken')
   const mutation = useMutation(updateGist, {
-    enabled: !!gistId && !!accessToken,
+    retry: 5,
   })
 
   return mutation

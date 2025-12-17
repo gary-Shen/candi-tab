@@ -1,7 +1,7 @@
 import type { DialogProps } from '@headlessui/react'
 import { Dialog, Transition } from '@headlessui/react'
-import { X } from 'lucide-react'
 import classNames from 'classnames'
+import { X } from 'lucide-react'
 import React, { Fragment, useEffect, useState } from 'react'
 
 import IconButton from './IconButton'

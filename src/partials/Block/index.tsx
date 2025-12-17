@@ -1,13 +1,13 @@
 import type { MenuData } from 'lina-context-menu'
 import type { EditType } from './EditModal'
 import type { Block, Link, Setting } from '@/types/setting.type'
-import { ChevronDown, PencilRuler, ListPlus, Plus, Trash2 } from 'lucide-react'
 import classNames from 'classnames'
 import ContextMenu from 'lina-context-menu'
 import _ from 'lodash'
 import concat from 'lodash/fp/concat'
 import set from 'lodash/fp/set'
 import update from 'lodash/fp/update'
+import { ChevronDown, ListPlus, PencilRuler, Plus, Trash2 } from 'lucide-react'
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -26,10 +26,6 @@ import EditModal from './EditModal'
 
 let movingLink: Link | null = null
 let movingLinkFromWhichBlock: number | undefined
-
-const iconStyle = {
-  // fontSize: 16, // Lucide icons ignore fontSize in style, use size prop
-}
 
 export interface ConfirmProps {
   title: React.ReactNode
@@ -152,9 +148,6 @@ export default function BlockContainer({ block, settings, updateSettings, index,
     toggleEditVisible(false)
     toggleAddition(false)
     updateSettings(newSettings)
-    setTimeout(() => {
-      document.dispatchEvent(new CustomEvent('sync-upload'))
-    }, 1000)
     updateLayout(newSettings)
   }, [activeLinkIndex, editData, editType, index, isAddition, settings, updateLayout, updateSettings])
 
@@ -210,9 +203,6 @@ export default function BlockContainer({ block, settings, updateSettings, index,
     newSettings.createdAt = new Date().getTime()
     updateSettings(newSettings)
     toggleConfirmVisible(false)
-    setTimeout(() => {
-      document.dispatchEvent(new CustomEvent('sync-upload'))
-    }, 1000)
     updateLayout(newSettings)
   }, [dataToDelete, index, settings, updateLayout, updateSettings])
 
@@ -266,9 +256,6 @@ export default function BlockContainer({ block, settings, updateSettings, index,
       newSettings.createdAt = new Date().getTime()
       updateSettings(newSettings)
 
-      setTimeout(() => {
-        document.dispatchEvent(new CustomEvent('sync-upload'))
-      }, 1000)
       // 延时任务，等待渲染完成后自动更新布局
       setTimeout(() => {
         updateLayout(newSettings)
@@ -312,24 +299,26 @@ export default function BlockContainer({ block, settings, updateSettings, index,
           {title}
           {editable
             ? (
-              <div
-                className="cursor-pointer hover:text-color-primary flex items-center"
-                onMouseDown={(e) => e.stopPropagation()}
-                onClick={handleAddLink}
-              >
-                <Plus size={16} />
-              </div>
-            )
-            : links && links?.length > 2 ? (
-              <div
-                className="cursor-pointer hover:text-color-primary flex items-center transition-transform duration-300"
-                style={{ transform: collapsed ? 'rotate(90deg)' : 'rotate(0deg)' }}
-                onMouseDown={(e) => e.stopPropagation()}
-                onClick={handleToggleCollapse}
-              >
-                <ChevronDown size={16} />
-              </div>
-            ) : null}
+                <div
+                  className="cursor-pointer hover:text-color-primary flex items-center"
+                  onMouseDown={e => e.stopPropagation()}
+                  onClick={handleAddLink}
+                >
+                  <Plus size={16} />
+                </div>
+              )
+            : links && links?.length > 2
+              ? (
+                  <div
+                    className="cursor-pointer hover:text-color-primary flex items-center transition-transform duration-300"
+                    style={{ transform: collapsed ? 'rotate(90deg)' : 'rotate(0deg)' }}
+                    onMouseDown={e => e.stopPropagation()}
+                    onClick={handleToggleCollapse}
+                  >
+                    <ChevronDown size={16} />
+                  </div>
+                )
+              : null}
         </Card.Header>
         <MovableContainer
           className="flex flex-col p-card-x block-content"
@@ -345,9 +334,9 @@ export default function BlockContainer({ block, settings, updateSettings, index,
             const buttonStyle = TYPES.includes(style)
               ? {}
               : {
-                backgroundColor: style,
-                color: isDark(style) ? '#fff' : '#000',
-              }
+                  backgroundColor: style,
+                  color: isDark(style) ? '#fff' : '#000',
+                }
 
             const blurClass = isBlurred ? 'opacity-50 blur-[1px]' : ''
             const linkMenu = [
@@ -396,8 +385,8 @@ export default function BlockContainer({ block, settings, updateSettings, index,
                         backgroundColor: TYPES.includes(style) ? `var(--color-${style})` : style,
                         color: TYPES.includes(style)
                           ? ['light', 'default'].includes(style)
-                            ? '#000'
-                            : undefined
+                              ? '#000'
+                              : undefined
                           : isDark(style)
                             ? '#fff'
                             : '#000',
@@ -433,13 +422,13 @@ export default function BlockContainer({ block, settings, updateSettings, index,
 
               return editable
                 ? (
-                  <ContextMenu key={id} menu={linkMenu} onOpen={() => handleLinkContextOpen(linkIndex)}>
-                    <span className="my-1 first:mt-0 last:mb-0 group under-context-menu">{linkItem!}</span>
-                  </ContextMenu>
-                )
+                    <ContextMenu key={id} menu={linkMenu} onOpen={() => handleLinkContextOpen(linkIndex)}>
+                      <span className="my-1 first:mt-0 last:mb-0 group under-context-menu">{linkItem!}</span>
+                    </ContextMenu>
+                  )
                 : (
-                  <React.Fragment key={id}>{linkItem}</React.Fragment>
-                )
+                    <React.Fragment key={id}>{linkItem}</React.Fragment>
+                  )
             }
 
             const button = (

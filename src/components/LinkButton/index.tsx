@@ -4,14 +4,14 @@ import React from 'react'
 
 export type ButtonType
   = | 'primary'
-  | 'success'
-  | 'info'
-  | 'secondary'
-  | 'warning'
-  | 'danger'
-  | 'link'
-  | 'light'
-  | 'dark'
+    | 'success'
+    | 'info'
+    | 'secondary'
+    | 'warning'
+    | 'danger'
+    | 'link'
+    | 'light'
+    | 'dark'
 
 export interface ButtonProps {
   className?: string

@@ -1,21 +1,16 @@
-import type { OctokitResponse } from '@octokit/types'
-import type { UseMutationResult } from '@tanstack/react-query'
 import type { Block, Link, Setting } from '@/types/setting.type'
 import { Octokit } from '@octokit/rest'
 import _ from 'lodash'
 import update from 'lodash/fp/update'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import toast from 'react-hot-toast'
+import { useCallback, useEffect, useState } from 'react'
 
 import { useTranslation } from 'react-i18next'
 import { destroyOctokit, setOctokit } from '@/service/gist'
-import { calcLayout } from '@/utils/calcLayout'
 import { gid } from '@/utils/gid'
 import parseGistContent from '@/utils/parseGistContent'
 
 import defaultSettings from '../default-settings.json'
 import { load, save } from './settings'
-import { useGistUpdate } from './useGistMutation'
 import { useGistOne } from './useGistQuery'
 import useStorage from './useStorage'
 
@@ -57,13 +52,12 @@ const setIds = update('links')((blocks: Block[]) =>
 export default function useSettings(): [
   Setting | null,
   (settings: Setting) => void,
-  UseMutationResult<OctokitResponse<any>>,
 ] {
-  const { t, i18n } = useTranslation()
+  const { i18n } = useTranslation()
   const [settings, setSettings] = useState<Setting | null>(null)
   const [accessToken] = useStorage('accessToken')
   const gist = settings?.gist || ({} as any)
-  const mutation = useGistUpdate(settings?.gist?.id)
+
   useEffect(() => {
     if (!accessToken) {
       destroyOctokit()
@@ -119,75 +113,17 @@ export default function useSettings(): [
   const updateSettings = useCallback(
     async (newSettings: Setting) => {
       i18n.changeLanguage(newSettings?.general?.language || chrome?.i18n?.getUILanguage() || 'en-US')
-      setSettings(() => {
-        return newSettings
-      })
-      save(newSettings)
-    },
-    [i18n],
-  )
-
-  const timer = useRef<any>(null)
-  const updateWithToast = useCallback(
-    async (newSettings: Setting) => {
       const _value = {
         ...newSettings,
         updatedAt: Date.now(),
       }
-
-      updateSettings(_value)
-
-      clearTimeout(timer.current)
-      timer.current = setTimeout(() => {
-        const settingsWithNewLayout = calcLayout(_value)
-
-        updateSettings(settingsWithNewLayout)
-        clearTimeout(timer.current)
-        timer.current = null
-
-        let fileName = settingsWithNewLayout.gist?.fileName
-
-        // 兼容旧配置
-        if (!fileName) {
-          if (oneGist.data?.data?.files) {
-            if (
-              Object.keys(oneGist.data?.data?.files).length === 1
-              || (Object.keys(oneGist.data?.data?.files).length === 1 && 'undefined' in oneGist.data?.data?.files)
-            ) {
-              fileName = Object.keys(oneGist.data?.data?.files)[0]
-            }
-
-            if ('candi_tab_settings.json' in oneGist.data?.data?.files) {
-              fileName = 'candi_tab_settings.json'
-            }
-          }
-        }
-
-        if (!fileName) {
-          return
-        }
-
-        toast.promise(
-          mutation.mutateAsync({
-            gist_id: settingsWithNewLayout.gist?.id || settingsWithNewLayout?.gistId,
-            description: settingsWithNewLayout.gist?.description,
-            files: {
-              [fileName]: {
-                content: JSON.stringify(settingsWithNewLayout),
-              },
-            },
-          }),
-          {
-            loading: t('syncing'),
-            success: t('sync success'),
-            error: t('sync failed'),
-          },
-        )
-      }, 2000)
+      setSettings(() => {
+        return _value
+      })
+      save(_value)
     },
-    [mutation, oneGist.data?.data?.files, t, updateSettings],
+    [i18n],
   )
 
-
-  return [settings, updateWithToast, mutation]
+  return [settings, updateSettings]
 }

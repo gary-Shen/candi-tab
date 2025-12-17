@@ -4,10 +4,10 @@ import { initReactI18next } from 'react-i18next'
 
 import { load as loadSettings } from '../hooks/settings'
 import translation_en_us from './en-US.json'
-import translation_zh_cn from './zh-CN.json'
-import translation_zh_tr from './zh-TR.json'
 import translation_ja_jp from './ja-JP.json'
 import translation_ko_kr from './ko-KR.json'
+import translation_zh_cn from './zh-CN.json'
+import translation_zh_tr from './zh-TR.json'
 
 const resources = {
   'en-US': {

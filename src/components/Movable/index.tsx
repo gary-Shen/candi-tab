@@ -351,14 +351,14 @@ export function MovableTarget({
     return getShadowNode
       ? getShadowNode(shadowNodeRef, targetRef)
       : Children.map(children, (child) => {
-        if (React.isValidElement(child)) {
-          return React.cloneElement(child, {
-            ref: shadowNodeRef,
-          })
-        }
+          if (React.isValidElement(child)) {
+            return React.cloneElement(child, {
+              ref: shadowNodeRef,
+            })
+          }
 
-        return null
-      })
+          return null
+        })
   }, [children, getShadowNode])
 
   const shadowTarget = useMemo(
@@ -367,7 +367,7 @@ export function MovableTarget({
         <div
           ref={shadowRef}
           className={`absolute left-0 top-0 cursor-move z-[999] w-full [&_button]:w-full ${active ? 'block' : 'hidden'
-            }`}
+          }`}
         >
           {shadowNode}
         </div>,

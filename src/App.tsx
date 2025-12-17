@@ -137,37 +137,37 @@ function App() {
       <Header onEdit={handleToggleEditable} editable={editable} />
       {links.length
         ? (
-          <ResponsiveGridLayout
-            className="layout my-12"
-            layouts={{ lg: layouts }}
-            breakpoints={{ lg: 1400, md: 1200, sm: 768, xs: 480, xxs: 0 }}
-            cols={{ lg: 24, md: 24, sm: 12, xs: 6, xxs: 4 }}
-            rowHeight={4}
-            margin={[0, 0]}
-            onLayoutChange={handleLayoutChange}
-            onBreakpointChange={setCurrentBreakpoint}
-            draggableHandle=".block-header"
-            isResizable={editable}
-            isDraggable={editable}
-            isDroppable={editable}
-            resizeHandles={['e', 'w']}
-          >
-            {links}
-          </ResponsiveGridLayout>
-        )
+            <ResponsiveGridLayout
+              className="layout my-12"
+              layouts={{ lg: layouts }}
+              breakpoints={{ lg: 1400, md: 1200, sm: 768, xs: 480, xxs: 0 }}
+              cols={{ lg: 24, md: 24, sm: 12, xs: 6, xxs: 4 }}
+              rowHeight={4}
+              margin={[0, 0]}
+              onLayoutChange={handleLayoutChange}
+              onBreakpointChange={setCurrentBreakpoint}
+              draggableHandle=".block-header"
+              isResizable={editable}
+              isDraggable={editable}
+              isDroppable={editable}
+              resizeHandles={['e', 'w']}
+            >
+              {links}
+            </ResponsiveGridLayout>
+          )
         : (
-          <div className="flex items-center justify-center h-[80vh]">
-            <Button onClick={handleCreateFirstBlock}>Create first block</Button>
-            <EditModal
-              data={firstBlock}
-              onChange={handleBlockChange}
-              onSave={handleSaveFirstBlock}
-              type="block"
-              visible={fistBlockVisible}
-              onClose={() => toggleFirstBlockVisible(false)}
-            />
-          </div>
-        )}
+            <div className="flex items-center justify-center h-[80vh]">
+              <Button onClick={handleCreateFirstBlock}>Create first block</Button>
+              <EditModal
+                data={firstBlock}
+                onChange={handleBlockChange}
+                onSave={handleSaveFirstBlock}
+                type="block"
+                visible={fistBlockVisible}
+                onClose={() => toggleFirstBlockVisible(false)}
+              />
+            </div>
+          )}
     </div>
   )
 }

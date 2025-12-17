@@ -1,8 +1,6 @@
 import type { Setting } from '@/types/setting.type'
 import _ from 'lodash'
 
-import update from 'lodash/fp/update'
-
 const blockStyle = {
   blockPadding: 16,
   linkMargin: 8,
@@ -40,7 +38,7 @@ export function calcLayout(inputSettings: Setting) {
       + blockStyle.blockPadding * 2
       + blockStyle.blockMargin * 2
       + headerHeight!)
-      / 4
+    / 4
 
     const oldH = link.layout.h
     const deltaH = newH - oldH
@@ -63,7 +61,8 @@ export function calcLayout(inputSettings: Setting) {
       // Actually simpler: just checking overlap + y position
       for (let j = 0; j < newSettings.links.length; j++) {
         const other = newSettings.links[j]
-        if (other.id === link.id) continue
+        if (other.id === link.id)
+          continue
 
         // Check horizontal overlap
         const isHorizontallyOverlapping = (link.layout.x < other.layout.x + other.layout.w)

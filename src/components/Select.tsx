@@ -18,8 +18,8 @@ export default function Select({ options, defaultValue, value, onChange }: Selec
   const [selectedValue, setSelected] = useState(value !== undefined ? value : defaultValue)
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
     if (value !== undefined) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelected(value)
     }
   }, [value])

@@ -1,9 +1,9 @@
 import type { IGist } from '@/types/gist.type'
 import { Octokit } from '@octokit/rest'
-import { ExternalLink } from 'lucide-react'
 import classNames from 'classnames'
 import _ from 'lodash'
 import { set } from 'lodash/fp'
+import { ExternalLink } from 'lucide-react'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
@@ -172,7 +172,7 @@ function GistList({ onSave }: GistListProps) {
   const handleUpdateGist = useCallback(async () => {
     try {
       await gistUpdate.mutateAsync({
-        gist_id: selectedGist?.id || settings?.gist?.id || settings?.gistId,
+        gist_id: selectedGist?.id || settings?.gist?.id || settings?.gistId || '',
         description: settings?.gist?.description,
         files: {
           [newFileName]: {

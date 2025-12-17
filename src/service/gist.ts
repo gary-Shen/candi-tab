@@ -88,7 +88,14 @@ export function removeToken() {
   })
 }
 
-export function updateGist(payload: any) {
+export interface GistUpdateParams {
+  gist_id: string
+  description?: string
+  files: Record<string, { content: string }>
+  [key: string]: any
+}
+
+export function updateGist(payload: GistUpdateParams) {
   if (!octokit) {
     return Promise.reject(new Error('None octokit found!'))
   }
