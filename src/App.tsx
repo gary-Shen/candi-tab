@@ -19,7 +19,7 @@ declare global {
   }
 }
 
-const GRID_WIDTH = 1240 // 固定宽度，与 max-w-[1240px] 一致
+const GRID_WIDTH = 1200 // 固定宽度，1240px - 40px (px-5 左右各20px)
 
 function App() {
   const { settings, updateSettings } = useContext(SettingsContext)
@@ -28,7 +28,7 @@ function App() {
   const layouts = (settings || {}).links?.map(item => item.layout) || []
   const [firstBlock, setFirstBlockData] = useState<IBlock>({} as IBlock)
   const [fistBlockVisible, toggleFirstBlockVisible] = useState(false)
-  
+
   useEffect(() => {
     window.initialTime = new Date().getTime()
   }, [])
@@ -139,7 +139,7 @@ function App() {
             <GridLayout
               className="layout my-12"
               layout={layouts}
-              cols={24}
+              cols={12}
               rowHeight={4}
               width={GRID_WIDTH}
               margin={[0, 0]}

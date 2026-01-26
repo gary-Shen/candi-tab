@@ -52,5 +52,8 @@
   "built in color": "內建顏色",
   "custom color": "自訂顏色",
   "proceed": "繼續",
-  "search": "搜尋"
+  "search": "搜尋",
+  "Login with GitHub": "使用 GitHub 登入",
+  "Authorization successful": "授權成功",
+  "Authorization failed": "授權失敗"
 }

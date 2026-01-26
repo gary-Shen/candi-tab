@@ -51,5 +51,8 @@
   "built in color": "プリセットカラー",
   "custom color": "カスタムカラー",
   "proceed": "続行",
-  "search": "検索"
+  "search": "検索",
+  "Login with GitHub": "GitHubでログイン",
+  "Authorization successful": "認証に成功しました",
+  "Authorization failed": "認証に失敗しました"
 }

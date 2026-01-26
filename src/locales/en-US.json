@@ -51,5 +51,8 @@
   "built in color": "Built-in color",
   "custom color": "Custom color",
   "proceed": "Proceed",
-  "search": "Search"
+  "search": "Search",
+  "Login with GitHub": "Login with GitHub",
+  "Authorization successful": "Authorization successful",
+  "Authorization failed": "Authorization failed"
 }

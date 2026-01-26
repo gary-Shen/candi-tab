@@ -21,8 +21,24 @@ import { setOctokit } from '@/service/gist'
 import { gid } from '@/utils/gid'
 import parseGistContent from '@/utils/parseGistContent'
 
-const uuid = gid()
-const OAUTH_URL = `https://github.com/login/oauth/authorize?scope=gist&client_id=9f776027a79806fc1363&redirect_uri=https://candi-tab.vercel.app/api/github?uuid=${uuid}`
+const CLIENT_ID = '9f776027a79806fc1363'
+const REDIRECT_URI = 'https://candi-tab.vercel.app/api/github'
+
+function buildOAuthUrl(useIdentityApi: boolean): string {
+  const uuid = gid()
+  if (useIdentityApi && chrome?.identity?.getRedirectURL) {
+    // 使用 chrome.identity API 时，通过 state 参数传递 redirect_url
+    const extensionRedirectUrl = chrome.identity.getRedirectURL('oauth')
+    // 将 uuid 和 redirect_url 编码到 state 参数中
+    const state = btoa(JSON.stringify({ uuid, redirect_url: extensionRedirectUrl }))
+    return `https://github.com/login/oauth/authorize?scope=gist&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&state=${encodeURIComponent(state)}`
+  }
+  // 降级方案：手动复制 token
+  return `https://github.com/login/oauth/authorize?scope=gist&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`
+}
+
+// 用于手动复制 token 的链接
+const MANUAL_OAUTH_URL = buildOAuthUrl(false)
 
 interface GistListProps {
   onSave: () => void
@@ -313,6 +329,7 @@ interface OAuthProps {
 export default function OAuth({ onClose }: OAuthProps) {
   const { settings, accessToken, updateAccessToken } = useContext(SettingsContext)
   const [tokenValue, setTokenValue] = useState(accessToken)
+  const [isAuthenticating, setIsAuthenticating] = useState(false)
   const { t } = useTranslation()
 
   useEffect(() => {
@@ -338,12 +355,77 @@ export default function OAuth({ onClose }: OAuthProps) {
     oneGist.refetch()
   }, [oneGist, tokenValue, updateAccessToken])
 
+  // 使用 chrome.identity API 进行 OAuth 认证
+  const handleOAuthLogin = useCallback(async () => {
+    if (!chrome?.identity?.launchWebAuthFlow) {
+      // 降级：打开手动复制链接
+      window.open(MANUAL_OAUTH_URL, '_blank')
+      return
+    }
+
+    setIsAuthenticating(true)
+    try {
+      const authUrl = buildOAuthUrl(true)
+      const responseUrl = await new Promise<string>((resolve, reject) => {
+        chrome.identity.launchWebAuthFlow(
+          { url: authUrl, interactive: true },
+          (callbackUrl) => {
+            if (chrome.runtime.lastError) {
+              reject(new Error(chrome.runtime.lastError.message))
+            }
+            else if (callbackUrl) {
+              resolve(callbackUrl)
+            }
+            else {
+              reject(new Error('No callback URL received'))
+            }
+          },
+        )
+      })
+
+      // 从回调 URL 中提取 accessToken
+      const url = new URL(responseUrl)
+      const token = url.searchParams.get('accessToken')
+
+      if (token) {
+        setTokenValue(token)
+        setOctokit(new Octokit({ auth: token }))
+        updateAccessToken(token)
+        oneGist.refetch()
+        toast.success(t('Authorization successful'))
+      }
+      else {
+        throw new Error('No access token in response')
+      }
+    }
+    catch (err: any) {
+      console.error('OAuth error:', err)
+      // 用户取消或出错时不显示错误（用户主动取消是正常行为）
+      if (!err.message?.includes('canceled') && !err.message?.includes('cancelled')) {
+        toast.error(err.message || t('Authorization failed'))
+      }
+    }
+    finally {
+      setIsAuthenticating(false)
+    }
+  }, [oneGist, t, updateAccessToken])
+
   return (
     <div className="flex flex-col items-end justify-center [&_.oauth-form]:w-full [&_.oauth-form_.mb-3:last-child]:mb-0 oauth-modal-content">
+      {!accessToken && (
+        <Button
+          className="w-full mb-4"
+          type="primary"
+          loading={isAuthenticating}
+          onClick={handleOAuthLogin}
+        >
+          {t('Login with GitHub')}
+        </Button>
+      )}
       <InputGroup className="mb-2">
         <Input
           placeholder={t('pasteToken')}
-          autoFocus
+          autoFocus={!!accessToken}
           onBlur={handleSave}
           onKeyDown={(e) => {
             if (e.which === 13) {
@@ -362,7 +444,7 @@ export default function OAuth({ onClose }: OAuthProps) {
         <IconText
           position="right"
           text={(
-            <a href={OAUTH_URL} target="_blank" rel="noreferrer">
+            <a href={MANUAL_OAUTH_URL} target="_blank" rel="noreferrer">
               {t('createAccessToken')}
             </a>
           )}

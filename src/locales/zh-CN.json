@@ -52,5 +52,8 @@
   "built in color": "内置颜色",
   "custom color": "自定义颜色",
   "proceed": "继续",
-  "search": "搜索"
+  "search": "搜索",
+  "Login with GitHub": "使用 GitHub 登录",
+  "Authorization successful": "授权成功",
+  "Authorization failed": "授权失败"
 }

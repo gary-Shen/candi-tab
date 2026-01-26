@@ -1,7 +1,7 @@
 import type { Setting } from '@/types/setting.type'
 import { set } from 'lodash/fp'
 import omit from 'lodash/fp/omit'
-import { Check, ClipboardPen, Cog, Download, Info, Menu, PencilRuler, Search, Upload } from 'lucide-react'
+import { Check, ClipboardPen, Cog, Download, Info, Menu, Edit, Search, Upload } from 'lucide-react'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -25,12 +25,42 @@ export interface HeaderProps {
 
 export default function Header({ onEdit, editable }: HeaderProps) {
   const textRef = React.useRef<HTMLTextAreaElement>(null)
+  const searchInputRef = React.useRef<HTMLInputElement>(null)
   const { t } = useTranslation()
   const { settings, updateSettings } = useContext(SettingsContext)
   const [oauthVisible, setOauthVisible] = useState(false)
   const [importVisible, setImportVisible] = useState(false)
   const [toImport, setToImport] = useState<Setting | null>(null)
   const [search, setSearch] = useState('')
+  const [searchFocused, setSearchFocused] = useState(false)
+
+  // 监听 Cmd+F / Ctrl+F 快捷键
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'f') {
+        e.preventDefault()
+        searchInputRef.current?.focus()
+        searchInputRef.current?.select()
+      }
+      // ESC 关闭搜索
+      if (e.key === 'Escape' && searchFocused) {
+        searchInputRef.current?.blur()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [searchFocused])
+
+  const handleSearchFocus = useCallback(() => {
+    setSearchFocused(true)
+  }, [])
+
+  const handleSearchBlur = useCallback(() => {
+    setSearchFocused(false)
+  }, [])
 
   const handleSearch = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && search) {
@@ -189,23 +219,44 @@ export default function Header({ onEdit, editable }: HeaderProps) {
   return (
     <>
       <div className="fixed top-0 left-0 w-full h-16 z-50 backdrop-blur-md bg-[rgba(255,255,255,0.01)] border-b border-transparent transition-colors duration-300">
-        <div className="flex items-center justify-between w-full max-w-[1240px] px-5 mx-auto h-full">
-          <div className="relative w-64 group">
+        <div className="flex items-center w-full max-w-[1240px] px-5 mx-auto h-full">
+          {/* 搜索框 - 聚焦时占满宽度 */}
+          <div
+            className={`search-container relative transition-all duration-300 ease-out ${
+              searchFocused ? 'w-full' : 'w-64'
+            }`}
+          >
             <Input
-              className="pl-9 bg-transparent border-transparent focus:bg-form-inset group-hover:bg-form-inset transition-colors duration-200"
-              placeholder={t('search')}
+              ref={searchInputRef}
+              className={`!pl-10 transition-all duration-300 ease-out ${
+                searchFocused
+                  ? 'bg-form-inset border-default'
+                  : 'bg-transparent border-transparent hover:bg-form-inset'
+              }`}
+              placeholder={searchFocused ? `${t('search')}... (Enter ${t('confirm')}, Esc ${t('close')})` : t('search')}
               value={search}
               onChange={e => setSearch(e.target.value)}
               onKeyDown={handleSearch}
+              onFocus={handleSearchFocus}
+              onBlur={handleSearchBlur}
             />
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none w-4 h-4"
+            />
           </div>
 
-          <div className="flex items-center">
+          {/* 右侧菜单 - 聚焦搜索时隐藏 */}
+          <div
+            className={`flex items-center flex-shrink-0 transition-all duration-300 ease-out ${
+              searchFocused
+                ? 'opacity-0 w-0 overflow-hidden ml-0'
+                : 'opacity-100 ml-auto'
+            }`}
+          >
             <IconButton onClick={handleOpenClipboard}>
               <ClipboardPen size={16} />
             </IconButton>
-            <IconButton onClick={onEdit}>{editable ? <Check size={16} /> : <PencilRuler size={16} />}</IconButton>
+            <IconButton onClick={onEdit}>{editable ? <Check size={16} /> : <Edit size={16} />}</IconButton>
 
             <MyMenu options={menuOptions}>
               <IconButton className="ml-2">

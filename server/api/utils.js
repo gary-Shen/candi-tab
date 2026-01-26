@@ -1,6 +1,22 @@
 function createCodeHandler(oauthHandler) {
   return async function handleCode(request, response) {
-    const { code, uuid } = request.query
+    const { code, state } = request.query
+
+    // 从 state 参数解析 uuid 和 redirect_url
+    let uuid = request.query.uuid
+    let redirectUrl = request.query.redirect_url
+
+    if (state) {
+      try {
+        const stateData = JSON.parse(Buffer.from(state, 'base64').toString('utf8'))
+        uuid = stateData.uuid || uuid
+        redirectUrl = stateData.redirect_url || redirectUrl
+      }
+      catch (e) {
+        // state 解析失败，使用查询参数中的值
+        console.error('Failed to parse state:', e)
+      }
+    }
 
     try {
       setCORSHeaders(response)
@@ -12,11 +28,11 @@ function createCodeHandler(oauthHandler) {
       }
       const accessToken = await oauthHandler(code, uuid)
 
-      if (request.query.redirect_url) {
-        const redirectUrl = new URL(request.query.redirect_url)
-        redirectUrl.searchParams.set('accessToken', accessToken)
+      if (redirectUrl) {
+        const targetUrl = new URL(redirectUrl)
+        targetUrl.searchParams.set('accessToken', accessToken)
         response.writeHead(302, {
-          Location: redirectUrl.toString(),
+          Location: targetUrl.toString(),
         })
         response.end()
         return

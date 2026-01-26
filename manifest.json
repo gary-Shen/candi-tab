@@ -18,7 +18,7 @@
     "page": "src/options.html",
     "open_in_tab": false
   },
-  "permissions": ["storage"],
+  "permissions": ["storage", "identity"],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"
   }
