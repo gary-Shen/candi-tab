@@ -1,7 +1,7 @@
 {
   "name": "Candi-Tab",
   "description": "A chrome extension for tab page",
-  "version": "1.0.1",
+  "version": "1.0.5",
   "manifest_version": 3,
   "author": "Gary-shen",
   "chrome_url_overrides": {
@@ -18,7 +18,7 @@
     "page": "src/options.html",
     "open_in_tab": false
   },
-  "permissions": ["storage", "identity"],
+  "permissions": ["storage", "identity", "bookmarks"],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"
   }

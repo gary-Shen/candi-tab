@@ -54,5 +54,22 @@
   "search": "검색",
   "Login with GitHub": "GitHub로 로그인",
   "Authorization successful": "인증 성공",
-  "Authorization failed": "인증 실패"
+  "Authorization failed": "인증 실패",
+  "Import Bookmarks": "북마크 가져오기",
+  "Import bookmarks description": "브라우저 북마크를 가져옵니다. 북마크 폴더는 블록으로 변환되고, 중첩된 폴더는 드롭다운 메뉴가 됩니다.",
+  "Append to existing": "기존 블록에 추가",
+  "Overwrite existing": "기존 블록 모두 덮어쓰기",
+  "Bookmarks imported successfully": "북마크를 성공적으로 가져왔습니다",
+  "Failed to import bookmarks": "북마크 가져오기 실패",
+  "No bookmarks found": "북마크를 찾을 수 없습니다",
+  "Select bookmark sources": "북마크 소스 선택",
+  "Import mode": "가져오기 모드",
+  "Please select at least one source": "최소 하나의 소스를 선택하세요",
+  "Loading...": "로딩 중...",
+  "Failed to load bookmarks": "북마크 로드 실패",
+  "Menu items": "메뉴 항목",
+  "Add folder": "폴더 추가",
+  "New folder": "새 폴더",
+  "New link": "새 링크",
+  "No menu items": "메뉴 항목 없음"
 }

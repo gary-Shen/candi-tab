@@ -1,18 +1,23 @@
 import type { Setting } from '@/types/setting.type'
 import { set } from 'lodash/fp'
 import omit from 'lodash/fp/omit'
-import { Check, ClipboardPen, Cog, Download, Info, Menu, Edit, Search, Upload } from 'lucide-react'
+import { Bookmark, Check, ClipboardPen, Cog, Download, Info, Menu, Edit, Search, Upload } from 'lucide-react'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 
+import Checkbox from '@/components/Checkbox'
 import MyModal from '@/components/Dialog'
 import IconButton from '@/components/IconButton'
 import IconText from '@/components/IconText'
 import Input from '@/components/Input'
 import Button from '@/components/LinkButton'
 import MyMenu from '@/components/Menu'
+import MyRadioGroup from '@/components/RadioGroup'
 import TextArea from '@/components/TextArea'
 import SettingsContext from '@/context/settings.context'
+import type { BookmarkSource } from '@/utils/bookmarkTransform'
+import { getBookmarkSources, importChromeBookmarks } from '@/utils/bookmarkTransform'
 import download from '@/utils/download'
 
 import About from '../About'
@@ -33,6 +38,14 @@ export default function Header({ onEdit, editable }: HeaderProps) {
   const [toImport, setToImport] = useState<Setting | null>(null)
   const [search, setSearch] = useState('')
   const [searchFocused, setSearchFocused] = useState(false)
+
+  // 书签导入
+  const [bookmarkModalVisible, setBookmarkModalVisible] = useState(false)
+  const [bookmarkImportMode, setBookmarkImportMode] = useState<'overwrite' | 'append'>('append')
+  const [isImportingBookmarks, setIsImportingBookmarks] = useState(false)
+  const [bookmarkSources, setBookmarkSources] = useState<BookmarkSource[]>([])
+  const [selectedSourceIds, setSelectedSourceIds] = useState<string[]>([])
+  const [isLoadingSources, setIsLoadingSources] = useState(false)
 
   // 监听 Cmd+F / Ctrl+F 快捷键
   useEffect(() => {
@@ -149,6 +162,83 @@ export default function Header({ onEdit, editable }: HeaderProps) {
     setImportVisible(false)
   }, [updateSettings, toImport, settings])
 
+  // 书签导入
+  const handleOpenBookmarkImport = useCallback(async () => {
+    setBookmarkModalVisible(true)
+    setIsLoadingSources(true)
+    try {
+      const sources = await getBookmarkSources()
+      setBookmarkSources(sources)
+      // 默认全选
+      setSelectedSourceIds(sources.map(s => s.id))
+    }
+    catch (err: any) {
+      console.error('Failed to get bookmark sources:', err)
+      toast.error(err.message || t('Failed to load bookmarks'))
+    }
+    finally {
+      setIsLoadingSources(false)
+    }
+  }, [t])
+
+  const handleToggleSource = useCallback((sourceId: string) => {
+    setSelectedSourceIds(prev =>
+      prev.includes(sourceId)
+        ? prev.filter(id => id !== sourceId)
+        : [...prev, sourceId],
+    )
+  }, [])
+
+  const handleImportBookmarks = useCallback(async () => {
+    if (selectedSourceIds.length === 0) {
+      toast.error(t('Please select at least one source'))
+      return
+    }
+
+    setIsImportingBookmarks(true)
+    try {
+      // 计算起始 Y 位置（追加模式需要在现有 blocks 下方）
+      let startY = 0
+      if (bookmarkImportMode === 'append' && settings.links.length > 0) {
+        // 找到所有 blocks 的最大 Y + H
+        startY = settings.links.reduce((maxY, block) => {
+          const blockBottom = block.layout.y + block.layout.h
+          return Math.max(maxY, blockBottom)
+        }, 0)
+      }
+
+      const importedBlocks = await importChromeBookmarks(selectedSourceIds, startY)
+
+      if (importedBlocks.length === 0) {
+        toast.error(t('No bookmarks found'))
+        return
+      }
+
+      const newSettings = { ...settings }
+
+      if (bookmarkImportMode === 'overwrite') {
+        // 覆盖模式：替换所有 blocks
+        newSettings.links = importedBlocks
+      }
+      else {
+        // 追加模式：添加到现有 blocks
+        newSettings.links = [...settings.links, ...importedBlocks]
+      }
+
+      newSettings.updatedAt = Date.now()
+      updateSettings(newSettings)
+      setBookmarkModalVisible(false)
+      toast.success(t('Bookmarks imported successfully'))
+    }
+    catch (err: any) {
+      console.error('Failed to import bookmarks:', err)
+      toast.error(err.message || t('Failed to import bookmarks'))
+    }
+    finally {
+      setIsImportingBookmarks(false)
+    }
+  }, [bookmarkImportMode, selectedSourceIds, settings, t, updateSettings])
+
   // 关于
   const [aboutVisible, toggleAboutVisible] = useState(false)
   const handleShowAbout = useCallback(() => {
@@ -187,6 +277,15 @@ export default function Header({ onEdit, editable }: HeaderProps) {
         onClick: handleOpenSyncing,
       },
       {
+        key: 'importBookmarks',
+        title: (
+          <IconText text={t('Import Bookmarks')}>
+            <Bookmark size={16} />
+          </IconText>
+        ),
+        onClick: handleOpenBookmarkImport,
+      },
+      {
         key: 'import',
         title: (
           <IconText text={t('import')}>
@@ -214,7 +313,7 @@ export default function Header({ onEdit, editable }: HeaderProps) {
         onClick: handleShowAbout,
       },
     ]
-  }, [handleExport, handleOpenImport, handleOpenSyncing, handleShowAbout, t])
+  }, [handleExport, handleOpenBookmarkImport, handleOpenImport, handleOpenSyncing, handleShowAbout, t])
 
   return (
     <>
@@ -296,6 +395,72 @@ export default function Header({ onEdit, editable }: HeaderProps) {
         <form onSubmit={e => e.preventDefault()}>
           <TextArea rows={12} ref={textRef} value={clipContent} onChange={handleClipContentChange} />
         </form>
+      </MyModal>
+
+      <MyModal
+        visible={bookmarkModalVisible}
+        width={480}
+        title={t('Import Bookmarks')}
+        footer={(
+          <div className="flex gap-2">
+            <Button className="flex-1" type="secondary" onClick={() => setBookmarkModalVisible(false)}>
+              {t('cancel')}
+            </Button>
+            <Button
+              className="flex-1"
+              type="primary"
+              loading={isImportingBookmarks}
+              disabled={isLoadingSources || selectedSourceIds.length === 0}
+              onClick={handleImportBookmarks}
+            >
+              {t('confirm')}
+            </Button>
+          </div>
+        )}
+        onClose={() => setBookmarkModalVisible(false)}
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-gray-500">{t('Import bookmarks description')}</p>
+
+          {/* 书签来源选择 */}
+          <div>
+            <div className="text-sm font-medium mb-2">{t('Select bookmark sources')}</div>
+            {isLoadingSources
+              ? (
+                  <div className="text-sm text-gray-400">{t('Loading...')}</div>
+                )
+              : (
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                    {bookmarkSources.map(source => (
+                      <Checkbox
+                        key={source.id}
+                        checked={selectedSourceIds.includes(source.id)}
+                        onChange={() => handleToggleSource(source.id)}
+                        label={(
+                          <span className="flex items-center gap-2">
+                            <span>{source.title}</span>
+                            <span className="text-xs text-gray-400">({source.count})</span>
+                          </span>
+                        )}
+                      />
+                    ))}
+                  </div>
+                )}
+          </div>
+
+          {/* 导入模式 */}
+          <div>
+            <div className="text-sm font-medium mb-2">{t('Import mode')}</div>
+            <MyRadioGroup
+              value={bookmarkImportMode}
+              onChange={value => setBookmarkImportMode(value as 'append' | 'overwrite')}
+              options={[
+                { value: 'append', label: t('Append to existing') },
+                { value: 'overwrite', label: t('Overwrite existing') },
+              ]}
+            />
+          </div>
+        </div>
       </MyModal>
     </>
   )

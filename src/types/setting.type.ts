@@ -5,7 +5,8 @@ import type { Theme } from './theme.type'
 export interface MenuLink {
   id: string
   title: string
-  url: string
+  url?: string
+  children?: MenuLink[] // 支持多层嵌套菜单
 }
 
 export interface Link {

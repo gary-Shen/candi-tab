@@ -54,5 +54,22 @@
   "search": "検索",
   "Login with GitHub": "GitHubでログイン",
   "Authorization successful": "認証に成功しました",
-  "Authorization failed": "認証に失敗しました"
+  "Authorization failed": "認証に失敗しました",
+  "Import Bookmarks": "ブックマークをインポート",
+  "Import bookmarks description": "ブラウザのブックマークをインポートします。ブックマークフォルダはブロックに変換され、ネストされたフォルダはドロップダウンメニューになります。",
+  "Append to existing": "既存のブロックに追加",
+  "Overwrite existing": "既存のブロックをすべて上書き",
+  "Bookmarks imported successfully": "ブックマークのインポートに成功しました",
+  "Failed to import bookmarks": "ブックマークのインポートに失敗しました",
+  "No bookmarks found": "ブックマークが見つかりません",
+  "Select bookmark sources": "ブックマークの取得元を選択",
+  "Import mode": "インポートモード",
+  "Please select at least one source": "少なくとも1つの取得元を選択してください",
+  "Loading...": "読み込み中...",
+  "Failed to load bookmarks": "ブックマークの読み込みに失敗しました",
+  "Menu items": "メニュー項目",
+  "Add folder": "フォルダを追加",
+  "New folder": "新しいフォルダ",
+  "New link": "新しいリンク",
+  "No menu items": "メニュー項目がありません"
 }

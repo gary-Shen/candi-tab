@@ -20,13 +20,13 @@ export default function Toggle({ value, onChange }: ToggleProps) {
     <Switch
       checked={checked}
       onChange={handleOnChange}
-      className={`${checked ? 'bg-blue-600' : 'bg-gray-200'} relative inline-flex h-6 w-11 items-center rounded-full`}
+      className={`${checked ? 'bg-[var(--color-primary)]' : 'bg-[var(--border-color)]'} relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
     >
-      <span className="sr-only">Enable notifications</span>
+      <span className="sr-only">Toggle</span>
       <span
         className={`${
           checked ? 'translate-x-6' : 'translate-x-1'
-        } inline-block h-4 w-4 transform rounded-full bg-white transition`}
+        } inline-block h-4 w-4 transform rounded-full bg-white shadow transition`}
       />
     </Switch>
   )

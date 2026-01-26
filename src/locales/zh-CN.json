@@ -55,5 +55,22 @@
   "search": "搜索",
   "Login with GitHub": "使用 GitHub 登录",
   "Authorization successful": "授权成功",
-  "Authorization failed": "授权失败"
+  "Authorization failed": "授权失败",
+  "Import Bookmarks": "导入收藏夹",
+  "Import bookmarks description": "导入浏览器收藏夹。收藏夹文件夹将转换为区块，嵌套文件夹将变成下拉菜单。",
+  "Append to existing": "追加到现有区块",
+  "Overwrite existing": "覆盖所有现有区块",
+  "Bookmarks imported successfully": "收藏夹导入成功",
+  "Failed to import bookmarks": "导入收藏夹失败",
+  "No bookmarks found": "未找到收藏夹",
+  "Select bookmark sources": "选择书签来源",
+  "Import mode": "导入模式",
+  "Please select at least one source": "请至少选择一个来源",
+  "Loading...": "加载中...",
+  "Failed to load bookmarks": "加载书签失败",
+  "Menu items": "菜单项",
+  "Add folder": "添加文件夹",
+  "New folder": "新文件夹",
+  "New link": "新链接",
+  "No menu items": "暂无菜单项"
 }

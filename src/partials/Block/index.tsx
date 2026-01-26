@@ -16,6 +16,7 @@ import MyModal from '@/components/Dialog'
 import IconText from '@/components/IconText'
 import MyButton from '@/components/LinkButton'
 import MyMenu from '@/components/Menu'
+import NestedMenu from '@/components/NestedMenu'
 import { MovableContainer, MovableTarget } from '@/components/Movable'
 import { TYPES } from '@/constant'
 import { MovableContext } from '@/context/movable.context'
@@ -378,7 +379,7 @@ export default function BlockContainer({ block, settings, updateSettings, index,
                   onCancel={handleDragCancel}
                 >
                   <div className={`w-full my-1 first:mt-0 last:mb-0 group-[.under-context-menu]:m-0 ${blurClass}`} onClick={() => onMenuClick(index)}>
-                    <MyMenu
+                    <NestedMenu
                       className="w-full"
                       buttonStyle={{
                         backgroundColor: TYPES.includes(style) ? `var(--color-${style})` : style,
@@ -391,15 +392,7 @@ export default function BlockContainer({ block, settings, updateSettings, index,
                             : '#000',
                       }}
                       buttonClassName="w-full"
-                      options={menu.map(({ title: menuTitle, url: menuItemUrl, id: menuItemId }) => {
-                        return {
-                          title: menuTitle,
-                          as: 'a',
-                          href: menuItemUrl,
-                          key: menuItemId,
-                          className: `border-transparent text-inherit hover:text-white`,
-                        }
-                      })}
+                      options={menu}
                     >
                       <MyButton
                         className="w-full py-[0.3rem] px-2 border-0"
@@ -411,7 +404,7 @@ export default function BlockContainer({ block, settings, updateSettings, index,
                           <ChevronDown size={16} />
                         </IconText>
                       </MyButton>
-                    </MyMenu>
+                    </NestedMenu>
                     {isBlurred && (
                       <div className="absolute inset-0 bg-gradient-to-t from-white/80 to-transparent dark:from-black/80 pointer-events-none" />
                     )}
@@ -442,7 +435,7 @@ export default function BlockContainer({ block, settings, updateSettings, index,
                 <div className={`relative w-full my-1 first:mt-0 last:mb-0 ${blurClass}`}>
                   <MyButton
                     as={editable ? 'button' : 'a'}
-                    title={description}
+                    title={description || buttonTitle}
                     // @ts-expect-error Library typings incomplete
                     href={url}
                     size="sm"
@@ -452,7 +445,7 @@ export default function BlockContainer({ block, settings, updateSettings, index,
                     type={TYPES.includes(style) ? style : 'light'}
                     style={buttonStyle}
                   >
-                    {buttonTitle}
+                    <span className="line-clamp-3">{buttonTitle}</span>
                   </MyButton>
                   {isBlurred && (
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent dark:from-gray-900/90 pointer-events-none backdrop-blur-[1px]" />

@@ -60,9 +60,14 @@ export default function useSettings(): [
     load().then((result) => {
       const newSettings = setIds({ ...defaultSettings, ...result })
 
+      // 根据用户保存的语言设置更新 i18n
+      if (newSettings?.general?.language) {
+        i18n.changeLanguage(newSettings.general.language)
+      }
+
       setSettings(newSettings)
     })
-  }, [])
+  }, [i18n])
 
   // fetch gist on first load
   useEffect(() => {

@@ -54,5 +54,22 @@
   "search": "Search",
   "Login with GitHub": "Login with GitHub",
   "Authorization successful": "Authorization successful",
-  "Authorization failed": "Authorization failed"
+  "Authorization failed": "Authorization failed",
+  "Import Bookmarks": "Import Bookmarks",
+  "Import bookmarks description": "Import your browser bookmarks. Bookmark folders will be converted to blocks, and nested folders will become dropdown menus.",
+  "Append to existing": "Append to existing blocks",
+  "Overwrite existing": "Overwrite all existing blocks",
+  "Bookmarks imported successfully": "Bookmarks imported successfully",
+  "Failed to import bookmarks": "Failed to import bookmarks",
+  "No bookmarks found": "No bookmarks found",
+  "Select bookmark sources": "Select bookmark sources",
+  "Import mode": "Import mode",
+  "Please select at least one source": "Please select at least one source",
+  "Loading...": "Loading...",
+  "Failed to load bookmarks": "Failed to load bookmarks",
+  "Menu items": "Menu items",
+  "Add folder": "Add folder",
+  "New folder": "New folder",
+  "New link": "New link",
+  "No menu items": "No menu items"
 }
