@@ -17,6 +17,7 @@ import IconText from '@/components/IconText'
 import MyButton from '@/components/LinkButton'
 import MyMenu from '@/components/Menu'
 import { MovableContainer, MovableTarget } from '@/components/Movable'
+import Tooltip from '@/components/Tooltip'
 import { TYPES } from '@/constant'
 import { MovableContext } from '@/context/movable.context'
 import { calcLayout } from '@/utils/calcLayout'
@@ -430,6 +431,27 @@ export default function BlockContainer({ block, settings, updateSettings, index,
                   )
             }
 
+            const buttonElement = (
+              <div className={`relative w-full my-1 first:mt-0 last:mb-0 ${blurClass}`}>
+                <MyButton
+                  as={editable ? 'button' : 'a'}
+                  // @ts-expect-error Library typings incomplete
+                  href={url}
+                  size="sm"
+                  date-url={url}
+                  data-link-id={id}
+                  className="w-full py-[0.3rem] px-2 border-0"
+                  type={TYPES.includes(style) ? style : 'light'}
+                  style={buttonStyle}
+                >
+                  {buttonTitle}
+                </MyButton>
+                {isBlurred && (
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent dark:from-gray-900/90 pointer-events-none backdrop-blur-[1px]" />
+                )}
+              </div>
+            )
+
             const button = (
               <MovableTarget
                 disabled={!editable}
@@ -439,25 +461,13 @@ export default function BlockContainer({ block, settings, updateSettings, index,
                 }}
                 onCancel={handleDragCancel}
               >
-                <div className={`relative w-full my-1 first:mt-0 last:mb-0 ${blurClass}`}>
-                  <MyButton
-                    as={editable ? 'button' : 'a'}
-                    title={description}
-                    // @ts-expect-error Library typings incomplete
-                    href={url}
-                    size="sm"
-                    date-url={url}
-                    data-link-id={id}
-                    className="w-full py-[0.3rem] px-2 border-0"
-                    type={TYPES.includes(style) ? style : 'light'}
-                    style={buttonStyle}
-                  >
-                    {buttonTitle}
-                  </MyButton>
-                  {isBlurred && (
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent dark:from-gray-900/90 pointer-events-none backdrop-blur-[1px]" />
-                  )}
-                </div>
+                {description && !editable
+                  ? (
+                      <Tooltip content={description} placement="top">
+                        {buttonElement}
+                      </Tooltip>
+                    )
+                  : buttonElement}
               </MovableTarget>
             )
 
