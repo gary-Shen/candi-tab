@@ -78,11 +78,12 @@ export function create({ gist, settings }: GistCreation) {
 
 export function removeToken() {
   return new Promise((resolve, reject) => {
-    chrome.storage.sync.remove('token', () => {
-      resolve(null)
-
+    chrome.storage.local.remove('accessToken', () => {
       if (chrome.runtime.lastError) {
         reject(chrome.runtime.lastError)
+      }
+      else {
+        resolve(null)
       }
     })
   })

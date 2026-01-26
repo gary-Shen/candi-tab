@@ -62,17 +62,10 @@ export function useGistSync(settings: Setting | null) {
         return
       }
 
-      // Check if remote is newer
+      // 只有当本地比远程更新时才推送
+      // 如果远程更新或相等，不需要推送
       const remoteSettings = parseGistContent(_oneGist.data, fileName)
-      if (remoteSettings && remoteSettings.updatedAt > currentSettings.updatedAt) {
-        // If remote is newer, do not overwrite it.
-        // The useSettings hook handles pulling the new data.
-        return
-      }
-
-      // If timestamps are equal, we interpret that as "synced", so no need to push.
-      // This prevents infinite loops if the push just happened and we got a fresh callback.
-      if (remoteSettings && remoteSettings.updatedAt === currentSettings.updatedAt) {
+      if (!remoteSettings || currentSettings.updatedAt <= remoteSettings.updatedAt) {
         return
       }
 

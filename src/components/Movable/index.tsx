@@ -352,7 +352,7 @@ export function MovableTarget({
       ? getShadowNode(shadowNodeRef, targetRef)
       : Children.map(children, (child) => {
           if (React.isValidElement(child)) {
-            return React.cloneElement(child, {
+            return React.cloneElement(child as React.ReactElement<any>, {
               ref: shadowNodeRef,
             })
           }

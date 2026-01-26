@@ -1,4 +1,5 @@
-import Dialog from '@reach/dialog'
+import { Dialog } from '@reach/dialog'
+import '@reach/dialog/styles.css'
 import classNames from 'classnames'
 import { X } from 'lucide-react'
 import React from 'react'

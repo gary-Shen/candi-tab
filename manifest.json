@@ -7,9 +7,6 @@
   "chrome_url_overrides": {
     "newtab": "index.html"
   },
-  "background": {
-    "service_worker": "background.js"
-  },
   "action": {
     "default_icon": {
       "16": "icons/candi-tab.png",
@@ -21,5 +18,8 @@
     "page": "src/options.html",
     "open_in_tab": false
   },
-  "permissions": ["storage"]
+  "permissions": ["storage"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
 }

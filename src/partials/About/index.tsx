@@ -16,7 +16,7 @@ export default function About({ visible, onClose }: AboutProps) {
     }
     catch (err) {
       console.warn(err)
-      return {}
+      return { version: 'unknown' }
     }
   }, [])
   return (

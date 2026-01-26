@@ -9,7 +9,7 @@ import set from 'lodash/fp/set'
 import update from 'lodash/fp/update'
 import { ChevronDown, ListPlus, PencilRuler, Plus, Trash2 } from 'lucide-react'
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Card from '@/components/Card'
 import MyModal from '@/components/Dialog'
@@ -18,14 +18,12 @@ import MyButton from '@/components/LinkButton'
 import MyMenu from '@/components/Menu'
 import { MovableContainer, MovableTarget } from '@/components/Movable'
 import { TYPES } from '@/constant'
+import { MovableContext } from '@/context/movable.context'
 import { calcLayout } from '@/utils/calcLayout'
 import { gid } from '@/utils/gid'
 
 import { isDark } from '@/utils/hsp'
 import EditModal from './EditModal'
-
-let movingLink: Link | null = null
-let movingLinkFromWhichBlock: number | undefined
 
 export interface ConfirmProps {
   title: React.ReactNode
@@ -67,6 +65,7 @@ export interface BlockProps {
 export default function BlockContainer({ block, settings, updateSettings, index, editable, onMenuClick }: BlockProps) {
   const { buttons: links, title } = block
   const { t } = useTranslation()
+  const { movingLink, movingLinkFromBlockIndex, setMovingLink, setMovingLinkFromBlockIndex } = useContext(MovableContext)
   const [editVisible, toggleEditVisible] = useState<boolean>(false)
   const [editType, setEditType] = useState<EditType>('block')
   const [editData, setEditData] = useState<Block | Link>(block)
@@ -234,20 +233,20 @@ export default function BlockContainer({ block, settings, updateSettings, index,
   }, [])
 
   const handleDragCancel = useCallback(() => {
-    movingLink = null
-    movingLinkFromWhichBlock = undefined
-  }, [])
+    setMovingLink(null)
+    setMovingLinkFromBlockIndex(undefined)
+  }, [setMovingLink, setMovingLinkFromBlockIndex])
 
   // link排序
   const handleContainerMouseUp = useCallback(
     (insertOrder: number) => {
-      if (!movingLink || _.isNil(movingLinkFromWhichBlock) || _.isNil(insertOrder)) {
+      if (!movingLink || _.isNil(movingLinkFromBlockIndex) || _.isNil(insertOrder)) {
         return
       }
 
       let newSettings = _.cloneDeep(settings)
       // 在原来的block中删除
-      newSettings = update(`links[${movingLinkFromWhichBlock}].buttons`)((buttons) => {
+      newSettings = update(`links[${movingLinkFromBlockIndex}].buttons`)((buttons) => {
         return buttons.filter((item: Link) => item.id !== movingLink!.id)
       })(newSettings)
 
@@ -261,7 +260,7 @@ export default function BlockContainer({ block, settings, updateSettings, index,
         updateLayout(newSettings)
       }, 100)
     },
-    [index, settings, updateLayout, updateSettings],
+    [index, movingLink, movingLinkFromBlockIndex, settings, updateLayout, updateSettings],
   )
 
   const blockMenu = useMemo(
@@ -373,8 +372,8 @@ export default function BlockContainer({ block, settings, updateSettings, index,
                 <MovableTarget
                   disabled={!editable}
                   onMouseDown={() => {
-                    movingLink = link
-                    movingLinkFromWhichBlock = index
+                    setMovingLink(link)
+                    setMovingLinkFromBlockIndex(index)
                   }}
                   onCancel={handleDragCancel}
                 >
@@ -435,8 +434,8 @@ export default function BlockContainer({ block, settings, updateSettings, index,
               <MovableTarget
                 disabled={!editable}
                 onMouseDown={() => {
-                  movingLink = link
-                  movingLinkFromWhichBlock = index
+                  setMovingLink(link)
+                  setMovingLinkFromBlockIndex(index)
                 }}
                 onCancel={handleDragCancel}
               >

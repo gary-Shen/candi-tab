@@ -1,18 +1,15 @@
 import type { Block, Link, Setting } from '@/types/setting.type'
-import { Octokit } from '@octokit/rest'
 import _ from 'lodash'
 import update from 'lodash/fp/update'
 import { useCallback, useEffect, useState } from 'react'
 
 import { useTranslation } from 'react-i18next'
-import { destroyOctokit, setOctokit } from '@/service/gist'
 import { gid } from '@/utils/gid'
 import parseGistContent from '@/utils/parseGistContent'
 
 import defaultSettings from '../default-settings.json'
 import { load, save } from './settings'
 import { useGistOne } from './useGistQuery'
-import useStorage from './useStorage'
 
 const setIds = update('links')((blocks: Block[]) =>
   blocks.map((block) => {
@@ -55,21 +52,7 @@ export default function useSettings(): [
 ] {
   const { i18n } = useTranslation()
   const [settings, setSettings] = useState<Setting | null>(null)
-  const [accessToken] = useStorage('accessToken')
   const gist = settings?.gist || ({} as any)
-
-  useEffect(() => {
-    if (!accessToken) {
-      destroyOctokit()
-      return
-    }
-
-    setOctokit(
-      new Octokit({
-        auth: accessToken,
-      }),
-    )
-  }, [accessToken])
 
   const oneGist = useGistOne(gist.id || settings?.gistId)
 
@@ -92,10 +75,11 @@ export default function useSettings(): [
       return
     }
 
-    if (settings?.updatedAt && newSettings.updatedAt < settings?.updatedAt) {
+    // 如果本地更新或时间戳相等，不覆盖本地设置
+    if (settings?.updatedAt && newSettings.updatedAt <= settings?.updatedAt) {
       return
     }
-    else if (settings?.createdAt && newSettings.createdAt && newSettings.createdAt < settings?.createdAt) {
+    else if (settings?.createdAt && newSettings.createdAt && newSettings.createdAt <= settings?.createdAt) {
       // 兼容旧配置
       return
     }

@@ -40,18 +40,11 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
         options: resolve(__dirname, 'src/options.html'),
-        background: resolve(__dirname, 'src/background.js'),
       },
       output: {
         entryFileNames: '[name].js',
         chunkFileNames: '[name].js',
         assetFileNames: '[name].[ext]',
-      },
-    },
-    terserOptions: {
-      compress: {
-        drop_console: false,
-        drop_debugger: false,
       },
     },
   },

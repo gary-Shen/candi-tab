@@ -41,6 +41,9 @@ export function useGistOne(gistId: string | undefined, options?: any) {
     placeholderData: {} as any,
     select: data => data?.data,
     onError: errHandler,
+    staleTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
     ...options,
   })
 

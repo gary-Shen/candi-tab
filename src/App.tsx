@@ -4,7 +4,7 @@ import classNames from 'classnames'
 import set from 'lodash/fp/set'
 import { useCallback, useContext, useEffect, useState } from 'react'
 
-import { Responsive, WidthProvider } from 'react-grid-layout'
+import GridLayout from 'react-grid-layout'
 import Button from './components/LinkButton'
 import Spin from './components/Spin'
 import SettingsContext from './context/settings.context'
@@ -19,7 +19,7 @@ declare global {
   }
 }
 
-const ResponsiveGridLayout = WidthProvider(Responsive)
+const GRID_WIDTH = 1240 // 固定宽度，与 max-w-[1240px] 一致
 
 function App() {
   const { settings, updateSettings } = useContext(SettingsContext)
@@ -28,8 +28,7 @@ function App() {
   const layouts = (settings || {}).links?.map(item => item.layout) || []
   const [firstBlock, setFirstBlockData] = useState<IBlock>({} as IBlock)
   const [fistBlockVisible, toggleFirstBlockVisible] = useState(false)
-  const [currentBreakpoint, setCurrentBreakpoint] = useState('lg')
-
+  
   useEffect(() => {
     window.initialTime = new Date().getTime()
   }, [])
@@ -137,15 +136,14 @@ function App() {
       <Header onEdit={handleToggleEditable} editable={editable} />
       {links.length
         ? (
-            <ResponsiveGridLayout
+            <GridLayout
               className="layout my-12"
-              layouts={{ lg: layouts }}
-              breakpoints={{ lg: 1400, md: 1200, sm: 768, xs: 480, xxs: 0 }}
-              cols={{ lg: 24, md: 24, sm: 12, xs: 6, xxs: 4 }}
+              layout={layouts}
+              cols={24}
               rowHeight={4}
+              width={GRID_WIDTH}
               margin={[0, 0]}
               onLayoutChange={handleLayoutChange}
-              onBreakpointChange={setCurrentBreakpoint}
               draggableHandle=".block-header"
               isResizable={editable}
               isDraggable={editable}
@@ -153,7 +151,7 @@ function App() {
               resizeHandles={['e', 'w']}
             >
               {links}
-            </ResponsiveGridLayout>
+            </GridLayout>
           )
         : (
             <div className="flex items-center justify-center h-[80vh]">

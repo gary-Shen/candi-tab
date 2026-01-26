@@ -1,8 +1,6 @@
 import i18n from 'i18next'
-import { get } from 'lodash'
 import { initReactI18next } from 'react-i18next'
 
-import { load as loadSettings } from '../hooks/settings'
 import translation_en_us from './en-US.json'
 import translation_ja_jp from './ja-JP.json'
 import translation_ko_kr from './ko-KR.json'
@@ -25,22 +23,25 @@ const resources = {
   'ko-KR': {
     translation: translation_ko_kr,
   },
-};
+}
 
-(async () => {
-  const settings = await loadSettings()
-
-  const options = {
-    resources,
-    lng: get(settings, 'general.language') || chrome?.i18n?.getUILanguage() || 'en-US',
-    fallbackLng: 'en-US',
-
-    interpolation: {
-      escapeValue: false,
-    },
+// 获取初始语言：优先使用浏览器语言，之后在 SettingProvider 中根据用户设置更新
+function getInitialLanguage(): string {
+  try {
+    return chrome?.i18n?.getUILanguage() || 'en-US'
   }
+  catch {
+    return 'en-US'
+  }
+}
 
-  i18n.use(initReactI18next).init(options)
-})()
+i18n.use(initReactI18next).init({
+  resources,
+  lng: getInitialLanguage(),
+  fallbackLng: 'en-US',
+  interpolation: {
+    escapeValue: false,
+  },
+})
 
 export default i18n
