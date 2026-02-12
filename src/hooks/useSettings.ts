@@ -1,7 +1,7 @@
 import type { Block, Link, Setting } from '@/types/setting.type'
 import _ from 'lodash'
 import update from 'lodash/fp/update'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { useTranslation } from 'react-i18next'
 import { gid } from '@/utils/gid'
@@ -52,6 +52,7 @@ export default function useSettings(): [
 ] {
   const { i18n } = useTranslation()
   const [settings, setSettings] = useState<Setting | null>(null)
+  const localLoadedRef = useRef(false)
   const gist = settings?.gist || ({} as any)
 
   const oneGist = useGistOne(gist.id || settings?.gistId)
@@ -59,14 +60,14 @@ export default function useSettings(): [
   useEffect(() => {
     load().then((result) => {
       const newSettings = setIds({ ...defaultSettings, ...result })
-
+      localLoadedRef.current = true
       setSettings(newSettings)
     })
   }, [])
 
-  // fetch gist on first load
+  // 远程 gist 配置合并：仅在本地加载完成后才比较时间戳
   useEffect(() => {
-    if (!oneGist.isSuccess) {
+    if (!oneGist.isSuccess || !localLoadedRef.current) {
       return
     }
     const newSettings = parseGistContent(oneGist.data!, settings?.gist?.fileName)
@@ -91,6 +92,7 @@ export default function useSettings(): [
 
     // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
     setSettings(newSettings)
+    save(newSettings)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [oneGist.data, oneGist.isSuccess])
 

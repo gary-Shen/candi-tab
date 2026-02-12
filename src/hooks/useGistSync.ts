@@ -13,7 +13,9 @@ export function useGistSync(settings: Setting | null) {
   const gistId = settings?.gist?.id || settings?.gistId
   const mutation = useGistUpdate(gistId)
   const oneGist = useGistOne(gistId)
-  const gistFiles = oneGist.data?.data?.files
+  // oneGist.data 经过 select: data => data?.data 已是 GistObject，
+  // 但 TS 因 options?: any 无法推断，需手动断言
+  const gistFiles = (oneGist.data as any)?.files
 
   // Create refs to hold latest values to avoid recreating the debounced function
   const mutationRef = useRef(mutation)
@@ -50,11 +52,11 @@ export function useGistSync(settings: Setting | null) {
       // Attempt to find filename if missing (legacy support)
       if (!fileName && _gistFiles) {
         const keys = Object.keys(_gistFiles)
-        if (keys.length === 1 || (keys.length === 1 && 'undefined' in _gistFiles)) {
-          fileName = keys[0]
-        }
         if ('candi_tab_settings.json' in _gistFiles) {
           fileName = 'candi_tab_settings.json'
+        }
+        else if (keys.length === 1) {
+          fileName = keys[0]
         }
       }
 
