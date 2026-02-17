@@ -67,9 +67,7 @@ export default function Tooltip({
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        <Popover.Button as="div" className="cursor-pointer">
-          {children}
-        </Popover.Button>
+        {children}
         <Transition
           show={isOpen}
           as={Fragment}
