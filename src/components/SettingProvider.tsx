@@ -15,19 +15,20 @@ import SettingsContext from '../context/settings.context'
 
 export default function SettingProvider({ children }: PropsWithChildren) {
   const [accessToken, setAccessToken] = useStorage('accessToken')
-  const [settings, updateSettings] = useSettings()
+  const [settings, updateSettings, patchSettings] = useSettings()
   const queryClient = useQueryClient()
 
-  useGistSync(settings)
+  useGistSync(settings, patchSettings)
 
   const value = useMemo(() => {
     return {
       updateSettings,
+      patchSettings,
       settings,
       accessToken,
       updateAccessToken: setAccessToken,
     }
-  }, [updateSettings, settings, accessToken, setAccessToken])
+  }, [updateSettings, patchSettings, settings, accessToken, setAccessToken])
 
   useEffect(() => {
     if (!accessToken) {

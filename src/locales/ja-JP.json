@@ -48,6 +48,8 @@
   "sync success": "同期しました",
   "sync failed": "同期に失敗しました",
   "syncing": "同期中...",
+  "Remote changes detected, local edits discarded": "リモートに更新があります。ローカルの未保存の編集は破棄されました。",
+  "Remote has newer changes, please retry": "リモートに新しい更新があります。最新を取得しました。再度編集してください。",
   "built in color": "プリセットカラー",
   "custom color": "カスタムカラー",
   "proceed": "続行",

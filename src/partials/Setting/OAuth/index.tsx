@@ -2,7 +2,6 @@ import type { IGist } from '@/types/gist.type'
 import { Octokit } from '@octokit/rest'
 import classNames from 'classnames'
 import _ from 'lodash'
-import { set } from 'lodash/fp'
 import { ExternalLink } from 'lucide-react'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
@@ -44,8 +43,16 @@ interface GistListProps {
   onSave: () => void
 }
 
+function toMs(iso: string | undefined): number {
+  if (!iso) {
+    return 0
+  }
+  const ms = new Date(iso).getTime()
+  return Number.isFinite(ms) ? ms : 0
+}
+
 function GistList({ onSave }: GistListProps) {
-  const { settings, updateSettings, accessToken } = useContext(SettingsContext)
+  const { settings, patchSettings, accessToken } = useContext(SettingsContext)
   const allGist = useGistAll(accessToken)
   const [selectedGist, setSelectedGist] = useState<IGist | undefined>()
   const [selectedFile, setSelectedFile] = useState<string>('')
@@ -63,17 +70,18 @@ function GistList({ onSave }: GistListProps) {
   const gistUpdate = useGistUpdate(selectedGist?.id || settings?.gist?.id)
   const gistCreation = useGistCreation({
     onSuccess: (data: any) => {
-      const newSettings = {
+      const remoteUpdatedAt = toMs(data?.data?.updated_at) || Date.now()
+      // 用 patchSettings 完整替换内容，避免 updateSettings 自增 updatedAt 触发不必要的回推
+      patchSettings({
         ...parseGistContent(data.data, newGist.fileName),
         gistId: data.data.id,
-      }
-
-      newSettings.gist = {
-        ..._.pick(data.data, ['description', 'id']),
-        fileName: newGist.fileName,
-      }
+        gist: {
+          ..._.pick(data.data, ['description', 'id']),
+          fileName: newGist.fileName,
+        },
+        remoteUpdatedAt,
+      })
       allGist.refetch()
-      updateSettings(newSettings)
       setIsCreateGist(false)
     },
   })
@@ -145,22 +153,17 @@ function GistList({ onSave }: GistListProps) {
         settings,
       })
 
+      // 注意：settings 的更新已在 gistCreation.onSuccess 中通过 patchSettings 写入服务端时间戳。
+      // 这里不再调用 updateSettings 避免再次自增 updatedAt 触发回推。
       allGist.refetch()
       // @ts-expect-error Library type mismatch
       setSelectedGist(gistResponse.data)
       setIsCreateGist(false)
-
-      updateSettings(
-        set('gist')({
-          ...newGist,
-          id: gistResponse.data.id,
-        })(settings),
-      )
     }
     catch (err: any) {
       toast.error(err.toString())
     }
-  }, [allGist, gistCreation, newGist, settings, updateSettings])
+  }, [allGist, gistCreation, newGist, settings])
 
   const handleFileOnChange = useCallback((changedFileName: string) => {
     setSelectedFile(changedFileName)
@@ -169,25 +172,26 @@ function GistList({ onSave }: GistListProps) {
   // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleFileSelect = useCallback(() => {
     if (oneGist?.data && selectedGist?.id) {
-      const newSettings = {
+      const remoteUpdatedAt = toMs((oneGist.data as any)?.updated_at) || Date.now()
+      // 切换到指定远程版本：用 patchSettings 完整覆盖内容并写入服务端基线
+      // 关键：保留远程内容里的 updatedAt（避免被 updateSettings 自增后误判为本地有未推送修改 → 回推覆盖远程）
+      patchSettings({
         ...parseGistContent(oneGist.data!, selectedFile),
         gistId: selectedGist.id,
-      }
-
-      newSettings.gist = {
-        ..._.pick(oneGist.data, ['description', 'id']),
-        fileName: selectedFile,
-      }
-
-      updateSettings(newSettings)
+        gist: {
+          ..._.pick(oneGist.data, ['description', 'id']),
+          fileName: selectedFile,
+        },
+        remoteUpdatedAt,
+      })
       onSave?.()
     }
-  }, [onSave, oneGist.data, selectedFile, selectedGist?.id, updateSettings])
+  }, [onSave, oneGist.data, selectedFile, selectedGist?.id, patchSettings])
 
   // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleUpdateGist = useCallback(async () => {
     try {
-      await gistUpdate.mutateAsync({
+      const result = await gistUpdate.mutateAsync({
         gist_id: selectedGist?.id || settings?.gist?.id || settings?.gistId || '',
         description: settings?.gist?.description,
         files: {
@@ -197,15 +201,20 @@ function GistList({ onSave }: GistListProps) {
         },
       })
 
+      const remoteUpdatedAt = toMs((result?.data as any)?.updated_at) || Date.now()
       oneGist.refetch()
       setSelectedFile(newFileName)
       setIsCreateFile(false)
-      updateSettings(set('gist.fileName', newFileName)(settings))
+      // 推送了新文件后更新本地的 fileName 指向 + 服务端时间戳基线
+      patchSettings({
+        gist: { ...(settings.gist || {} as any), fileName: newFileName },
+        remoteUpdatedAt,
+      })
     }
     catch (err: any) {
       toast.error(err.toString())
     }
-  }, [gistUpdate, selectedGist?.id, settings, newFileName, oneGist, updateSettings])
+  }, [gistUpdate, selectedGist?.id, settings, newFileName, oneGist, patchSettings])
 
   const disabled = useMemo(() => {
     // @ts-expect-error Preserving logic despite type mismatch
