@@ -29,8 +29,17 @@ export interface Block {
 
 export interface Setting {
   links: Block[]
+  /**
+   * 本地业务时间戳：每次用户改动时单调递增（max(Date.now(), prev+1)）。
+   * 用途：判断"本地是否有未推送修改"——当 updatedAt > remoteUpdatedAt 时即为有。
+   */
   updatedAt: number
   createdAt: number
+  /**
+   * 上一次成功 pull/push 完成时 GitHub Gist 的 updated_at（毫秒）。
+   * 作为同步基线：服务端权威时间戳，避免依赖客户端时钟。
+   */
+  remoteUpdatedAt?: number
   general: {
     language: string
   }

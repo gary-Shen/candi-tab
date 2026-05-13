@@ -49,6 +49,8 @@
   "sync success": "已同步",
   "sync failed": "同步失败",
   "syncing": "同步中...",
+  "Remote changes detected, local edits discarded": "检测到远程有更新，本地未提交的修改已被覆盖",
+  "Remote has newer changes, please retry": "远程已有更新，正在拉取，请稍后重试修改",
   "built in color": "内置颜色",
   "custom color": "自定义颜色",
   "proceed": "继续",
