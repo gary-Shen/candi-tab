@@ -19,6 +19,7 @@ import { useGistAll, useGistOne } from '@/hooks/useGistQuery'
 import { setOctokit } from '@/service/gist'
 import { gid } from '@/utils/gid'
 import parseGistContent from '@/utils/parseGistContent'
+import { serializeSettingsForPush, toMs } from '@/utils/sync'
 
 const CLIENT_ID = '9f776027a79806fc1363'
 const REDIRECT_URI = 'https://candi-tab.vercel.app/api/github'
@@ -43,14 +44,6 @@ interface GistListProps {
   onSave: () => void
 }
 
-function toMs(iso: string | undefined): number {
-  if (!iso) {
-    return 0
-  }
-  const ms = new Date(iso).getTime()
-  return Number.isFinite(ms) ? ms : 0
-}
-
 function GistList({ onSave }: GistListProps) {
   const { settings, patchSettings, accessToken } = useContext(SettingsContext)
   const allGist = useGistAll(accessToken)
@@ -70,16 +63,21 @@ function GistList({ onSave }: GistListProps) {
   const gistUpdate = useGistUpdate(selectedGist?.id || settings?.gist?.id)
   const gistCreation = useGistCreation({
     onSuccess: (data: any) => {
-      const remoteUpdatedAt = toMs(data?.data?.updated_at) || Date.now()
+      // 兜底取 0 而不是 Date.now()：基线偏小只会多走一次"回声推进"自愈，
+      // 偏大（本地时钟超前于服务端）会把后续真实的远程变更误判为过期读
+      const remoteUpdatedAt = toMs(data?.data?.updated_at) || 0
+      const parsed = parseGistContent(data.data, newGist.fileName)
       // 用 patchSettings 完整替换内容，避免 updateSettings 自增 updatedAt 触发不必要的回推
       patchSettings({
-        ...parseGistContent(data.data, newGist.fileName),
+        ...parsed,
         gistId: data.data.id,
         gist: {
           ..._.pick(data.data, ['description', 'id']),
           fileName: newGist.fileName,
         },
         remoteUpdatedAt,
+        // 刚创建的 gist 内容即本地内容，标记为已同步
+        lastSyncedUpdatedAt: parsed?.updatedAt ?? 0,
       })
       allGist.refetch()
       setIsCreateGist(false)
@@ -172,17 +170,20 @@ function GistList({ onSave }: GistListProps) {
   // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleFileSelect = useCallback(() => {
     if (oneGist?.data && selectedGist?.id) {
-      const remoteUpdatedAt = toMs((oneGist.data as any)?.updated_at) || Date.now()
+      const remoteUpdatedAt = toMs((oneGist.data as any)?.updated_at) || 0
+      const parsed = parseGistContent(oneGist.data!, selectedFile)
       // 切换到指定远程版本：用 patchSettings 完整覆盖内容并写入服务端基线
       // 关键：保留远程内容里的 updatedAt（避免被 updateSettings 自增后误判为本地有未推送修改 → 回推覆盖远程）
       patchSettings({
-        ...parseGistContent(oneGist.data!, selectedFile),
+        ...parsed,
         gistId: selectedGist.id,
         gist: {
           ..._.pick(oneGist.data, ['description', 'id']),
           fileName: selectedFile,
         },
         remoteUpdatedAt,
+        // 本地内容即远程版本，标记为已同步
+        lastSyncedUpdatedAt: parsed?.updatedAt ?? 0,
       })
       onSave?.()
     }
@@ -196,19 +197,20 @@ function GistList({ onSave }: GistListProps) {
         description: settings?.gist?.description,
         files: {
           [newFileName]: {
-            content: JSON.stringify(settings),
+            content: serializeSettingsForPush(settings),
           },
         },
       })
 
-      const remoteUpdatedAt = toMs((result?.data as any)?.updated_at) || Date.now()
+      const remoteUpdatedAt = toMs((result?.data as any)?.updated_at) || 0
       oneGist.refetch()
       setSelectedFile(newFileName)
       setIsCreateFile(false)
-      // 推送了新文件后更新本地的 fileName 指向 + 服务端时间戳基线
+      // 推送了新文件后更新本地的 fileName 指向 + 服务端时间戳基线，并标记当前内容已同步
       patchSettings({
         gist: { ...(settings.gist || {} as any), fileName: newFileName },
         remoteUpdatedAt,
+        lastSyncedUpdatedAt: settings.updatedAt ?? 0,
       })
     }
     catch (err: any) {

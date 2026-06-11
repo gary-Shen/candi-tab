@@ -49,7 +49,6 @@
   "sync failed": "동기화 실패",
   "syncing": "동기화 중...",
   "Remote changes detected, local edits discarded": "원격에 변경 사항이 감지되었습니다. 저장되지 않은 로컬 편집은 폐기되었습니다.",
-  "Remote has newer changes, please retry": "원격에 새로운 변경 사항이 있습니다. 최신을 가져왔습니다. 다시 시도해 주세요.",
   "built in color": "기본 색상",
   "custom color": "사용자 지정 색상",
   "proceed": "계속",

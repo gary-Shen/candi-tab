@@ -1,6 +1,7 @@
 import type { Octokit } from '@octokit/rest'
 
 import type { Setting } from '@/types/setting.type'
+import { serializeSettingsForPush } from '@/utils/sync'
 
 let octokit: Octokit | null
 
@@ -70,7 +71,7 @@ export function create({ gist, settings }: GistCreation) {
     description: gist.description,
     files: {
       [`${gist.fileName}`]: {
-        content: JSON.stringify(settings),
+        content: serializeSettingsForPush(settings),
       },
     },
   })

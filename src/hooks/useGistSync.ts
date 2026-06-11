@@ -4,17 +4,11 @@ import { useEffect, useRef } from 'react'
 import toast from 'react-hot-toast'
 
 import { useTranslation } from 'react-i18next'
-import parseGistContent from '@/utils/parseGistContent'
+import queryClient from '@/components/QueryProvider'
+import { gistKeys } from '@/constant/queryKeys/gist'
+import { serializeSettingsForPush, toMs } from '@/utils/sync'
 import { useGistUpdate } from './useGistMutation'
 import { useGistOne } from './useGistQuery'
-
-function toMs(iso: string | undefined): number {
-  if (!iso) {
-    return 0
-  }
-  const ms = new Date(iso).getTime()
-  return Number.isFinite(ms) ? ms : 0
-}
 
 const DEFAULT_FILE_NAME = 'candi-tab-settings.json'
 
@@ -47,6 +41,8 @@ export function useGistSync(
   })
 
   const syncRef = useRef<any>(null)
+  // react-query v4 的 mutation 没有 isPending（v5 才有），用本地 ref 防止并发推送
+  const pushingRef = useRef(false)
 
   useEffect(() => {
     syncRef.current = debounce(async (currentSettings: Setting) => {
@@ -57,13 +53,13 @@ export function useGistSync(
       const _oneGist = oneGistRef.current
       const _patchSettings = patchSettingsRef.current
 
-      if (!currentSettings || !_gistId || _mutation.isPending) {
+      if (!currentSettings || !_gistId || pushingRef.current) {
         return
       }
 
-      // 核心不变量 1：本地存在未推送修改 ⇔ updatedAt > remoteUpdatedAt
-      const localRemoteUpdatedAt = currentSettings.remoteUpdatedAt ?? 0
-      if ((currentSettings.updatedAt ?? 0) <= localRemoteUpdatedAt) {
+      // 本地无未推送修改：updatedAt 与 lastSyncedUpdatedAt 同源于本地单调序列，
+      // 不与 GitHub 服务端时钟跨时钟比较
+      if ((currentSettings.updatedAt ?? 0) <= (currentSettings.lastSyncedUpdatedAt ?? 0)) {
         return
       }
 
@@ -84,50 +80,60 @@ export function useGistSync(
         return
       }
 
-      // 推送前主动刷新远程，做并发冲突校验：避免覆盖其他设备的最新修改
-      let refetchedRemoteUpdatedAt = toMs((_oneGist.data as any)?.updated_at)
+      pushingRef.current = true
       try {
-        const refetched = await _oneGist.refetch()
-        refetchedRemoteUpdatedAt = toMs((refetched.data as any)?.updated_at) || refetchedRemoteUpdatedAt
-      }
-      catch (err) {
-        console.warn('[sync] refetch before push failed', err)
-      }
+        // 推送前刷新远程做冲突检测：远程在基线之后被改过 → 本轮不推送，
+        // 刷新带来的新数据会触发 useSettings 的合并 effect 做仲裁（回声推进基线 / 拉取远程 / 冲突取新），
+        // 仲裁后若本地仍有未推送修改，settings 变化会自动重新触发推送。
+        // 拿到"远程更旧"的过期读（GitHub 最终一致）不构成新信息，照常推送。
+        const baseline = currentSettings.remoteUpdatedAt ?? 0
+        try {
+          const refetched = await _oneGist.refetch()
+          const refetchedRemoteUpdatedAt = toMs((refetched.data as any)?.updated_at)
+          if (refetchedRemoteUpdatedAt > baseline) {
+            return
+          }
+        }
+        catch (err) {
+          console.warn('[sync] refetch before push failed', err)
+        }
 
-      // 远程比我们记录的基线更新 → 另一台设备改过；不推送，把决策权交给 useSettings 的合并 effect
-      if (refetchedRemoteUpdatedAt && refetchedRemoteUpdatedAt > localRemoteUpdatedAt) {
-        toast.error(_t('Remote has newer changes, please retry'))
-        return
-      }
+        const toastId = toast.loading(_t('syncing'))
 
-      // 同时校验：refetched 内容里的 updatedAt 也不能比本地新（防御性兜底）
-      const remoteSettings = parseGistContent(_oneGist.data, fileName)
-      if (remoteSettings && remoteSettings.updatedAt > currentSettings.updatedAt) {
-        return
-      }
-
-      const toastId = toast.loading(_t('syncing'))
-
-      try {
-        const result = await _mutation.mutateAsync({
-          gist_id: _gistId,
-          description: currentSettings.gist?.description,
-          files: {
-            [fileName]: {
-              content: JSON.stringify(currentSettings),
+        try {
+          const result = await _mutation.mutateAsync({
+            gist_id: _gistId,
+            description: currentSettings.gist?.description,
+            files: {
+              [fileName]: {
+                content: serializeSettingsForPush(currentSettings),
+              },
             },
-          },
-        })
+          })
 
-        // 推送成功后：用 GitHub 返回的服务端 updated_at 更新本地基线，避免下次重复推送 / 错误地认为远程被外部改过
-        const pushedAt = toMs((result.data as any)?.updated_at) || Date.now()
-        _patchSettings({ remoteUpdatedAt: pushedAt })
+          // 推送成功：基线 = 服务端 updated_at；lastSyncedUpdatedAt = 本次推送内容的本地时间戳。
+          // 若推送期间用户又有修改，updatedAt 已大于它，仍视为未推送，下一轮自动补推。
+          // 兜底取 baseline（偏小）而不是 Date.now()：基线偏小只会多走一次"回声推进"自愈，
+          // 偏大（本地时钟超前）则会把后续真实的远程变更误判为过期读。
+          const pushedAt = toMs((result.data as any)?.updated_at) || baseline
+          _patchSettings({
+            remoteUpdatedAt: pushedAt,
+            lastSyncedUpdatedAt: currentSettings.updatedAt ?? 0,
+          })
 
-        toast.success(_t('sync success'), { id: toastId })
+          // 把 PATCH 响应写入查询缓存：缓存内容/时间戳与刚推送的状态保持一致，
+          // 后续窗口聚焦 refetch 不再与本地状态打架
+          queryClient.setQueryData(gistKeys.detail(_gistId), result)
+
+          toast.success(_t('sync success'), { id: toastId })
+        }
+        catch (error) {
+          console.error(error)
+          toast.error(_t('sync failed'), { id: toastId })
+        }
       }
-      catch (error) {
-        console.error(error)
-        toast.error(_t('sync failed'), { id: toastId })
+      finally {
+        pushingRef.current = false
       }
     }, 3000)
 
@@ -136,7 +142,7 @@ export function useGistSync(
     }
   }, [])
 
-  // 首次挂载也允许触发 sync：之前的 isFirstMount 跳过会让"本地有未推送修改但还没改过"的场景永远不上行
+  // 首次挂载也允许触发 sync：本地可能带着上次会话未推送的修改
   useEffect(() => {
     if (settings) {
       syncRef.current?.(settings)

@@ -50,7 +50,6 @@
   "sync failed": "同步失敗",
   "syncing": "同步中...",
   "Remote changes detected, local edits discarded": "偵測到遠端有更新，本機未提交的修改已被覆蓋",
-  "Remote has newer changes, please retry": "遠端已有更新，正在拉取，請稍後重試修改",
   "built in color": "內建顏色",
   "custom color": "自訂顏色",
   "proceed": "繼續",
