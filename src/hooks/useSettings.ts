@@ -6,11 +6,12 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { gid } from '@/utils/gid'
+import mergeSettings from '@/utils/mergeSettings'
 import parseGistContent from '@/utils/parseGistContent'
-import { toMs } from '@/utils/sync'
+import { getHeadVersion, isRemoteNewer, isSameContent, toMs } from '@/utils/sync'
 
 import defaultSettings from '../default-settings.json'
-import { load, save } from './settings'
+import { getSyncBase, load, loadSyncBase, save, setSyncBase } from './settings'
 import { useGistOne } from './useGistQuery'
 
 const setIds = update('links')((blocks: Block[]) =>
@@ -48,15 +49,6 @@ const setIds = update('links')((blocks: Block[]) =>
   }),
 )
 
-// 排除瞬态/同步字段后比较内容是否相同，避免"自己刚推送的回声"触发覆盖
-function isSameContent(a: Setting | null | undefined, b: Setting | null | undefined): boolean {
-  if (!a || !b) {
-    return false
-  }
-  const omitKeys: (keyof Setting)[] = ['updatedAt', 'createdAt', 'remoteUpdatedAt', 'lastSyncedUpdatedAt', 'gist']
-  return _.isEqual(_.omit(a, omitKeys as string[]), _.omit(b, omitKeys as string[]))
-}
-
 // 本地是否有未推送修改：updatedAt 与 lastSyncedUpdatedAt 同源于本地单调序列，
 // 不与 GitHub 服务端时钟跨时钟比较（时钟偏差曾导致漏推送/误判冲突）
 function hasUnpushedChanges(settings: Setting | null | undefined): boolean {
@@ -85,7 +77,7 @@ export default function useSettings(): [
   }, [settings])
 
   useEffect(() => {
-    load().then((result) => {
+    Promise.all([load(), loadSyncBase()]).then(([result]) => {
       const newSettings = setIds({ ...defaultSettings, ...result })
       // 迁移：旧版本没有 lastSyncedUpdatedAt，按旧不变量推导
       // （updatedAt ≤ remoteUpdatedAt 视为已同步，否则视为有未推送修改）
@@ -99,78 +91,128 @@ export default function useSettings(): [
     })
   }, [])
 
-  // 远程 Gist → 本地的合并：以 GitHub 服务端 updated_at 作为权威时间戳，避免本地时钟漂移导致漏同步
+  // 远程 Gist → 本地的合并：以修订 SHA（回退服务端 updated_at）判断远端是否真有更新
   useEffect(() => {
     if (!oneGist.isSuccess || !localLoadedRef.current) {
       return
     }
 
     const current = settingsRef.current
-    const remoteServerUpdatedAt = toMs((oneGist.data as any)?.updated_at)
-    if (!remoteServerUpdatedAt) {
-      return
-    }
 
-    const baseline = current?.remoteUpdatedAt ?? 0
-
-    // 只处理"远程严格新于基线"：等于 = 未变化；小于 = 过期读
-    // （GitHub API 最终一致 / 与推送竞态的旧请求）。过期读绝不能覆盖本地，
+    // 只处理"远端严格新于基线"：未变化与过期读（GitHub API 最终一致 /
+    // 与推送竞态的旧请求）一律忽略。过期读绝不能覆盖本地，
     // 否则刚添加的内容会被旧数据顶掉——这是此前内容丢失的根因之一。
-    if (remoteServerUpdatedAt <= baseline) {
+    if (!isRemoteNewer(oneGist.data, current)) {
       return
     }
+
+    const remoteServerUpdatedAt = toMs((oneGist.data as any)?.updated_at)
+    const remoteVersion = getHeadVersion(oneGist.data)
 
     const parsed = parseGistContent(oneGist.data!, current?.gist?.fileName)
     if (!parsed) {
       return
     }
 
-    // 内容与本地一致（典型场景：刚推送完成后远程回来的同一份数据），推进基线并标记已同步
-    if (isSameContent(parsed, current)) {
-      const next = {
-        ...current!,
-        remoteUpdatedAt: remoteServerUpdatedAt,
-        lastSyncedUpdatedAt: current!.updatedAt ?? 0,
-      }
+    const applyNext = (next: Setting) => {
       settingsRef.current = next
       // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
       setSettings(next)
       save(next)
+    }
+
+    // 内容与本地一致（典型场景：刚推送完成后远程回来的同一份数据），推进基线并标记已同步
+    if (isSameContent(parsed, current)) {
+      setSyncBase(parsed)
+      applyNext({
+        ...current!,
+        remoteUpdatedAt: remoteServerUpdatedAt,
+        remoteVersion,
+        lastSyncedUpdatedAt: current!.updatedAt ?? 0,
+      })
       return
     }
 
     const hasLocalUnpushed = hasUnpushedChanges(current)
+    const base = getSyncBase()
 
-    // 真冲突（双方都有修改）：取内容时间戳较新的一方，平局保本地，
-    // 保护用户正看着的刚添加内容。本地胜出时只推进基线、保持"未推送"状态，
-    // 由 useGistSync 的推送流程把本地内容覆盖到远程。
-    if (hasLocalUnpushed && (current!.updatedAt ?? 0) >= (parsed.updatedAt ?? 0)) {
-      const next = { ...current!, remoteUpdatedAt: remoteServerUpdatedAt }
-      settingsRef.current = next
-      // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
-      setSettings(next)
-      save(next)
+    // 本地无未推送修改 → 正常拉取远端
+    if (!hasLocalUnpushed || !current) {
+      setSyncBase(parsed)
+      const merged: Setting = {
+        ...parsed,
+        remoteUpdatedAt: remoteServerUpdatedAt,
+        remoteVersion,
+        lastSyncedUpdatedAt: parsed.updatedAt ?? 0,
+      }
+      merged.gist = {
+        ...(parsed.gist || {}),
+        ..._.pick(oneGist.data, ['description', 'id']),
+      }
+      applyNext(merged)
       return
     }
 
-    if (hasLocalUnpushed) {
-      toast.error(t('Remote changes detected, local edits discarded'))
+    // 真冲突（双方都有修改）+ 有上次同步快照 → 区块级三方合并，双方修改都保留
+    if (base) {
+      const mergedContent = mergeSettings(base, current, parsed)
+      setSyncBase(parsed)
+
+      // 合并结果 == 远端（本地改动是远端的子集）→ 采用远端，标记已同步
+      if (isSameContent(mergedContent, parsed)) {
+        const next: Setting = {
+          ...mergedContent,
+          remoteUpdatedAt: remoteServerUpdatedAt,
+          remoteVersion,
+          updatedAt: current.updatedAt ?? 0,
+          lastSyncedUpdatedAt: current.updatedAt ?? 0,
+        }
+        next.gist = {
+          ...(parsed.gist || {}),
+          ..._.pick(oneGist.data, ['description', 'id']),
+        }
+        applyNext(next)
+        return
+      }
+
+      // 合并结果 == 本地（远端改动是本地的子集）→ 内容保持本地，只推进基线，
+      // 保持"未推送"状态，由 useGistSync 的推送流程覆盖远端
+      if (isSameContent(mergedContent, current)) {
+        applyNext({ ...current, remoteUpdatedAt: remoteServerUpdatedAt, remoteVersion })
+        return
+      }
+
+      // 双方都有独立改动 → 应用合并结果，标脏等待推送（合并结果需要上行到远端）
+      toast.success(t('Remote and local changes merged'))
+      applyNext({
+        ...mergedContent,
+        remoteUpdatedAt: remoteServerUpdatedAt,
+        remoteVersion,
+        updatedAt: Math.max(Date.now(), (current.updatedAt ?? 0) + 1),
+        lastSyncedUpdatedAt: current.lastSyncedUpdatedAt ?? 0,
+      })
+      return
     }
 
+    // 无快照（升级迁移期）→ 退回整文档 LWW：取内容时间戳较新的一方，平局保本地
+    if ((current.updatedAt ?? 0) >= (parsed.updatedAt ?? 0)) {
+      applyNext({ ...current, remoteUpdatedAt: remoteServerUpdatedAt, remoteVersion })
+      return
+    }
+
+    toast.error(t('Remote changes detected, local edits discarded'))
+    setSyncBase(parsed)
     const merged: Setting = {
       ...parsed,
       remoteUpdatedAt: remoteServerUpdatedAt,
+      remoteVersion,
       lastSyncedUpdatedAt: parsed.updatedAt ?? 0,
     }
     merged.gist = {
       ...(parsed.gist || {}),
       ..._.pick(oneGist.data, ['description', 'id']),
     }
-
-    settingsRef.current = merged
-    // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
-    setSettings(merged)
-    save(merged)
+    applyNext(merged)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [oneGist.data, oneGist.isSuccess])
 

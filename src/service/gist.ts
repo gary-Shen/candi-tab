@@ -43,6 +43,23 @@ export function fetchOne({ gist_id }: GistsGetParams) {
   })
 }
 
+export interface GistRevisionParams {
+  gist_id: string
+  sha: string
+}
+
+/** 获取 gist 指定修订的内容（用于推送竞态时找回被覆盖的修订） */
+export function fetchRevision({ gist_id, sha }: GistRevisionParams) {
+  if (!octokit) {
+    return Promise.reject(new Error('None octokit found!'))
+  }
+
+  return octokit.rest.gists.getRevision({
+    gist_id,
+    sha,
+  })
+}
+
 export interface GistPayload {
   gist_id?: string
   public: boolean

@@ -42,6 +42,12 @@ export interface Setting {
    */
   remoteUpdatedAt?: number
   /**
+   * 上一次成功 pull/push 时 Gist 的修订 SHA（history[0].version）。
+   * 比 updated_at 更精确的基线：与时钟无关，且无秒级精度盲区。
+   * 仅设备本地有效，推送内容时会被剔除。
+   */
+  remoteVersion?: string
+  /**
    * 上一次成功 pull/push 时本地内容的 updatedAt。
    * 与 updatedAt 同源于本地单调序列：updatedAt > lastSyncedUpdatedAt ⇔ 本地有未推送修改。
    * 仅设备本地有效，推送内容时会被剔除（见 serializeSettingsForPush）。

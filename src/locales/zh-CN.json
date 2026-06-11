@@ -28,7 +28,6 @@
   "dateFormat": "YYYY-MM-DD HH:mm:ss",
   "settingFile": "配置文件",
   "edit": "编辑",
-
   "Are you sure to delete": "确定要删除 {{name}} 吗？",
   "confirm": "确认",
   "yes": "是的",
@@ -50,6 +49,7 @@
   "sync failed": "同步失败",
   "syncing": "同步中...",
   "Remote changes detected, local edits discarded": "检测到远程有更新，本地未提交的修改已被覆盖",
+  "Remote and local changes merged": "已自动合并远程与本地的修改",
   "built in color": "内置颜色",
   "custom color": "自定义颜色",
   "proceed": "继续",

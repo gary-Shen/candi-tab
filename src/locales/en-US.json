@@ -49,6 +49,7 @@
   "sync failed": "Synchronization failed",
   "syncing": "Synchronizing...",
   "Remote changes detected, local edits discarded": "Remote changes detected. Your unsaved local edits were discarded.",
+  "Remote and local changes merged": "Remote changes merged with your local edits.",
   "built in color": "Built-in color",
   "custom color": "Custom color",
   "proceed": "Proceed",

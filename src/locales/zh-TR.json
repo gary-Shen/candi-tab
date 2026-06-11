@@ -28,7 +28,6 @@
   "settingFile": "設定檔案",
   "dateFormat": "YYYY-MM-DD HH:mm:ss",
   "edit": "編輯",
-
   "Are you sure to delete": "確定要刪除 {{name}} 嗎？",
   "confirm": "確定",
   "yes": "確定",
@@ -50,6 +49,7 @@
   "sync failed": "同步失敗",
   "syncing": "同步中...",
   "Remote changes detected, local edits discarded": "偵測到遠端有更新，本機未提交的修改已被覆蓋",
+  "Remote and local changes merged": "已自動合併遠端與本機的修改",
   "built in color": "內建顏色",
   "custom color": "自訂顏色",
   "proceed": "繼續",

@@ -3,7 +3,8 @@ import { Octokit } from '@octokit/rest'
 import classNames from 'classnames'
 import _ from 'lodash'
 import { ExternalLink } from 'lucide-react'
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import * as React from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { useTranslation } from 'react-i18next'
@@ -14,12 +15,13 @@ import Select from '@/components/Select'
 import Spin from '@/components/Spin'
 import TextArea from '@/components/TextArea'
 import SettingsContext from '@/context/settings.context'
+import { setSyncBase } from '@/hooks/settings'
 import { useGistCreation, useGistUpdate } from '@/hooks/useGistMutation'
 import { useGistAll, useGistOne } from '@/hooks/useGistQuery'
 import { setOctokit } from '@/service/gist'
 import { gid } from '@/utils/gid'
 import parseGistContent from '@/utils/parseGistContent'
-import { serializeSettingsForPush, toMs } from '@/utils/sync'
+import { getHeadVersion, serializeSettingsForPush, toMs } from '@/utils/sync'
 
 const CLIENT_ID = '9f776027a79806fc1363'
 const REDIRECT_URI = 'https://candi-tab.vercel.app/api/github'
@@ -67,6 +69,7 @@ function GistList({ onSave }: GistListProps) {
       // 偏大（本地时钟超前于服务端）会把后续真实的远程变更误判为过期读
       const remoteUpdatedAt = toMs(data?.data?.updated_at) || 0
       const parsed = parseGistContent(data.data, newGist.fileName)
+      setSyncBase(parsed ?? null)
       // 用 patchSettings 完整替换内容，避免 updateSettings 自增 updatedAt 触发不必要的回推
       patchSettings({
         ...parsed,
@@ -76,6 +79,7 @@ function GistList({ onSave }: GistListProps) {
           fileName: newGist.fileName,
         },
         remoteUpdatedAt,
+        remoteVersion: getHeadVersion(data.data),
         // 刚创建的 gist 内容即本地内容，标记为已同步
         lastSyncedUpdatedAt: parsed?.updatedAt ?? 0,
       })
@@ -100,7 +104,7 @@ function GistList({ onSave }: GistListProps) {
 
   useEffect(() => {
     if (oneGist.isSuccess && !selectedFile) {
-      // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect, react-hooks/set-state-in-effect
+      // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
       setSelectedFile(settings.gist?.fileName || files?.[0]?.value)
       // @ts-expect-error Library type mismatch
       // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
@@ -167,11 +171,11 @@ function GistList({ onSave }: GistListProps) {
     setSelectedFile(changedFileName)
   }, [])
 
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleFileSelect = useCallback(() => {
     if (oneGist?.data && selectedGist?.id) {
       const remoteUpdatedAt = toMs((oneGist.data as any)?.updated_at) || 0
       const parsed = parseGistContent(oneGist.data!, selectedFile)
+      setSyncBase(parsed ?? null)
       // 切换到指定远程版本：用 patchSettings 完整覆盖内容并写入服务端基线
       // 关键：保留远程内容里的 updatedAt（避免被 updateSettings 自增后误判为本地有未推送修改 → 回推覆盖远程）
       patchSettings({
@@ -182,6 +186,7 @@ function GistList({ onSave }: GistListProps) {
           fileName: selectedFile,
         },
         remoteUpdatedAt,
+        remoteVersion: getHeadVersion(oneGist.data),
         // 本地内容即远程版本，标记为已同步
         lastSyncedUpdatedAt: parsed?.updatedAt ?? 0,
       })
@@ -189,7 +194,6 @@ function GistList({ onSave }: GistListProps) {
     }
   }, [onSave, oneGist.data, selectedFile, selectedGist?.id, patchSettings])
 
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleUpdateGist = useCallback(async () => {
     try {
       const result = await gistUpdate.mutateAsync({
@@ -203,13 +207,15 @@ function GistList({ onSave }: GistListProps) {
       })
 
       const remoteUpdatedAt = toMs((result?.data as any)?.updated_at) || 0
+      setSyncBase(JSON.parse(serializeSettingsForPush(settings)))
       oneGist.refetch()
       setSelectedFile(newFileName)
       setIsCreateFile(false)
-      // 推送了新文件后更新本地的 fileName 指向 + 服务端时间戳基线，并标记当前内容已同步
+      // 推送了新文件后更新本地的 fileName 指向 + 服务端基线，并标记当前内容已同步
       patchSettings({
         gist: { ...(settings.gist || {} as any), fileName: newFileName },
         remoteUpdatedAt,
+        remoteVersion: getHeadVersion(result?.data),
         lastSyncedUpdatedAt: settings.updatedAt ?? 0,
       })
     }
