@@ -13,7 +13,7 @@ export default function useStorage(key: string) {
     }
     catch (err) {
       console.warn(err)
-      // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect, react-hooks/set-state-in-effect
+      // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
       setValue(undefined)
     }
   }, [key])

@@ -29,3 +29,8 @@ export function setSyncBase(content: Setting | null) {
   syncBaseCache = content
   return set('syncBase', content)
 }
+
+/** 采纳来自其他标签页的 syncBase 变更：只更新本实例缓存，不回写存储（避免回声循环） */
+export function adoptSyncBase(content: Setting | null) {
+  syncBaseCache = content
+}

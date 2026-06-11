@@ -16,6 +16,16 @@ import { useGistOne } from './useGistQuery'
 
 const DEFAULT_FILE_NAME = 'candi-tab-settings.json'
 
+// 跨标签页互斥：多个新标签页实例可能同时到达推送点，用 Web Locks 串行化；
+// 后到者在锁内先 refetch，会看到先到者的推送结果并走回声/合并路径，不会重复推送
+function runExclusivePush(fn: () => Promise<void>): Promise<void> {
+  const locks = (typeof navigator !== 'undefined' && (navigator as any).locks) || null
+  if (locks?.request) {
+    return locks.request('candi-tab:gist-push', fn)
+  }
+  return fn()
+}
+
 export function useGistSync(
   settings: Setting | null,
   patchSettings: (patch: Partial<Setting>) => void,
@@ -85,81 +95,86 @@ export function useGistSync(
       if (!fileName) {
         return
       }
+      // 闭包内 TS 无法对 let 保持收窄，固定为 const
+      const _fileName = fileName
 
       pushingRef.current = true
       try {
+        await runExclusivePush(async () => {
         // 推送前刷新远程做冲突检测：远程在基线之后被改过 → 本轮不推送，
         // 刷新带来的新数据会触发 useSettings 的合并 effect 做仲裁
         // （回声推进基线 / 拉取远程 / 三方合并），仲裁后若本地仍有未推送修改，
         // settings 变化会自动重新触发推送。过期读（远程更旧）不构成新信息，照常推送。
-        try {
-          const refetched = await _oneGist.refetch()
-          if (refetched.data && isRemoteNewer(refetched.data, currentSettings)) {
-            return
+        // 注意：refetch 必须在锁内执行，等锁的标签页才能看到先行推送的结果。
+          try {
+            const refetched = await _oneGist.refetch()
+            if (refetched.data && isRemoteNewer(refetched.data, currentSettings)) {
+              return
+            }
           }
-        }
-        catch (err) {
-          console.warn('[sync] refetch before push failed', err)
-        }
+          catch (err) {
+            console.warn('[sync] refetch before push failed', err)
+          }
 
-        const toastId = toast.loading(_t('syncing'))
+          const toastId = toast.loading(_t('syncing'))
 
-        try {
-          const result = await _mutation.mutateAsync({
-            gist_id: _gistId,
-            description: currentSettings.gist?.description,
-            files: {
-              [fileName]: {
-                content: serializeSettingsForPush(currentSettings),
+          try {
+            const result = await _mutation.mutateAsync({
+              gist_id: _gistId,
+              description: currentSettings.gist?.description,
+              files: {
+                [_fileName]: {
+                  content: serializeSettingsForPush(currentSettings),
+                },
               },
-            },
-          })
-
-          // 推送成功：基线 = 服务端 updated_at + 修订 SHA；
-          // lastSyncedUpdatedAt = 本次推送内容的本地时间戳
-          // （若推送期间用户又有修改，updatedAt 已大于它，仍视为未推送，下一轮自动补推）。
-          // 时间戳兜底取旧基线（偏小）而不是 Date.now()：基线偏小只会多走一次"回声推进"自愈，
-          // 偏大（本地时钟超前）则会把后续真实的远程变更误判为过期读。
-          const pushedAt = toMs((result.data as any)?.updated_at) || (currentSettings.remoteUpdatedAt ?? 0)
-          const headVersion = getHeadVersion(result.data)
-          _patchSettings({
-            remoteUpdatedAt: pushedAt,
-            remoteVersion: headVersion || currentSettings.remoteVersion,
-            lastSyncedUpdatedAt: currentSettings.updatedAt ?? 0,
-          })
-
-          // 三方合并的 base 推进为刚推送的内容（先留住旧 base 供竞态补救使用）
-          const prevBase = getSyncBase()
-          setSyncBase(JSON.parse(serializeSettingsForPush(currentSettings)))
-
-          // 把 PATCH 响应写入查询缓存：缓存内容/时间戳与刚推送的状态保持一致，
-          // 后续窗口聚焦 refetch 不再与本地状态打架
-          queryClient.setQueryData(gistKeys.detail(_gistId), result)
-
-          toast.success(_t('sync success'), { id: toastId })
-
-          // 推送竞态补救（TOCTOU）：Gist PATCH 没有条件写入，
-          // "推送前检查 → PATCH" 的窗口内若有其他设备推送，会被本次推送覆盖。
-          // 校验 PATCH 结果的父修订是否是我们已知的基线版本，
-          // 不是则取回被覆盖的修订做三方合并，标脏后由下一轮推送自动上行。
-          const actualParent = (result.data as any)?.history?.[1]?.version
-          const expectedParent = currentSettings.remoteVersion
-          if (expectedParent && actualParent && actualParent !== expectedParent && prevBase) {
-            await repairClobberedRevision({
-              gistId: _gistId,
-              sha: actualParent,
-              fileName,
-              base: prevBase,
-              pushed: currentSettings,
-              patch: _patchSettings,
-              t: _t,
             })
+
+            // 推送成功：基线 = 服务端 updated_at + 修订 SHA；
+            // lastSyncedUpdatedAt = 本次推送内容的本地时间戳
+            // （若推送期间用户又有修改，updatedAt 已大于它，仍视为未推送，下一轮自动补推）。
+            // 时间戳兜底取旧基线（偏小）而不是 Date.now()：基线偏小只会多走一次"回声推进"自愈，
+            // 偏大（本地时钟超前）则会把后续真实的远程变更误判为过期读。
+            const pushedAt = toMs((result.data as any)?.updated_at) || (currentSettings.remoteUpdatedAt ?? 0)
+            const headVersion = getHeadVersion(result.data)
+            _patchSettings({
+              remoteUpdatedAt: pushedAt,
+              remoteVersion: headVersion || currentSettings.remoteVersion,
+              lastSyncedUpdatedAt: currentSettings.updatedAt ?? 0,
+            })
+
+            // 三方合并的 base 推进为刚推送的内容（先留住旧 base 供竞态补救使用）
+            const prevBase = getSyncBase()
+            setSyncBase(JSON.parse(serializeSettingsForPush(currentSettings)))
+
+            // 把 PATCH 响应写入查询缓存：缓存内容/时间戳与刚推送的状态保持一致，
+            // 后续窗口聚焦 refetch 不再与本地状态打架
+            queryClient.setQueryData(gistKeys.detail(_gistId), result)
+
+            toast.success(_t('sync success'), { id: toastId })
+
+            // 推送竞态补救（TOCTOU）：Gist PATCH 没有条件写入，
+            // "推送前检查 → PATCH" 的窗口内若有其他设备推送，会被本次推送覆盖。
+            // 校验 PATCH 结果的父修订是否是我们已知的基线版本，
+            // 不是则取回被覆盖的修订做三方合并，标脏后由下一轮推送自动上行。
+            const actualParent = (result.data as any)?.history?.[1]?.version
+            const expectedParent = currentSettings.remoteVersion
+            if (expectedParent && actualParent && actualParent !== expectedParent && prevBase) {
+              await repairClobberedRevision({
+                gistId: _gistId,
+                sha: actualParent,
+                fileName: _fileName,
+                base: prevBase,
+                pushed: currentSettings,
+                patch: _patchSettings,
+                t: _t,
+              })
+            }
           }
-        }
-        catch (error) {
-          console.error(error)
-          toast.error(_t('sync failed'), { id: toastId })
-        }
+          catch (error) {
+            console.error(error)
+            toast.error(_t('sync failed'), { id: toastId })
+          }
+        })
       }
       finally {
         pushingRef.current = false

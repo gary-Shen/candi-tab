@@ -11,7 +11,8 @@ import parseGistContent from '@/utils/parseGistContent'
 import { getHeadVersion, isRemoteNewer, isSameContent, toMs } from '@/utils/sync'
 
 import defaultSettings from '../default-settings.json'
-import { getSyncBase, load, loadSyncBase, save, setSyncBase } from './settings'
+import { adoptSyncBase, getSyncBase, load, loadSyncBase, save, setSyncBase } from './settings'
+import { subscribe } from './storage'
 import { useGistOne } from './useGistQuery'
 
 const setIds = update('links')((blocks: Block[]) =>
@@ -89,6 +90,38 @@ export default function useSettings(): [
       settingsRef.current = newSettings
       setSettings(newSettings)
     })
+  }, [])
+
+  // 跨标签页同步：每个新标签页都是独立实例，共享存储但内存状态互不感知。
+  // 监听存储变更并采纳其他标签页写入的新状态，避免双方各持旧状态互相覆盖。
+  useEffect(() => {
+    const unsubscribeSettings = subscribe('settings', (incoming: Setting | null) => {
+      if (!incoming || !localLoadedRef.current) {
+        return
+      }
+      const current = settingsRef.current
+      // 回声（本页自己的写入）或无变化 → 忽略
+      if (_.isEqual(incoming, current)) {
+        return
+      }
+      // 过期写入（并发竞态下的旧值）→ 忽略；updatedAt 同机同源，可直接比较。
+      // 等于也采纳：patchSettings 只改同步元数据（基线等）不自增 updatedAt
+      if ((incoming.updatedAt ?? 0) < (current?.updatedAt ?? 0)) {
+        return
+      }
+      settingsRef.current = incoming
+      setSettings(incoming)
+    })
+
+    // 其他标签页推进了三方合并的 base → 跟随更新本实例缓存
+    const unsubscribeSyncBase = subscribe('syncBase', (incoming: Setting | null) => {
+      adoptSyncBase(incoming ?? null)
+    })
+
+    return () => {
+      unsubscribeSettings()
+      unsubscribeSyncBase()
+    }
   }, [])
 
   // 远程 Gist → 本地的合并：以修订 SHA（回退服务端 updated_at）判断远端是否真有更新
