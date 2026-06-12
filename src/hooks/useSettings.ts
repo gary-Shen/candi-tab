@@ -261,20 +261,26 @@ export default function useSettings(): [
 
   const updateSettings = useCallback(
     async (newSettings: Setting) => {
+      const current = settingsRef.current
+      // updatedAt 由本函数维护；同步元数据以 settingsRef 为准（见下），都不参与内容比较
+      const volatileKeys = ['updatedAt', 'remoteUpdatedAt', 'remoteVersion', 'lastSyncedUpdatedAt']
       // 无变化守卫：内容没有实际改动时不刷新 updatedAt（不变脏、不触发同步）。
       // 否则 UI 层的回声（如 react-grid-layout 挂载时的 onLayoutChange）
       // 会把旧内容标记成"刚刚修改过"，在冲突仲裁中错误地压过其他设备的新内容。
-      if (settingsRef.current && _.isEqual(
-        _.omit(newSettings, 'updatedAt'),
-        _.omit(settingsRef.current, 'updatedAt'),
+      if (current && _.isEqual(
+        _.omit(newSettings, volatileKeys),
+        _.omit(current, volatileKeys),
       )) {
         return
       }
       i18n.changeLanguage(newSettings?.general?.language || chrome?.i18n?.getUILanguage() || 'en-US')
       // 单调递增的本地业务时间戳：max(Date.now(), prev+1)，避免时钟回拨/同毫秒覆盖
-      const prevUpdatedAt = settingsRef.current?.updatedAt ?? 0
+      const prevUpdatedAt = current?.updatedAt ?? 0
       const _value: Setting = {
         ...newSettings,
+        // 同步元数据以 settingsRef 为准：调用方的 settings 快照可能落后于
+        // 推送/拉取流程刚回写的基线，整体覆盖会把基线回退、多绕一轮同步
+        ...(current ? _.pick(current, ['remoteUpdatedAt', 'remoteVersion', 'lastSyncedUpdatedAt']) : {}),
         updatedAt: Math.max(Date.now(), prevUpdatedAt + 1),
       }
       settingsRef.current = _value
