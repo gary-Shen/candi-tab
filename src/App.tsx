@@ -2,6 +2,7 @@ import type { Layout } from 'react-grid-layout'
 import type { Block as IBlock } from './types/setting.type'
 import classNames from 'classnames'
 import set from 'lodash/fp/set'
+import isEqual from 'lodash/isEqual'
 import { useCallback, useContext, useEffect, useState } from 'react'
 
 import GridLayout from 'react-grid-layout'
@@ -48,6 +49,14 @@ function App() {
         const layoutItem = layout.find(l => l.i === item.id)
         return { ...item, layout: layoutItem || item.layout }
       })
+
+      // react-grid-layout 每次挂载都会触发一次 onLayoutChange（回声）。
+      // 布局没有实际变化时不能调用 updateSettings：否则每开一个新标签页
+      // 都会用旧内容刷新 updatedAt，被同步层误判为"本地有未推送修改"，
+      // 进而把其他设备的新内容顶掉。
+      if (isEqual(newLinks, settings.links)) {
+        return
+      }
 
       const newSettings = {
         ...settings,

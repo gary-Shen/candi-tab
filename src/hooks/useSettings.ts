@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next'
 import { gid } from '@/utils/gid'
 import mergeSettings from '@/utils/mergeSettings'
 import parseGistContent from '@/utils/parseGistContent'
-import { getHeadVersion, isRemoteNewer, isSameContent, toMs } from '@/utils/sync'
+import { getHeadVersion, isRemoteNewer, isSameContent, serializeSettingsForPush, toMs } from '@/utils/sync'
 
 import defaultSettings from '../default-settings.json'
 import { adoptSyncBase, getSyncBase, load, loadSyncBase, save, setSyncBase } from './settings'
@@ -85,6 +85,16 @@ export default function useSettings(): [
       if (newSettings.lastSyncedUpdatedAt === undefined) {
         newSettings.lastSyncedUpdatedAt
           = (newSettings.updatedAt ?? 0) <= (newSettings.remoteUpdatedAt ?? 0) ? (newSettings.updatedAt ?? 0) : 0
+      }
+      // 播种三方合并的 base：本地处于"已同步"状态时，本地内容就是上次同步时的
+      // 远端内容，可直接作为 base。否则升级后第一次遇到冲突会因为没有快照
+      // 走整文档 LWW 兜底，可能把其他设备的新修改整体顶掉。
+      if (
+        !getSyncBase()
+        && (newSettings.remoteUpdatedAt || newSettings.remoteVersion)
+        && (newSettings.updatedAt ?? 0) <= (newSettings.lastSyncedUpdatedAt ?? 0)
+      ) {
+        setSyncBase(JSON.parse(serializeSettingsForPush(newSettings)))
       }
       localLoadedRef.current = true
       settingsRef.current = newSettings
@@ -251,6 +261,15 @@ export default function useSettings(): [
 
   const updateSettings = useCallback(
     async (newSettings: Setting) => {
+      // 无变化守卫：内容没有实际改动时不刷新 updatedAt（不变脏、不触发同步）。
+      // 否则 UI 层的回声（如 react-grid-layout 挂载时的 onLayoutChange）
+      // 会把旧内容标记成"刚刚修改过"，在冲突仲裁中错误地压过其他设备的新内容。
+      if (settingsRef.current && _.isEqual(
+        _.omit(newSettings, 'updatedAt'),
+        _.omit(settingsRef.current, 'updatedAt'),
+      )) {
+        return
+      }
       i18n.changeLanguage(newSettings?.general?.language || chrome?.i18n?.getUILanguage() || 'en-US')
       // 单调递增的本地业务时间戳：max(Date.now(), prev+1)，避免时钟回拨/同毫秒覆盖
       const prevUpdatedAt = settingsRef.current?.updatedAt ?? 0
